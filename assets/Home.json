@@ -1,0 +1,42 @@
+{
+    "response": 1,
+    "message": "Sukses",
+    "rekap": {
+        "jumlah": "8",
+        "nodin": "5",
+        "spt": "3"
+    },
+    "aktifitas": [
+        {
+            "id": "5551",
+            "perihal": "Permohonan Izin Melaksanakan Perjalanan Dinas Luar Daerah dalam rangka Studi Implementasi Pengelolaan Unit Pengumpul Zakat (UPZ)",
+            "status_pemeriksaan": "Proses",
+            "tanggal": "2026-06-15"
+        },
+        {
+            "id": "4123",
+            "perihal": "Menghadiri Kegiatan Rapat Koordinasi PKA dan PKP",
+            "status_pemeriksaan": "Disetujui",
+            "tanggal": "2026-06-10"
+        },
+        {
+            "id": "3213",
+            "perihal": "Percepatan Validasi Pengisian Data Blankspot di e-walidata SIPD RI dan Pengumpulan Data Potensi Nagari ke Kab. Pasaman Barat tanggal 01 s.d 03 Juli 2026",
+            "status_pemeriksaan": "Disetujui",
+            "tanggal": "2026-06-01"
+        },
+        {
+            "id": "2131",
+            "perihal": "Penyelesaian Disparitas Data dan Verifikasi Data ASN Ke Cabang Dinas Pendidikan Wilayah I Bukittinggi",
+            "status_pemeriksaan": "Disetujui",
+            "tanggal": "2026-05-10"
+        },
+        
+        {
+            "id": "1212",
+            "perihal": "Melaksanakan Perjalanan Dinas Dalam Rangka Koordinasi dan Konsultasi Pembinaan,Pengawasan, dan Pengendalian Barang Milik Daerah ke Dinas Kehutanan Provinsi Sumatera Barat di Padang.",
+            "status_pemeriksaan": "Ditolak",
+            "tanggal": "2026-04-21"
+        }
+    ]
+}

@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'daftar_nota_dinas_screen.dart'; // Import file screen Daftar Nota Dinas
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/home_provider.dart';
+import 'daftar_nota_dinas_screen.dart';
+import '../custom_bottom_navbar.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeProvider>().fetchHomeData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Stack(
         children: [
           // ==========================================
@@ -60,34 +76,41 @@ class DashboardScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Halo,",
-                              style: GoogleFonts.inter(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              "Oni Fajar Syahdi, S.St.Pi, MMA.",
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              "Sekretaris",
-                              style: GoogleFonts.inter(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                        child: Consumer<AuthProvider>(
+                          builder: (context, authProv, child) {
+                            // 👇 INI DIA OBATNYA LARA! Variabel user dideklarasikan di sini 👇
+                            final user = authProv.user;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Halo,",
+                                  style: GoogleFonts.inter(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  user?.namaAsn ?? "Pengguna",
+                                  style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  user?.jabatan ?? "-",
+                                  style: GoogleFonts.inter(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -114,195 +137,235 @@ class DashboardScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(
-                        top: 32,
-                        left: 24,
-                        right: 24,
-                        bottom: 24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // --- KARTU "MENUNGGU PERSETUJUAN" ---
-                          Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color(0xFF0F2E59),
-                                      Color(0xFFC7D7E8),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFF0F2E59,
-                                      ).withOpacity(0.25),
-                                      blurRadius: 20,
-                                      spreadRadius: 2,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Menunggu Persetujuan",
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "12",
-                                      style: GoogleFonts.inter(
-                                        color: const Color(0xFFFDB913),
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1.1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                    child: Consumer<HomeProvider>(
+                      builder: (context, homeProv, child) {
+                        // Tampilkan loading kalau lagi proses baca JSON
+                        if (homeProv.isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                              // GAMBAR CLIPBOARD (SEJAJAR BAWAH)
-                              Positioned(
-                                right: -4,
-                                bottom: 0,
-                                child: Image.asset(
-                                  'assets/images/home.png',
-                                  height: 115,
-                                ),
-                              ),
-                            ],
+                        // Tampilkan pesan error kalau gagal
+                        if (homeProv.errorMessage.isNotEmpty) {
+                          return Center(child: Text(homeProv.errorMessage));
+                        }
+
+                        final data = homeProv.homeData;
+                        // Kalau datanya kosong
+                        if (data == null) {
+                          return const Center(
+                            child: Text('Tidak ada data dashboard'),
+                          );
+                        }
+
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.only(
+                            top: 32,
+                            left: 24,
+                            right: 24,
+                            bottom: 24,
                           ),
-                          const SizedBox(height: 36),
-
-                          // --- RINGKASAN HARI INI ---
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // --- KARTU "MENUNGGU PERSETUJUAN" ---
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF0F2E59),
+                                          Color(0xFFC7D7E8),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFF0F2E59,
+                                          ).withOpacity(0.25),
+                                          blurRadius: 20,
+                                          spreadRadius: 2,
+                                          offset: const Offset(0, 10),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Menunggu Persetujuan",
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "${int.parse(data.rekap.nodin.toString()) + int.parse(data.rekap.spt.toString())}",
+                                          style: GoogleFonts.inter(
+                                            color: const Color(0xFFFDB913),
+                                            fontSize: 48,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.1,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // GAMBAR CLIPBOARD
+                                  Positioned(
+                                    right: -4,
+                                    bottom: 0,
+                                    child: Image.asset(
+                                      'assets/images/home.png',
+                                      height: 115,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 36),
+
+                              // --- RINGKASAN HARI INI ---
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Ringkasan Hari Ini",
+                                    style: GoogleFonts.inter(
+                                      color: const Color(0xFF0F2E59),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Lihat Ringkasan Bulanan →",
+                                    style: GoogleFonts.inter(
+                                      color: const Color(0xFF0088FF),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // --- KARTU RINGKASAN (NOTA DINAS & SPT) ---
+                              Row(
+                                children: [
+                                  // KARTU NOTA DINAS
+                                  _buildSummaryCard(
+                                    title: "Nota Dinas",
+                                    count: data.rekap.nodin.toString(),
+                                    bgColor: const Color(0xFFFFF9EE),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder:
+                                              (
+                                                context,
+                                                animation,
+                                                secondaryAnimation,
+                                              ) =>
+                                                  const DaftarNotaDinasScreen(),
+                                          transitionDuration: Duration.zero,
+                                          reverseTransitionDuration:
+                                              Duration.zero,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 16),
+                                  // KARTU SPT
+                                  _buildSummaryCard(
+                                    title: "SPT",
+                                    count: data.rekap.spt.toString(),
+                                    bgColor: const Color(0xFFF2F7FA),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder:
+                                              (
+                                                context,
+                                                animation,
+                                                secondaryAnimation,
+                                              ) =>
+                                                  const DaftarNotaDinasScreen(),
+                                          transitionDuration: Duration.zero,
+                                          reverseTransitionDuration:
+                                              Duration.zero,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 36),
+
+                              // --- AKTIVITAS TERAKHIR ---
                               Text(
-                                "Ringkasan Hari Ini",
+                                "Aktivitas Terakhir",
                                 style: GoogleFonts.inter(
                                   color: const Color(0xFF0F2E59),
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                "Lihat Ringkasan Bulanan →",
-                                style: GoogleFonts.inter(
-                                  color: const Color(0xFF0088FF),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              const SizedBox(height: 16),
+
+                              ...data.aktifitas.map((aktivitas) {
+                                // Logika penentuan warna & ikon berdasarkan status
+                                IconData actIcon;
+                                Color actIconColor;
+                                Color actIconBg;
+
+                                if (aktivitas.statusPemeriksaan.toLowerCase() ==
+                                    'disetujui') {
+                                  actIcon = Icons.check_circle_rounded;
+                                  actIconColor = const Color(0xFF43A047);
+                                  actIconBg = const Color(0xFFE8F5E9);
+                                } else if (aktivitas.statusPemeriksaan
+                                        .toLowerCase() ==
+                                    'ditolak') {
+                                  actIcon = Icons.cancel_rounded;
+                                  actIconColor = const Color(0xFFE53935);
+                                  actIconBg = const Color(0xFFFFEBEE);
+                                } else {
+                                  // Default untuk Menunggu / Proses
+                                  actIcon = Icons.access_time_filled_rounded;
+                                  actIconColor = const Color(0xFFF57C00);
+                                  actIconBg = const Color(0xFFFFF3E0);
+                                }
+
+                                return _buildActivityItem(
+                                  icon: actIcon,
+                                  iconColor: actIconColor,
+                                  iconBg: actIconBg,
+                                  title: aktivitas.perihal,
+                                  subtitle: aktivitas.statusPemeriksaan,
+                                  time: aktivitas.tanggal,
+                                );
+                              }),
+
+                              const SizedBox(height: 20),
                             ],
                           ),
-                          const SizedBox(height: 16),
-
-                          // --- KARTU RINGKASAN (NOTA DINAS & SPT) DENGAN EFEK RIPPLE ---
-                          Row(
-                            children: [
-                              // KARTU NOTA DINAS
-                              _buildSummaryCard(
-                                title: "Nota Dinas",
-                                count: "8",
-                                bgColor: const Color(0xFFFFF9EE),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder:
-                                          (
-                                            context,
-                                            animation,
-                                            secondaryAnimation,
-                                          ) => const DaftarNotaDinasScreen(),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 16),
-                              // KARTU SPT
-                              _buildSummaryCard(
-                                title: "SPT",
-                                count: "4",
-                                bgColor: const Color(0xFFF2F7FA),
-                                onTap: () {
-                                  // Bisa diarahkan ke halaman daftar SPT atau aksi serupa
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder:
-                                          (
-                                            context,
-                                            animation,
-                                            secondaryAnimation,
-                                          ) => const DaftarNotaDinasScreen(),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 36),
-
-                          // --- AKTIVITAS TERAKHIR ---
-                          Text(
-                            "Aktivitas Terakhir",
-                            style: GoogleFonts.inter(
-                              color: const Color(0xFF0F2E59),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          _buildActivityItem(
-                            icon: Icons.check_circle_rounded,
-                            iconColor: const Color(0xFF43A047),
-                            iconBg: const Color(0xFFE8F5E9),
-                            title: "SPT Biro Umum",
-                            subtitle: "Disetujui oleh Anda",
-                            time: "Hari ini\n14.30",
-                          ),
-                          _buildActivityItem(
-                            icon: Icons.access_time_filled_rounded,
-                            iconColor: const Color(0xFFF57C00),
-                            iconBg: const Color(0xFFFFF3E0),
-                            title: "Nota Dinas Kominfo",
-                            subtitle: "Menunggu persetujuan Anda",
-                            time: "Kemarin\n10.30",
-                          ),
-                          _buildActivityItem(
-                            icon: Icons.cancel_rounded,
-                            iconColor: const Color(0xFFE53935),
-                            iconBg: const Color(0xFFFFEBEE),
-                            title: "Nota Dinas Biro Umum",
-                            subtitle: "Dikembalikan",
-                            time: "Kemarin\n09.15",
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -311,42 +374,7 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-
-      // ==========================================
-      // 3. BOTTOM NAVIGATION
-      // ==========================================
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              top: 10.0,
-              bottom: 1.0,
-              left: 16.0,
-              right: 16.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(Icons.home_filled, "Beranda", true),
-                _buildNavItem(Icons.bar_chart_rounded, "Analisis", false),
-                _buildNavItem(Icons.history_rounded, "Riwayat", false),
-                _buildNavItem(Icons.person_outline_rounded, "Profil", false),
-              ],
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -459,35 +487,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF132F53) : Colors.transparent,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: isActive ? Colors.white : Colors.grey.shade400,
-            size: 22,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            color: isActive ? const Color(0xFF132F53) : Colors.grey.shade400,
-            fontSize: 10,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -20,7 +20,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
   final List<Map<String, dynamic>> _belumDiperiksaData = [
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Dalam Daerah",
       "desc":
           "Menghadiri Undangan Pembinaan Nagari Statistik Kabupaten Tanah Datar",
@@ -28,7 +28,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       "date": "07 Agustus 2026",
     },
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Dalam Kota",
       "desc":
           "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat...",
@@ -36,7 +36,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       "date": "05 Agustus 2026",
     },
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Luar Daerah",
       "desc":
           "Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Jogyakarta",
@@ -86,7 +86,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
   final List<Map<String, dynamic>> _riwayatData = [
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Luar Daerah",
       "desc":
           "Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Jogyakarta pada tanggal 7 s/d 9 Agustus 2024",
@@ -99,7 +99,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       "pengikutDibatalkan": [],
     },
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Dalam Kota",
       "desc":
           "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
@@ -112,7 +112,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       "pengikutDibatalkan": [],
     },
     {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
+      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
       "status": "Dalam Kota",
       "desc":
           "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
@@ -138,6 +138,9 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => DetailRiwayatNotaDinasScreen(
+            approvalStatus: item["approvalStatus"] ?? "Proses",
+            sekretarisStatus: item["sekretarisStatus"] ?? "Belum Diperiksa",
+            note: item["note"] ?? "",
             pengikutTerpilih: item["pengikutTerpilih"] ?? [],
             pengikutDibatalkan: item["pengikutDibatalkan"] ?? [],
           ),
@@ -169,6 +172,8 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
             "approvalIcon": result['status'] == 'Disetujui'
                 ? Icons.check_circle_outline
                 : Icons.cancel_outlined,
+            "sekretarisStatus": result['status'], // <--- Pastikan ini ada
+            "note": result['note'] ?? "", // <--- Pastikan ini ada
             "pengikutTerpilih": result['pengikutTerpilih'] ?? [],
             "pengikutDibatalkan": result['pengikutDibatalkan'] ?? [],
           });

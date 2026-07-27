@@ -397,8 +397,12 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
             child: Divider(color: Color(0xFFE5E7EB)),
           ),
           Text(
-            "Perihal",
-            style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 12),
+            "Perihal:",
+            style: GoogleFonts.inter(
+              color: Colors.grey.shade500,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(

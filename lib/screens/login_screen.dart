@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+// Pastikan path import ini sesuai dengan struktur folder kamu
+import 'package:proyek_esign/providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,18 +12,66 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isLoading = false;
+  String username = "";
+  String password = "";
 
-  void _prosesLogin() {
-    setState(() {
-      _isLoading = true;
-    });
+  // _isLoading dihapus dari sini karena sekarang diurus oleh AuthProvider
 
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
+  void _handleLogin() async {
+    // Validasi input kosong
+    if (username.isEmpty || password.isEmpty) {
+      snackBarCustom("NIP/Username dan Password tidak boleh kosong!", 0);
+      return;
+    }
+
+    // Panggil AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      // Tunggu hasil dari authProvider (true jika sukses, false jika gagal)
+      bool isSuccess = await authProvider.login(username, password);
+
+      if (isSuccess && mounted) {
+        // Ambil data user yang berhasil login dari provider
+        final user = authProvider.user;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Berhasil Login, ${user?.namaAsn ?? ''}",
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: const Color(0xFF125B2A),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
         Navigator.pushReplacementNamed(context, '/dashboard');
+      } else if (mounted) {
+        snackBarCustom("Username/Password Salah", 0);
       }
-    });
+    } catch (e) {
+      if (mounted) snackBarCustom('Gagal memuat data: $e', 0);
+    }
+  }
+
+  void snackBarCustom(String message, int status) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(0xFFE53935),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   // Widget custom untuk Input Field agar persis desain Figma
@@ -28,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required String label,
     required String hint,
     bool isPassword = false,
+    Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           child: TextField(
             obscureText: isPassword,
+            onChanged: onChanged,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: const Color(0xFF0F2E59),
@@ -56,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: GoogleFonts.inter(
-                color: Colors.grey.shade400, // Dibuat sedikit lebih soft
+                color: Colors.grey.shade400,
                 fontSize: 14,
               ),
               border: InputBorder.none,
@@ -73,38 +126,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Mengambil lebar layar HP dinamis
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      // Latar belakang putih/abu-abu terang untuk bagian bawah layar
       backgroundColor: const Color(0xFFF5F7FA),
-
       body: SingleChildScrollView(
         child: Stack(
           alignment: Alignment.topCenter,
           children: [
-            // 1. LATAR BELAKANG BIRU MELENGKUNG (DENGAN EFEK CAHAYA/GLOW)
+            // 1. LATAR BELAKANG BIRU MELENGKUNG
             Container(
               height: 420,
               decoration: BoxDecoration(
-                // Pakai RadialGradient biar ada efek cahaya dari tengah
                 gradient: const RadialGradient(
-                  center: Alignment(
-                    0.0,
-                    -0.1,
-                  ), // Titik pusat cahaya pas di area belakang HP
-                  radius: 0.75, // Seberapa lebar cahayanya menyebar
+                  center: Alignment(0.0, -0.1),
+                  radius: 0.75,
                   colors: [
-                    Color(0xFF77899D), // 0% - Paling dalam (belakang HP)
-                    Color(0xFF225894), // 48% - Transisi tengah
-                    Color(0xFF1D3E62), // 100% - Paling luar / gelap
+                    Color(0xFF77899D),
+                    Color(0xFF225894),
+                    Color(0xFF1D3E62),
                   ],
-                  stops: [
-                    0.2, // Setara dengan 0% di Figma
-                    0.48, // Setara dengan 48% di Figma
-                    1.0, // Setara dengan 100% di Figma
-                  ],
+                  stops: [0.2, 0.48, 1.0],
                 ),
                 borderRadius: BorderRadius.vertical(
                   bottom: Radius.elliptical(screenWidth, 120),
@@ -114,12 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // 2. ILUSTRASI CEWEK & HP
             Padding(
-              padding: const EdgeInsets.only(
-                top: 100.0,
-              ), // Jarak dari atas layar
+              padding: const EdgeInsets.only(top: 100.0),
               child: Image.asset(
                 'assets/images/login.png',
-                height: 230, // Disesuaikan agar proposional dengan lengkungan
+                height: 230,
                 fit: BoxFit.contain,
               ),
             ),
@@ -128,8 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: double.infinity,
               margin: const EdgeInsets.only(
-                top:
-                    280, // <-- Ini juga aku turunin dikit (dari 270) biar proporsi numpaknya pas sama gambar
+                top: 280,
                 left: 24,
                 right: 24,
                 bottom: 40,
@@ -140,23 +179,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    // Opacity (kepekatan) dinaikkan dari 0.12 jadi 0.25
                     color: const Color(0xFF668EB9).withOpacity(1.0),
-                    blurRadius: 50, // <-- Makin besar makin ngeblur/halus
-                    spreadRadius:
-                        5, // <-- Bikin bayangannya makin melebar keluar
-                    offset: const Offset(
-                      0,
-                      15,
-                    ), // <-- Bikin bayangannya makin jatuh ke bawah
+                    blurRadius: 50,
+                    spreadRadius: 5,
+                    offset: const Offset(0, 15),
                   ),
                 ],
               ),
               child: Column(
-                mainAxisSize: MainAxisSize
-                    .min, // KUNCI UTAMA: Biar tinggi kolom pas-pasan aja
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Typografi Judul
                   Text(
                     "Masuk Akun",
                     style: GoogleFonts.inter(
@@ -169,59 +201,67 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     "E-SIGN Provinsi Sumatera Barat",
                     style: GoogleFonts.inter(
-                      fontSize: 13, // Sedikit dikecilkan menyesuaikan figma
+                      fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: const Color(0xFF334A66),
                     ),
                   ),
+                  const SizedBox(height: 32),
 
-                  const SizedBox(height: 32), // Jarak judul ke form
-                  // Field NIP
                   _buildCustomTextField(
                     label: "NIP / Username",
                     hint: "Masukkan NIP Anda",
+                    onChanged: (String value) {
+                      username = value;
+                    },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ), // Jarak antar input field dirapatkan sedikit
-                  // Field Password
+                  const SizedBox(height: 20),
+
                   _buildCustomTextField(
                     label: "Password",
                     hint: "........",
                     isPassword: true,
+                    onChanged: (String value) {
+                      password = value;
+                    },
                   ),
+                  const SizedBox(height: 36),
 
-                  const SizedBox(height: 36), // Jarak ke tombol Masuk
-                  // Tombol Masuk Centered
+                  // Tombol Masuk dibungkus Consumer agar reaktif terhadap state loading
                   SizedBox(
-                    width: 220, // Lebar tombol disesuaikan desain
+                    width: 220,
                     height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF132F53), // Navy Button
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: _isLoading ? null : _prosesLogin,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : Text(
-                              "Masuk",
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    child: Consumer<AuthProvider>(
+                      builder: (context, auth, child) {
+                        return ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF132F53),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                          ),
+                          // Disable tombol saat loading
+                          onPressed: auth.isLoading ? null : _handleLogin,
+                          child: auth.isLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : Text(
+                                  "Masuk",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        );
+                      },
                     ),
                   ),
                 ],
