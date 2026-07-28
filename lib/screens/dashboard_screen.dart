@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:proyek_esign/screens/daftar_spt_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/home_provider.dart';
 import 'daftar_nota_dinas_screen.dart';
@@ -302,8 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 context,
                                                 animation,
                                                 secondaryAnimation,
-                                              ) =>
-                                                  const DaftarNotaDinasScreen(),
+                                              ) => const DaftarSptScreen(),
                                           transitionDuration: Duration.zero,
                                           reverseTransitionDuration:
                                               Duration.zero,
