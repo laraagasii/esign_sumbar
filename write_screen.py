@@ -1,3 +1,4 @@
+content = """\
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
@@ -643,3 +644,9 @@ class LineChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant LineChartPainter oldDelegate) => false;
 }
+"""
+
+with open(r"d:\esign\proyek_esign\lib\screens\analisis_persetujuan_screen.dart", "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("SUCCESS - lines written:", len(content.splitlines()))
