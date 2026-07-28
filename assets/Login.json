@@ -1,0 +1,23 @@
+{
+    "response": 1,
+    "message": "Berhasil Login",
+    "result": [
+        {
+            "pegawai": "199601052022031005",
+            "username": "199601052022031005",
+            "opd": "2496",
+            "nm_opd": "DINAS KOMUNIKASI, INFORMATIKA DAN STATISTIK",
+            "sub_opd": "2508",
+            "nm_sub_opd": "SEKSI PEMBERDAYAAN DAN PENGENDALIAN INFORMATIKA",
+            "jabatan": "Pranata Komputer",
+            "nip": "19960105 202203 1 005",
+            "nama_asn": "Surya Agung Putra, S.Kom.",
+            "id_eselon": "99",
+            "eselon": "",
+            "pangkat": "III.a",
+            "jenjang": "PELAKSANA",
+            "group": 1,
+            "kategori": "1"
+        }
+    ]
+}
