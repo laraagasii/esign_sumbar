@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyek_esign/filter_nota_dinas_dialog.dart';
 import 'package:proyek_esign/screens/detail_nota_dinas_screen.dart';
+import 'package:proyek_esign/custom_bottom_navbar.dart';
 import 'detail_riwayat_nota_dinas_screen.dart';
 
 class DaftarNotaDinasScreen extends StatefulWidget {
@@ -484,46 +485,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 16.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(Icons.home_filled, "Beranda", false, context),
-                _buildNavItem(
-                  Icons.bar_chart_rounded,
-                  "Analisis",
-                  false,
-                  context,
-                ),
-                _buildNavItem(Icons.history_rounded, "Riwayat", false, context),
-                _buildNavItem(
-                  Icons.person_outline_rounded,
-                  "Profil",
-                  false,
-                  context,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: -1),
     );
   }
 
@@ -760,37 +722,5 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     );
   }
 
-  Widget _buildNavItem(
-    IconData icon,
-    String label,
-    bool isActive,
-    BuildContext context,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        if (label == "Beranda") {
-          Navigator.pop(context);
-        }
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? const Color(0xFF132F53) : Colors.grey.shade400,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              color: isActive ? const Color(0xFF132F53) : Colors.grey.shade400,
-              fontSize: 10,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

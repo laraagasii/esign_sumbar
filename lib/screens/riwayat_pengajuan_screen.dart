@@ -462,28 +462,15 @@ class _RiwayatPengajuanNodinScreenState
                                 clipBehavior: Clip.antiAlias,
                                 child: InkWell(
                                   onTap: _openFilterDialog,
-                                  child: SizedBox(
+                                  child: const SizedBox(
                                     height: 52,
-                                    width: 56,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(
-                                          Icons.tune_rounded,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          "Filter",
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
+                                    width: 52,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.tune_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
                                     ),
                                   ),
                                 ),

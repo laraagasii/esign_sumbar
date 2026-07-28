@@ -18,12 +18,13 @@ class FilterAnalitikDialog extends StatefulWidget {
 class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
   late String _selectedPeriode;
   String? _selectedDinas;
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
 
-  final List<String> _periodeOptions = [
+  final List<String> _presetPeriodeOptions = [
     'Bulan Ini',
     'Triwulan Ini',
     'Tahun Ini',
-    'Pilih Tanggal Sendiri',
   ];
 
   // Daftar lengkap Biro, Dinas, dan Badan Pemprov Sumbar
@@ -78,11 +79,121 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
   void initState() {
     super.initState();
     _selectedPeriode = widget.initialPeriode;
+    if (_selectedPeriode == 'Pilih Tanggal Sendiri') {
+      _selectedPeriode = 'Pilih Tanggal';
+    }
     _selectedDinas = widget.initialDinas;
+  }
+
+  String _formatStartEndDates(DateTime start, DateTime end) {
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+
+    if (start.year == end.year &&
+        start.month == end.month &&
+        start.day == end.day) {
+      return "${start.day} ${months[start.month - 1]} ${start.year}";
+    } else if (start.year == end.year && start.month == end.month) {
+      return "${start.day} - ${end.day} ${months[start.month - 1]} ${start.year}";
+    } else if (start.year == end.year) {
+      return "${start.day} ${months[start.month - 1]} - ${end.day} ${months[end.month - 1]} ${start.year}";
+    } else {
+      return "${start.day} ${months[start.month - 1]} ${start.year} - ${end.day} ${months[end.month - 1]} ${end.year}";
+    }
+  }
+
+  Future<void> _pickCustomDateRange() async {
+    final now = DateTime.now();
+
+    // 1. Pilih Tanggal Mulai (Tampil di tengah, 1 bulan)
+    final DateTime? startDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedStartDate ?? now,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      helpText: 'PILIH TANGGAL MULAI',
+      cancelText: 'BATAL',
+      confirmText: 'LANJUT',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF132F53),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF132F53),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF132F53),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (startDate == null) return;
+
+    if (!mounted) return;
+
+    // 2. Pilih Tanggal Selesai (Tampil di tengah, 1 bulan)
+    final DateTime? endDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedEndDate ?? startDate,
+      firstDate: startDate,
+      lastDate: DateTime(2030),
+      helpText: 'PILIH TANGGAL SELESAI',
+      cancelText: 'BATAL',
+      confirmText: 'SIMPAN',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF132F53),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF132F53),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF132F53),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    final finalEndDate = endDate ?? startDate;
+
+    setState(() {
+      _selectedStartDate = startDate;
+      _selectedEndDate = finalEndDate;
+      _selectedPeriode = _formatStartEndDates(startDate, finalEndDate);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isCustomDate = !_presetPeriodeOptions.contains(_selectedPeriode);
+    String customChipLabel =
+        (isCustomDate && _selectedPeriode != 'Pilih Tanggal')
+            ? _selectedPeriode
+            : 'Pilih Tanggal';
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: Colors.white,
@@ -126,13 +237,21 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: _periodeOptions.map((periode) {
-                  return _buildFilterChip(
-                    label: periode,
-                    isSelected: _selectedPeriode == periode,
-                    onTap: () => setState(() => _selectedPeriode = periode),
-                  );
-                }).toList(),
+                children: [
+                  ..._presetPeriodeOptions.map((periode) {
+                    return _buildFilterChip(
+                      label: periode,
+                      isSelected: _selectedPeriode == periode,
+                      onTap: () => setState(() => _selectedPeriode = periode),
+                    );
+                  }),
+                  _buildFilterChip(
+                    label: customChipLabel,
+                    isSelected: isCustomDate,
+                    icon: Icons.calendar_today_rounded,
+                    onTap: _pickCustomDateRange,
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
 
@@ -273,11 +392,12 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    IconData? icon,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF132F53) : Colors.white,
           border: Border.all(
@@ -287,13 +407,26 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            color: isSelected ? Colors.white : Colors.grey.shade600,
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected ? Colors.white : Colors.grey.shade600,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                color: isSelected ? Colors.white : Colors.grey.shade600,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
         ),
       ),
     );

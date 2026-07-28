@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
-  final int selectedIndex; // 0: Beranda, 1: Analisis, 2: Riwayat, 3: Profil
+  final int selectedIndex; // 0: Beranda, 1: Analisis, 2: Riwayat, 3: Profil, -1: Kosong / Tidak Aktif
 
   const CustomBottomNavBar({super.key, required this.selectedIndex});
 
@@ -78,8 +78,8 @@ class CustomBottomNavBar extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // Cek agar tidak nge-push halaman jika tombol yang ditekan adalah halaman saat ini
-        if (!isActive) {
+        final currentRoute = ModalRoute.of(context)?.settings.name;
+        if (currentRoute != routeName) {
           Navigator.pushReplacementNamed(context, routeName);
         }
       },

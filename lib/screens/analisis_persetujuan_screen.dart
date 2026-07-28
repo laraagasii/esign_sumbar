@@ -41,7 +41,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF0B1F3A), Color(0xFF1A4070)],
+            colors: [Color(0xFF132F53), Color(0xFF5A84AB)],
           ),
         ),
         child: SafeArea(
@@ -85,7 +85,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                               Text(
                                 'Analitik Persetujuan',
                                 style: GoogleFonts.inter(
-                                  color: const Color(0xFF0F2544),
+                                  color: const Color(0xFF0F2E59),
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -167,7 +167,9 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => Navigator.pushReplacementNamed(
-                        context, '/analisis_pengajuan'),
+                      context,
+                      '/analisis_pengajuan',
+                    ),
                     child: Center(
                       child: Text(
                         'Pengajuan',
@@ -197,7 +199,11 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                   color: Color(0xFF132F53),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.tune_rounded, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.tune_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -237,14 +243,30 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              _buildStatCard('136', 'Surat Masuk',
-                  const Color(0xFF3B82F6), const Color(0xFFEFF6FF)),
-              _buildStatCard('100', 'Disetujui',
-                  const Color(0xFF10B981), const Color(0xFFECFDF5)),
-              _buildStatCard('30', 'Berjalan',
-                  const Color(0xFFF59E0B), const Color(0xFFFEF3C7)),
-              _buildStatCard('8', 'Ditolak',
-                  const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
+              _buildStatCard(
+                '136',
+                'Surat Masuk',
+                const Color(0xFF3B82F6),
+                const Color(0xFFEFF6FF),
+              ),
+              _buildStatCard(
+                '100',
+                'Disetujui',
+                const Color(0xFF10B981),
+                const Color(0xFFECFDF5),
+              ),
+              _buildStatCard(
+                '30',
+                'Berjalan',
+                const Color(0xFFF59E0B),
+                const Color(0xFFFEF3C7),
+              ),
+              _buildStatCard(
+                '8',
+                'Ditolak',
+                const Color(0xFFEF4444),
+                const Color(0xFFFEF2F2),
+              ),
             ],
           ),
         ],
@@ -253,7 +275,11 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
   }
 
   Widget _buildStatCard(
-      String value, String label, Color textColor, Color bgColor) {
+    String value,
+    String label,
+    Color textColor,
+    Color bgColor,
+  ) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -314,7 +340,9 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
           Text(
             'Jumlah Nodin dan SPT yang masuk pada periode terpilih',
             style: GoogleFonts.inter(
-                fontSize: 9.5, color: Colors.grey.shade500),
+              fontSize: 9.5,
+              color: Colors.grey.shade500,
+            ),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -330,10 +358,15 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: ['200', '150', '100', '50', '0']
-                          .map((v) => Text(v,
+                          .map(
+                            (v) => Text(
+                              v,
                               style: GoogleFonts.inter(
-                                  fontSize: 8.5,
-                                  color: Colors.grey.shade400)))
+                                fontSize: 8.5,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -351,13 +384,16 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          'Jan', 'Mar', 'Mai', 'Juli', 'Sep', 'Nov'
-                        ]
-                            .map((m) => Text(m,
+                        children: ['Jan', 'Mar', 'Mai', 'Juli', 'Sep', 'Nov']
+                            .map(
+                              (m) => Text(
+                                m,
                                 style: GoogleFonts.inter(
-                                    fontSize: 8.5,
-                                    color: Colors.grey.shade400)))
+                                  fontSize: 8.5,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
+                            )
                             .toList(),
                       ),
                     ],
@@ -405,10 +441,15 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: ['20', '15', '10', '5', '0']
-                          .map((v) => Text(v,
+                          .map(
+                            (v) => Text(
+                              v,
                               style: GoogleFonts.inter(
-                                  fontSize: 7,
-                                  color: Colors.grey.shade400)))
+                                fontSize: 7,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -448,9 +489,10 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
           ),
         ),
         const SizedBox(height: 3),
-        Text(label,
-            style: GoogleFonts.inter(
-                fontSize: 7, color: Colors.grey.shade500)),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 7, color: Colors.grey.shade500),
+        ),
       ],
     );
   }
@@ -499,7 +541,9 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 3),
+                          horizontal: 5,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF0FDF4),
                           borderRadius: BorderRadius.circular(4),
@@ -507,8 +551,11 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.arrow_upward_rounded,
-                                color: Color(0xFF22C55E), size: 9),
+                            const Icon(
+                              Icons.arrow_upward_rounded,
+                              color: Color(0xFF22C55E),
+                              size: 9,
+                            ),
                             Text(
                               '+10%',
                               style: GoogleFonts.inter(
@@ -527,13 +574,17 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                 Text(
                   'Pengajuan',
                   style: GoogleFonts.inter(
-                      fontSize: 11, color: Colors.grey.shade500),
+                    fontSize: 11,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'Prediksi berdasarkan tren 6 bulan terakhir',
                   style: GoogleFonts.inter(
-                      fontSize: 8, color: Colors.grey.shade400),
+                    fontSize: 8,
+                    color: Colors.grey.shade400,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -549,7 +600,18 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
 // LINE CHART PAINTER
 class LineChartPainter extends CustomPainter {
   static const List<double> _values = [
-    100, 65, 73, 85, 95, 90, 117, 170, 129, 128, 189, 198
+    100,
+    65,
+    73,
+    85,
+    95,
+    90,
+    117,
+    170,
+    129,
+    128,
+    189,
+    198,
   ];
   static const double _maxVal = 200;
   static const double _topPad = 13.0;
@@ -615,8 +677,7 @@ class LineChartPainter extends CustomPainter {
 
     // Dots + value labels
     for (int i = 0; i < n; i++) {
-      canvas.drawCircle(
-          pts[i], 4.0, Paint()..color = const Color(0xFF3B82F6));
+      canvas.drawCircle(pts[i], 4.0, Paint()..color = const Color(0xFF3B82F6));
       canvas.drawCircle(pts[i], 2.0, Paint()..color = Colors.white);
 
       final tp = TextPainter(
