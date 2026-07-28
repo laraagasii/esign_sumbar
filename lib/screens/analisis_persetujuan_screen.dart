@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
+import 'package:proyek_esign/filter_analitik_dialog.dart';
 
-class AnalisisPersetujuanScreen extends StatelessWidget {
+class AnalisisPersetujuanScreen extends StatefulWidget {
   const AnalisisPersetujuanScreen({super.key});
+
+  @override
+  State<AnalisisPersetujuanScreen> createState() =>
+      _AnalisisPersetujuanScreenState();
+}
+
+class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
+  // State untuk filter
+  String _selectedPeriode = 'Bulan Ini';
+  String? _selectedDinas;
+
+  Future<void> _showFilterDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (_) => FilterAnalitikDialog(
+        initialPeriode: _selectedPeriode,
+        initialDinas: _selectedDinas,
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        _selectedPeriode = result['periode'] as String;
+        _selectedDinas = result['dinas'] as String?;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
