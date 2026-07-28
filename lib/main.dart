@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proyek_esign/providers/auth_provider.dart';
 import 'package:proyek_esign/providers/home_provider.dart';
+import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/riwayat_pengajuan_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardScreen(),
         '/nota_dinas': (context) => const DaftarNotaDinasScreen(),
         '/detail_nota_dinas': (context) => const DetailNotaDinasScreen(),
+        '/analisis': (context) => const AnalisisPersetujuanScreen(),
         '/riwayat': (context) => const RiwayatPengajuanNodinScreen(),
         '/detail_riwayat_nota_dinas': (context) =>
             const DetailRiwayatNotaDinasScreen(

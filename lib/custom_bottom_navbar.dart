@@ -44,7 +44,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 "Analisis",
                 1,
                 '/analisis',
-              ), // Sesuaikan route-nya jika ada
+              ),
               _buildNavItem(
                 context,
                 Icons.history_rounded,

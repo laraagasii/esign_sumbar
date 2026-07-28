@@ -276,9 +276,6 @@ class _RiwayatPengajuanNodinScreenState
             bottom: false,
             child: Column(
               children: [
-                // ==========================================
-                // HEADER DIUBAH: Tombol back dihapus, judul ke tengah
-                // ==========================================
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
