@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'detail_riwayat_spt_screen.dart';
 import 'detail_spt_screen.dart';
 import '../custom_bottom_navbar.dart';
-import 'package:proyek_esign/filter_spt_dialog.dart';
+import 'package:proyek_esign/widgets/filter_spt_dialog.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
 class DaftarSptScreen extends StatefulWidget {
   const DaftarSptScreen({super.key});
@@ -85,47 +87,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> _riwayatData = [
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Luar Daerah",
-      "desc":
-          "Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Jogyakarta pada tanggal 7 s/d 9 Agustus 2024",
-      "date": "05 s/d 08 Agustus 2026",
-      "approvalStatus": "Proses",
-      "approvalColor": const Color(0xFF132F53),
-      "approvalBg": const Color(0xFFE5E7EB),
-      "approvalIcon": Icons.calendar_today_rounded,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Dalam Kota",
-      "desc":
-          "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
-      "date": "05 s/d 07 Agustus 2026",
-      "approvalStatus": "Ditolak",
-      "approvalColor": const Color(0xFFE53935),
-      "approvalBg": const Color(0xFFFFEBEE),
-      "approvalIcon": Icons.cancel_outlined,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Dalam Kota",
-      "desc":
-          "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
-      "date": "05 s/d 07 Agustus 2026",
-      "approvalStatus": "Disetujui",
-      "approvalColor": const Color(0xFF125B2A),
-      "approvalBg": const Color(0xFFD3FBD4),
-      "approvalIcon": Icons.check_circle_outline,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-  ];
+  final List<Map<String, dynamic>> _riwayatData = [];
 
   @override
   void dispose() {
@@ -133,25 +95,97 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     super.dispose();
   }
 
-  void _handleCardTap(Map<String, dynamic> item) {
+  void _handleCardTap(Map<String, dynamic> item) async {
     if (_selectedTabIndex == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const DetailRiwayatSptScreen()),
+        MaterialPageRoute(
+          builder: (context) => DetailRiwayatSptScreen(
+            approvalStatus: item["approvalStatus"] ?? "Proses",
+            sekretarisStatus: item["sekretarisStatus"] ?? "Belum Diperiksa",
+            note: item["note"] ?? "",
+          ),
+        ),
       );
     } else {
-      Navigator.push(
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const DetailSptScreen()),
       );
+
+      if (!mounted) return;
+
+      if (result != null) {
+        setState(() {
+          _belumDiperiksaData.remove(item);
+          _riwayatData.insert(0, {
+            "title": item["title"],
+            "status": item["status"],
+            "desc": item["desc"],
+            "date": item["date"],
+            "approvalStatus": result['status'],
+            "approvalColor": result['status'] == 'Disetujui'
+                ? const Color(0xFF125B2A)
+                : const Color(0xFFE53935),
+            "approvalBg": result['status'] == 'Disetujui'
+                ? const Color(0xFFD3FBD4)
+                : const Color(0xFFFFEBEE),
+            "approvalIcon": result['status'] == 'Disetujui'
+                ? Icons.check_circle_outline
+                : Icons.cancel_outlined,
+            "sekretarisStatus": result['status'],
+            "note": result['note'] ?? "",
+          });
+          
+          _selectedTabIndex = 1;
+          _searchController.clear();
+          _searchQuery = "";
+          _appliedFilters = null;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "SPT berhasil ${result['status']}!",
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: result['status'] == 'Disetujui'
+                ? const Color(0xFF125B2A)
+                : const Color(0xFFE53935),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailRiwayatSptScreen(
+                  approvalStatus: result['status'] ?? "Proses",
+                  sekretarisStatus: result['status'] ?? "Belum Diperiksa",
+                  note: result['note'] ?? "",
+                ),
+              ),
+            );
+          }
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
     List<Map<String, dynamic>> currentList = [];
 
-    if (_selectedTabIndex == 0) {
+    if (!isPejabat) {
+      currentList = [];
+    } else if (_selectedTabIndex == 0) {
       currentList = _belumDiperiksaData.where((item) {
         bool matchSearch = true;
         if (_searchQuery.isNotEmpty) {
@@ -281,7 +315,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 24),
-                        _buildCustomTabBar(),
+                        _buildCustomTabBar(isPejabat),
                         const SizedBox(height: 16),
                         if (_selectedTabIndex == 1) ...[
                           Padding(
@@ -375,7 +409,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                           child: currentList.isEmpty
                               ? Center(
                                   child: Text(
-                                    "Tidak ada data ditemukan.",
+                                    !isPejabat ? "Tidak ada SPT" : "Tidak ada data ditemukan.",
                                     style: GoogleFonts.inter(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -413,7 +447,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     );
   }
 
-  Widget _buildCustomTabBar() {
+  Widget _buildCustomTabBar(bool isPejabat) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       height: 48,
@@ -425,7 +459,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         children: [
           Expanded(
             child: _buildTabButton(
-              "Belum Diperiksa (${_belumDiperiksaData.length})",
+              "Belum Diperiksa (${isPejabat ? _belumDiperiksaData.length : 0})",
               0,
             ),
           ),

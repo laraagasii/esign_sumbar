@@ -3,7 +3,16 @@ import 'package:google_fonts/google_fonts.dart';
 import '../custom_bottom_navbar.dart';
 
 class DetailRiwayatSptScreen extends StatefulWidget {
-  const DetailRiwayatSptScreen({super.key});
+  final String approvalStatus;
+  final String sekretarisStatus;
+  final String note;
+
+  const DetailRiwayatSptScreen({
+    super.key,
+    this.approvalStatus = 'Proses',
+    this.sekretarisStatus = 'Belum Diperiksa',
+    this.note = '',
+  });
 
   @override
   State<DetailRiwayatSptScreen> createState() => _DetailRiwayatSptScreenState();
@@ -19,46 +28,91 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
   @override
   void initState() {
     super.initState();
+
+    Color secStatusBg;
+    Color secStatusColor;
+    IconData secIcon;
+    Color secIconBg;
+    Color secIconColor;
+    String secDescription;
+
+    if (widget.sekretarisStatus == 'Disetujui') {
+      secStatusBg = const Color(0xFFD3FBD4);
+      secStatusColor = const Color(0xFF125B2A);
+      secIcon = Icons.check;
+      secIconBg = const Color(0xFFD3FBD4);
+      secIconColor = const Color(0xFF125B2A);
+      secDescription = widget.note.isNotEmpty
+          ? "Catatan: ${widget.note}"
+          : "Catatan: Disetujui oleh Sekretaris";
+    } else if (widget.sekretarisStatus == 'Ditolak') {
+      secStatusBg = const Color(0xFFFFEBEE);
+      secStatusColor = const Color(0xFFE53935);
+      secIcon = Icons.close;
+      secIconBg = const Color(0xFFFFEBEE);
+      secIconColor = const Color(0xFFE53935);
+      secDescription = widget.note.isNotEmpty
+          ? "Catatan: ${widget.note}"
+          : "Catatan: Ditolak oleh Sekretaris";
+    } else {
+      secStatusBg = const Color(0xFFFEF9C3);
+      secStatusColor = const Color(0xFFD4A72C);
+      secIcon = Icons.access_time_rounded;
+      secIconBg = const Color(0xFFFEF9C3);
+      secIconColor = const Color(0xFFD4A72C);
+      secDescription = "Catatan: -";
+    }
+
     _riwayatList = [
       // 0. KEPALA DINAS (Paling Atas)
       {
-        "icon": Icons.access_time_rounded,
-        "iconBg": const Color(0xFFFEF9C3),
-        "iconColor": const Color(0xFFD4A72C),
-        "title": "Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "description": null,
-        "time": "",
-        "actionLabel": null,
-        "statusText": "Belum Diperiksa",
-        "statusBg": const Color(0xFFFEF9C3),
-        "statusColor": const Color(0xFFD4A72C),
+        "icon": widget.sekretarisStatus == 'Disetujui'
+            ? Icons.access_time_rounded
+            : Icons.remove_done,
+        "iconBg": widget.sekretarisStatus == 'Disetujui'
+            ? const Color(0xFFFEF9C3)
+            : Colors.grey.shade200,
+        "iconColor": widget.sekretarisStatus == 'Disetujui'
+            ? const Color(0xFFD4A72C)
+            : Colors.grey.shade500,
+        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
+        "statusText": widget.sekretarisStatus == 'Disetujui'
+            ? "Belum Diperiksa"
+            : "Menunggu",
+        "statusBg": widget.sekretarisStatus == 'Disetujui'
+            ? const Color(0xFFFEF9C3)
+            : Colors.grey.shade200,
+        "statusColor": widget.sekretarisStatus == 'Disetujui'
+            ? const Color(0xFFD4A72C)
+            : Colors.grey.shade600,
       },
       // 1. SEKRETARIS
       {
-        "icon": Icons.check,
-        "iconBg": const Color(0xFFD3FBD4),
-        "iconColor": const Color(0xFF125B2A),
-        "title": "Sekretaris",
-        "description":
-            "Diteruskan ke Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
-        "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diperiksa",
-        "statusBg": const Color(0xFFD3FBD4),
-        "statusColor": const Color(0xFF125B2A),
+        "icon": secIcon,
+        "iconBg": secIconBg,
+        "iconColor": secIconColor,
+        "title": "Sekretaris (Anda)",
+        "description": secDescription,
+        "time": widget.sekretarisStatus == 'Proses' ? "-" : "Kamis, 08 Agustus 2026 14:10:28",
+        "actionLabel": "Tahap: Pemeriksaan Sekretaris",
+        "statusText": widget.sekretarisStatus == 'Proses' ? "Belum Diperiksa" : widget.sekretarisStatus,
+        "statusBg": secStatusBg,
+        "statusColor": secStatusColor,
       },
       // 2. KEPALA BIDANG
       {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Kepala Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Sekretaris",
+        "title": "Budi Santoso (Kepala Bidang Siber dan Sandi)",
+        "description": "Catatan: Diteruskan ke Sekretaris",
         "time": "Rabu, 07 Agustus 2026 13:40:07",
-        "actionLabel": "Mohon Persetujuan",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Bidang",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diperiksa",
+        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -67,12 +121,14 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Staff Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Kepala Bidang Siber dan Sandi",
+        "title": "Dedi (Staff Bidang Siber dan Sandi)",
+        "description": "Catatan: Pengajuan SPT",
         "time": "Rabu, 07 Agustus 2026 13:29:47",
-        "actionLabel": "Edit Anggota",
+        "actionLabel": "Tahap: Pembuatan Pengajuan",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": null,
+        "statusText": "Disetujui",
+        "statusBg": const Color(0xFFD3FBD4),
+        "statusColor": const Color(0xFF125B2A),
       },
     ];
   }
@@ -190,8 +246,8 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
                             ),
                             child: Text(
                               // Logika: Jika null/kosong tampilkan teks default
-                              (_nomorSurat != null && _nomorSurat!.isNotEmpty)
-                                  ? _nomorSurat!
+                              (_nomorSurat != null && _nomorSurat.isNotEmpty)
+                                  ? _nomorSurat
                                   : "Nomor belum tersedia",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.inter(

@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 class FilterAnalitikDialog extends StatefulWidget {
   final String initialPeriode;
   final String? initialDinas;
+  final bool showDinasFilter;
 
   const FilterAnalitikDialog({
     super.key,
     this.initialPeriode = 'Bulan Ini',
     this.initialDinas,
+    this.showDinasFilter = true,
   });
 
   @override
@@ -191,8 +193,8 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
     bool isCustomDate = !_presetPeriodeOptions.contains(_selectedPeriode);
     String customChipLabel =
         (isCustomDate && _selectedPeriode != 'Pilih Tanggal')
-            ? _selectedPeriode
-            : 'Pilih Tanggal';
+        ? _selectedPeriode
+        : 'Pilih Tanggal';
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -255,69 +257,73 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
               ),
               const SizedBox(height: 20),
 
-              // --- DROPDOWN DINAS/BIRO/BADAN ---
-              Text(
-                'Perangkat Daerah',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: Colors.grey.shade700,
+              if (widget.showDinasFilter) ...[
+                // --- DROPDOWN DINAS/BIRO/BADAN ---
+                Text(
+                  'Dinas/Biro/Badan',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey.shade700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return DropdownMenu<String>(
-                    width: constraints.maxWidth,
-                    menuHeight: 220,
-                    enableFilter: true,
-                    requestFocusOnTap: true,
-                    hintText: 'Cari instansi...',
-                    initialSelection: _selectedDinas,
-                    textStyle: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: const Color(0xFF132F53),
-                    ),
-                    inputDecorationTheme: InputDecorationTheme(
-                      filled: true,
-                      fillColor: Colors.white,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return DropdownMenu<String>(
+                      width: constraints.maxWidth,
+                      menuHeight: 220,
+                      enableFilter: true,
+                      requestFocusOnTap: true,
+                      hintText: 'Cari instansi...',
+                      initialSelection: _selectedDinas,
+                      textStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: const Color(0xFF132F53),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      inputDecorationTheme: InputDecorationTheme(
+                        filled: true,
+                        fillColor: Colors.white,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF132F53),
+                          ),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF132F53)),
-                      ),
-                    ),
-                    onSelected: (String? newValue) {
-                      setState(() {
-                        _selectedDinas = newValue;
-                      });
-                    },
-                    dropdownMenuEntries: _dinasBiroBadanOptions
-                        .map<DropdownMenuEntry<String>>((String value) {
-                          return DropdownMenuEntry<String>(
-                            value: value,
-                            label: value,
-                            style: MenuItemButton.styleFrom(
-                              textStyle: GoogleFonts.inter(fontSize: 13),
-                            ),
-                          );
-                        })
-                        .toList(),
-                  );
-                },
-              ),
+                      onSelected: (String? newValue) {
+                        setState(() {
+                          _selectedDinas = newValue;
+                        });
+                      },
+                      dropdownMenuEntries: _dinasBiroBadanOptions
+                          .map<DropdownMenuEntry<String>>((String value) {
+                            return DropdownMenuEntry<String>(
+                              value: value,
+                              label: value,
+                              style: MenuItemButton.styleFrom(
+                                textStyle: GoogleFonts.inter(fontSize: 13),
+                              ),
+                            );
+                          })
+                          .toList(),
+                    );
+                  },
+                ),
+              ],
               const SizedBox(height: 32),
 
               // --- TOMBOL RESET & TERAPKAN ---
@@ -401,9 +407,7 @@ class _FilterAnalitikDialogState extends State<FilterAnalitikDialog> {
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF132F53) : Colors.white,
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF132F53)
-                : Colors.grey.shade300,
+            color: isSelected ? const Color(0xFF132F53) : Colors.grey.shade300,
           ),
           borderRadius: BorderRadius.circular(8),
         ),

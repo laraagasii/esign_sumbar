@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../filter_riwayat_pengajuan_dialog.dart';
+import '../widgets/filter_riwayat_pengajuan_dialog.dart';
 import '../custom_bottom_navbar.dart'; // Import Custom Bottom Nav Bar
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
 class RiwayatPengajuanNodinScreen extends StatefulWidget {
   const RiwayatPengajuanNodinScreen({super.key});
@@ -80,6 +82,8 @@ class _RiwayatPengajuanNodinScreenState
       "categoryText": 'Dalam Daerah',
       "categoryColor": const Color(0xFF0088FF),
       "dateText": '07 Agustus 2026',
+      "sekretarisStatus": "Belum Diperiksa",
+      "note": "",
     },
     {
       "title":
@@ -91,6 +95,8 @@ class _RiwayatPengajuanNodinScreenState
       "categoryText": 'Luar Daerah',
       "categoryColor": const Color(0xFFD4A72C),
       "dateText": '05 Agustus 2026',
+      "sekretarisStatus": "Ditolak",
+      "note": "Kegiatan dibatalkan",
     },
   ];
 
@@ -182,11 +188,13 @@ class _RiwayatPengajuanNodinScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
+
     List<Map<String, dynamic>> activeData = _selectedTab == 0
         ? _notaDinasData
         : _sptData;
 
-    List<Map<String, dynamic>> filteredList = activeData.where((item) {
+    List<Map<String, dynamic>> filteredList = isPejabat ? [] : activeData.where((item) {
       // 1. Filter Pencarian Teks
       bool matchesSearch = true;
       if (_searchQuery.isNotEmpty) {
@@ -483,7 +491,7 @@ class _RiwayatPengajuanNodinScreenState
                           child: filteredList.isEmpty
                               ? Center(
                                   child: Text(
-                                    "Tidak ada data ditemukan.",
+                                    isPejabat ? "Tidak ada Data" : "Tidak ada data ditemukan.",
                                     style: GoogleFonts.inter(
                                       color: Colors.grey,
                                       fontSize: 14,

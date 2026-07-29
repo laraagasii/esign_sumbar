@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:proyek_esign/filter_nota_dinas_dialog.dart';
+import 'package:provider/provider.dart';
+import 'package:proyek_esign/providers/auth_provider.dart';
+import 'package:proyek_esign/widgets/filter_nota_dinas_dialog.dart';
 import 'package:proyek_esign/screens/detail_nota_dinas_screen.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
 import 'detail_riwayat_nota_dinas_screen.dart';
-
 class DaftarNotaDinasScreen extends StatefulWidget {
   const DaftarNotaDinasScreen({super.key});
 
@@ -85,47 +86,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> _riwayatData = [
-    {
-      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
-      "status": "Luar Daerah",
-      "desc":
-          "Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Jogyakarta pada tanggal 7 s/d 9 Agustus 2024",
-      "date": "05 Agustus 2026",
-      "approvalStatus": "Proses",
-      "approvalColor": const Color(0xFF132F53),
-      "approvalBg": const Color(0xFFE5E7EB),
-      "approvalIcon": Icons.calendar_today_rounded,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-    {
-      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
-      "status": "Dalam Kota",
-      "desc":
-          "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
-      "date": "05 Agustus 2026",
-      "approvalStatus": "Ditolak",
-      "approvalColor": const Color(0xFFE53935),
-      "approvalBg": const Color(0xFFFFEBEE),
-      "approvalIcon": Icons.cancel_outlined,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-    {
-      "title": "Dinas Komunikasi,\ninformatika dan Statistik",
-      "status": "Dalam Kota",
-      "desc":
-          "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan)",
-      "date": "05 Agustus 2026",
-      "approvalStatus": "Disetujui",
-      "approvalColor": const Color(0xFF125B2A),
-      "approvalBg": const Color(0xFFD3FBD4),
-      "approvalIcon": Icons.check_circle_outline,
-      "pengikutTerpilih": [],
-      "pengikutDibatalkan": [],
-    },
-  ];
+  final List<Map<String, dynamic>> _riwayatData = [];
 
   @override
   void dispose() {
@@ -208,6 +169,9 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => DetailRiwayatNotaDinasScreen(
+                  approvalStatus: result['status'] ?? "Proses",
+                  sekretarisStatus: result['status'] ?? "Belum Diperiksa",
+                  note: result['note'] ?? "",
                   pengikutTerpilih: result['pengikutTerpilih'] ?? [],
                   pengikutDibatalkan: result['pengikutDibatalkan'] ?? [],
                 ),
@@ -242,9 +206,12 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
     List<Map<String, dynamic>> currentList = [];
 
-    if (_selectedTabIndex == 0) {
+    if (!isPejabat) {
+      currentList = [];
+    } else if (_selectedTabIndex == 0) {
       currentList = _belumDiperiksaData;
     } else {
       currentList = _riwayatData.where((item) {
@@ -362,7 +329,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 24),
-                        _buildCustomTabBar(),
+                        _buildCustomTabBar(isPejabat),
                         const SizedBox(height: 16),
                         if (_selectedTabIndex == 1) ...[
                           Padding(
@@ -454,7 +421,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                           child: currentList.isEmpty
                               ? Center(
                                   child: Text(
-                                    "Tidak ada data ditemukan.",
+                                    !isPejabat ? "Tidak ada Nota Dinas" : "Tidak ada data ditemukan.",
                                     style: GoogleFonts.inter(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -489,7 +456,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     );
   }
 
-  Widget _buildCustomTabBar() {
+  Widget _buildCustomTabBar(bool isPejabat) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       height: 48,
@@ -501,7 +468,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         children: [
           Expanded(
             child: _buildTabButton(
-              "Belum Diperiksa (${_belumDiperiksaData.length})",
+              "Belum Diperiksa (${isPejabat ? _belumDiperiksaData.length : 0})",
               0,
             ),
           ),
@@ -721,6 +688,4 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       ),
     );
   }
-
-
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/pin_signature_dialog.dart';
+import '../widgets/rejection_dialog.dart';
+import '../widgets/approval_dialog.dart';
 
 class DetailNotaDinasScreen extends StatefulWidget {
   const DetailNotaDinasScreen({super.key});
@@ -82,10 +85,10 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         "icon": Icons.access_time_rounded,
         "iconBg": const Color(0xFFFEF9C3),
         "iconColor": const Color(0xFFD4A72C),
-        "title": "Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "description": "Menunggu persetujuan Sekretaris terlebih dahulu",
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
+        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
         "statusText": "Belum Diperiksa",
         "statusBg": const Color(0xFFFEF9C3),
         "statusColor": const Color(0xFFD4A72C),
@@ -95,10 +98,10 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         "icon": Icons.access_time_rounded,
         "iconBg": const Color(0xFFFEF9C3),
         "iconColor": const Color(0xFFD4A72C),
-        "title": "Sekretaris",
-        "description": "Menunggu pemeriksaan & persetujuan Sekretaris",
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
+        "title": "Sekretaris (Anda)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Sekretaris",
         "statusText": "Belum Diperiksa",
         "statusBg": const Color(0xFFFEF9C3),
         "statusColor": const Color(0xFFD4A72C),
@@ -108,11 +111,11 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Kepala Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Sekretaris",
+        "title": "Budi Santoso (Kepala Bidang Siber dan Sandi)",
+        "description": "Catatan: Diteruskan ke Sekretaris, mohon persetujuan",
         "time": "Rabu, 07 Agustus 2026 13:40:07",
-        "actionLabel": "Mohon Persetujuan",
-        "statusText": "Diperiksa",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Bidang",
+        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -121,14 +124,14 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Staff Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Kepala Bidang Siber dan Sandi",
+        "title": "Dedi (Staff Bidang Siber dan Sandi)",
+        "description": "Catatan: Pembuatan Nota Dinas Baru",
         "time": "Rabu, 07 Agustus 2026 13:29:47",
-        "actionLabel": "Mengajukan Nota Dinas",
+        "actionLabel": "Tahap: Pembuatan Pengajuan",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diteruskan",
-        "statusBg": const Color(0xFFE3F2FD),
-        "statusColor": const Color(0xFF1976D2),
+        "statusText": "Disetujui",
+        "statusBg": const Color(0xFFD3FBD4),
+        "statusColor": const Color(0xFF125B2A),
       },
     ];
   }
@@ -268,10 +271,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    _showKonfirmasiDialog(
-                                      context,
-                                      isApprove: true,
-                                    );
+                                    _handleApprove();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFD3FBD4),
@@ -297,10 +297,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    _showKonfirmasiDialog(
-                                      context,
-                                      isApprove: false,
-                                    );
+                                    _handleReject();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFEBEE),
@@ -907,282 +904,116 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     );
   }
 
-  void _showKonfirmasiDialog(BuildContext context, {required bool isApprove}) {
-    _passwordController.clear();
-    _catatanController.clear();
-
-    String title = isApprove
-        ? "Konfirmasi Persetujuan Nota Dinas"
-        : "Konfirmasi Penolakan Nota Dinas";
-    String confirmText = isApprove
-        ? "Apakah anda yakin menyetujui nota dinas ini?"
-        : "Apakah anda yakin menolak nota dinas ini?";
-    String btnLabel = isApprove ? "Setuju" : "Tolak";
-    Color btnBgColor = isApprove
-        ? const Color(0xFFE8F5E9)
-        : const Color(0xFFFFEBEE);
-    Color btnTextColor = isApprove
-        ? const Color(0xFF2E7D32)
-        : const Color(0xFFC62828);
-
+  void _handleApprove() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              backgroundColor: Colors.white,
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF132F53),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+        return ApprovalDialog(
+          onSubmit: (notes) {
+            Navigator.pop(dialogContext); // Tutup dialog catatan
+            // Setelah input catatan, tampilkan dialog PIN
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (pinContext) {
+                return PinSignatureDialog(
+                  onSubmit: (pin) {
+                    if (pin != _dummyPin) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("PIN salah! Gunakan: 123456"),
+                          backgroundColor: Color(0xFFE53935),
+                          behavior: SnackBarBehavior.floating,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        "Masukkan Password (PIN: 123456)",
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "Contoh: 123456",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 12,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF132F53),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Tambahkan Catatan",
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _catatanController,
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          hintText: "Tulis catatan verifikasi...",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 12,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF132F53),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        confirmText,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(dialogContext),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                side: BorderSide(color: Colors.grey.shade300),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                "Kembali",
-                                style: GoogleFonts.inter(
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_passwordController.text != _dummyPin) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        "Password / PIN salah! Gunakan: 123456",
-                                      ),
-                                      backgroundColor: Color(0xFFE53935),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                List<Map<String, dynamic>> pengikutTerpilih =
-                                    _pengikutList
-                                        .where((p) => p["selected"] == true)
-                                        .toList();
-
-                                List<Map<String, dynamic>> pengikutDibatalkan =
-                                    _pengikutList
-                                        .where((p) => p["selected"] == false)
-                                        .toList();
-
-                                DateTime now = DateTime.now();
-                                String formattedDate =
-                                    "${_getDayName(now.weekday)}, ${now.day.toString().padLeft(2, '0')} Agustus ${_formatYear(now)} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
-
-                                // Ambil input catatan user secara langsung agar tampil di timeline tracking
-                                String catatanInput = _catatanController.text
-                                    .trim();
-                                String finalDescription =
-                                    catatanInput.isNotEmpty
-                                    ? catatanInput
-                                    : (isApprove
-                                          ? "Disetujui oleh Sekretaris"
-                                          : "Ditolak oleh Sekretaris");
-
-                                Map<String, dynamic> riwayatSekretarisBaru = {
-                                  "icon": isApprove
-                                      ? Icons.check
-                                      : Icons.close_rounded,
-                                  "iconBg": isApprove
-                                      ? const Color(0xFFD3FBD4)
-                                      : const Color(0xFFFFEBEE),
-                                  "iconColor": isApprove
-                                      ? const Color(0xFF125B2A)
-                                      : const Color(0xFFE53935),
-                                  "title": "Sekretaris",
-                                  "description": finalDescription,
-                                  "time": formattedDate,
-                                  "actionLabel": isApprove
-                                      ? "Disetujui Sekretaris"
-                                      : "Ditolak Sekretaris",
-                                  "actionColor": isApprove
-                                      ? const Color(0xFF125B2A)
-                                      : const Color(0xFFE53935),
-                                  "statusText": isApprove
-                                      ? "Diperiksa"
-                                      : "Ditolak",
-                                  "statusBg": isApprove
-                                      ? const Color(0xFFD3FBD4)
-                                      : const Color(0xFFFFEBEE),
-                                  "statusColor": isApprove
-                                      ? const Color(0xFF125B2A)
-                                      : const Color(0xFFE53935),
-                                };
-
-                                setState(() {
-                                  _riwayatList[1] =
-                                      riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
-                                });
-
-                                Navigator.pop(dialogContext);
-
-                                Navigator.pop(context, {
-                                  'status': isApprove ? 'Disetujui' : 'Ditolak',
-                                  'pengikutTerpilih': pengikutTerpilih,
-                                  'pengikutDibatalkan': pengikutDibatalkan,
-                                  'riwayatBaru': riwayatSekretarisBaru,
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: btnBgColor,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                btnLabel,
-                                style: GoogleFonts.inter(
-                                  color: btnTextColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                      );
+                      return;
+                    }
+                    Navigator.pop(pinContext); // Tutup dialog PIN
+                    _processAction(isApprove: true, catatan: notes);
+                  },
+                );
+              },
             );
           },
         );
       },
     );
+  }
+
+  void _handleReject() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return RejectionDialog(
+          onSubmit: (notes) {
+            Navigator.pop(dialogContext); // Tutup dialog penolakan
+            _processAction(isApprove: false, catatan: notes);
+          },
+        );
+      },
+    );
+  }
+
+  void _processAction({required bool isApprove, required String catatan}) async {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await Future.delayed(const Duration(seconds: 1)); // Mock proses penandatanganan
+    if (!mounted) return;
+    Navigator.pop(context); // Tutup loading
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isApprove 
+            ? "Dokumen berhasil ditandatangani secara elektronik" 
+            : "Dokumen berhasil ditolak"
+        ),
+        backgroundColor: isApprove ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
+      ),
+    );
+
+    List<Map<String, dynamic>> pengikutTerpilih =
+        _pengikutList.where((p) => p["selected"] == true).toList();
+
+    List<Map<String, dynamic>> pengikutDibatalkan =
+        _pengikutList.where((p) => p["selected"] == false).toList();
+
+    DateTime now = DateTime.now();
+    String formattedDate =
+        "${_getDayName(now.weekday)}, ${now.day.toString().padLeft(2, '0')} Agustus ${_formatYear(now)} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+    Map<String, dynamic> riwayatSekretarisBaru = {
+      "icon": isApprove ? Icons.check : Icons.close_rounded,
+      "iconBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
+      "iconColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "title": "Sekretaris (Anda)",
+      "description": "Catatan: $catatan",
+      "time": formattedDate,
+      "actionLabel": "Tahap: Pemeriksaan Sekretaris",
+      "actionColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "statusText": isApprove ? "Disetujui" : "Ditolak",
+      "statusBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
+      "statusColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+    };
+
+    setState(() {
+      _riwayatList[1] = riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
+    });
+
+    Navigator.pop(context, {
+      'status': isApprove ? 'Disetujui' : 'Ditolak',
+      'note': catatan,
+      'pengikutTerpilih': pengikutTerpilih,
+      'pengikutDibatalkan': pengikutDibatalkan,
+      'riwayatBaru': riwayatSekretarisBaru,
+    });
   }
 
   String _getDayName(int weekday) {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../custom_bottom_navbar.dart';
+import '../widgets/pin_signature_dialog.dart';
+import '../widgets/rejection_dialog.dart';
+import '../widgets/approval_dialog.dart';
 
 class DetailSptScreen extends StatefulWidget {
   const DetailSptScreen({super.key});
@@ -27,40 +30,38 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "icon": Icons.access_time_rounded,
         "iconBg": const Color(0xFFFEF9C3),
         "iconColor": const Color(0xFFD4A72C),
-        "title": "Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "description": null,
-        "time": "",
-        "actionLabel": null,
+        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
         "statusText": "Belum Diperiksa",
         "statusBg": const Color(0xFFFEF9C3),
         "statusColor": const Color(0xFFD4A72C),
       },
       // 1. SEKRETARIS
       {
-        "icon": Icons.check,
-        "iconBg": const Color(0xFFD3FBD4),
-        "iconColor": const Color(0xFF125B2A),
-        "title": "Sekretaris",
-        "description":
-            "Diteruskan ke Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
-        "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diperiksa",
-        "statusBg": const Color(0xFFD3FBD4),
-        "statusColor": const Color(0xFF125B2A),
+        "icon": Icons.access_time_rounded,
+        "iconBg": const Color(0xFFFEF9C3),
+        "iconColor": const Color(0xFFD4A72C),
+        "title": "Sekretaris (Anda)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Sekretaris",
+        "statusText": "Belum Diperiksa",
+        "statusBg": const Color(0xFFFEF9C3),
+        "statusColor": const Color(0xFFD4A72C),
       },
       // 2. KEPALA BIDANG
       {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Kepala Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Sekretaris",
+        "title": "Budi Santoso (Kepala Bidang Siber dan Sandi)",
+        "description": "Catatan: Diteruskan ke Sekretaris",
         "time": "Rabu, 07 Agustus 2026 13:40:07",
-        "actionLabel": "Mohon Persetujuan",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Bidang",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diperiksa",
+        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -69,12 +70,14 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Staff Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Kepala Bidang Siber dan Sandi",
+        "title": "Dedi (Staff Bidang Siber dan Sandi)",
+        "description": "Catatan: Pengajuan SPT",
         "time": "Rabu, 07 Agustus 2026 13:29:47",
-        "actionLabel": "Edit Anggota",
+        "actionLabel": "Tahap: Pembuatan Pengajuan",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": null,
+        "statusText": "Disetujui",
+        "statusBg": const Color(0xFFD3FBD4),
+        "statusColor": const Color(0xFF125B2A),
       },
     ];
   }
@@ -220,10 +223,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => _showKonfirmasiDialog(
-                                    context,
-                                    isApprove: true,
-                                  ),
+                                  onPressed: () => _handleApprove(),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFD3FBD4),
                                     elevation: 0,
@@ -247,10 +247,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => _showKonfirmasiDialog(
-                                    context,
-                                    isApprove: false,
-                                  ),
+                                  onPressed: () => _handleReject(),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFEBEE),
                                     elevation: 0,
@@ -808,220 +805,107 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
   // ==========================================
   // DIALOG KONFIRMASI PIN & CATATAN SEKRETARIS
   // ==========================================
-  void _showKonfirmasiDialog(BuildContext context, {required bool isApprove}) {
-    _passwordController.clear();
-    _catatanController.clear();
-
-    String title = isApprove
-        ? "Konfirmasi Persetujuan SPT"
-        : "Konfirmasi Penolakan SPT";
-    String confirmText = isApprove
-        ? "Apakah anda yakin menyetujui SPT ini?"
-        : "Apakah anda yakin menolak SPT ini?";
-    String btnLabel = isApprove ? "Setuju" : "Tolak";
-    Color btnBgColor = isApprove
-        ? const Color(0xFFE8F5E9)
-        : const Color(0xFFFFEBEE);
-    Color btnTextColor = isApprove
-        ? const Color(0xFF2E7D32)
-        : const Color(0xFFC62828);
-
+  void _handleApprove() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              backgroundColor: Colors.white,
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF132F53),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+        return ApprovalDialog(
+          onSubmit: (notes) {
+            Navigator.pop(dialogContext); // Tutup dialog catatan
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (pinContext) {
+                return PinSignatureDialog(
+                  onSubmit: (pin) {
+                    if (pin != _dummyPin) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("PIN salah! Gunakan: 123456"),
+                          backgroundColor: Color(0xFFE53935),
+                          behavior: SnackBarBehavior.floating,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        "Masukkan Password (PIN: 123456)",
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "Contoh: 123456",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 12,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF132F53),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Catatan (Opsional)",
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _catatanController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: "Masukkan catatan...",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 12,
-                          ),
-                          contentPadding: const EdgeInsets.all(16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF132F53),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        confirmText,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(dialogContext),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                side: BorderSide(color: Colors.grey.shade300),
-                              ),
-                              child: Text(
-                                "Batal",
-                                style: GoogleFonts.inter(
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_passwordController.text == _dummyPin) {
-                                  Navigator.pop(dialogContext);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        isApprove
-                                            ? "SPT berhasil disetujui"
-                                            : "SPT berhasil ditolak",
-                                      ),
-                                      backgroundColor: isApprove
-                                          ? Colors.green
-                                          : Colors.red,
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Password/PIN salah!"),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: btnBgColor,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                btnLabel,
-                                style: GoogleFonts.inter(
-                                  color: btnTextColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                      );
+                      return;
+                    }
+                    Navigator.pop(pinContext); // Tutup dialog PIN
+                    _processAction(isApprove: true, catatan: notes);
+                  },
+                );
+              },
             );
           },
         );
       },
     );
+  }
+
+  void _handleReject() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return RejectionDialog(
+          onSubmit: (notes) {
+            Navigator.pop(dialogContext); // Tutup dialog penolakan
+            _processAction(isApprove: false, catatan: notes);
+          },
+        );
+      },
+    );
+  }
+
+  void _processAction({required bool isApprove, required String catatan}) async {
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await Future.delayed(const Duration(seconds: 1)); // Mock API call
+    if (!mounted) return;
+    Navigator.pop(context); // Tutup loading
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isApprove 
+            ? "Dokumen berhasil ditandatangani secara elektronik" 
+            : "Dokumen berhasil ditolak"
+        ),
+        backgroundColor: isApprove ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
+      ),
+    );
+
+    // Update status history list based on approve or reject
+    DateTime now = DateTime.now();
+    String formattedDate =
+        "Rabu, ${now.day.toString().padLeft(2, '0')} Agustus 2026 ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+    Map<String, dynamic> riwayatSekretarisBaru = {
+      "icon": isApprove ? Icons.check : Icons.close_rounded,
+      "iconBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
+      "iconColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "title": "Sekretaris (Anda)",
+      "description": "Catatan: $catatan",
+      "time": formattedDate,
+      "actionLabel": "Tahap: Pemeriksaan Sekretaris",
+      "actionColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "statusText": isApprove ? "Disetujui" : "Ditolak",
+      "statusBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
+      "statusColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+    };
+
+    setState(() {
+      _riwayatList[1] = riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
+    });
+
+    Navigator.pop(context, {
+      'status': isApprove ? 'Disetujui' : 'Ditolak',
+      'note': catatan,
+      'riwayatBaru': riwayatSekretarisBaru,
+    });
   }
 }

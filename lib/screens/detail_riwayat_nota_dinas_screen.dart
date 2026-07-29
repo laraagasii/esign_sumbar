@@ -51,7 +51,7 @@ class _DetailRiwayatNotaDinasScreenState
       secIconColor = const Color(0xFF125B2A);
       secDescription = widget.note.isNotEmpty
           ? "Catatan: ${widget.note}"
-          : "Disetujui oleh Sekretaris";
+          : "Catatan: Disetujui oleh Sekretaris";
     } else if (widget.sekretarisStatus == 'Ditolak') {
       secStatusBg = const Color(0xFFFFEBEE);
       secStatusColor = const Color(0xFFE53935);
@@ -59,15 +59,15 @@ class _DetailRiwayatNotaDinasScreenState
       secIconBg = const Color(0xFFFFEBEE);
       secIconColor = const Color(0xFFE53935);
       secDescription = widget.note.isNotEmpty
-          ? "Catatan Penolakan: ${widget.note}"
-          : "Ditolak oleh Sekretaris";
+          ? "Catatan: ${widget.note}"
+          : "Catatan: Ditolak oleh Sekretaris";
     } else {
       secStatusBg = const Color(0xFFFEF9C3);
       secStatusColor = const Color(0xFFD4A72C);
       secIcon = Icons.access_time_rounded;
       secIconBg = const Color(0xFFFEF9C3);
       secIconColor = const Color(0xFFD4A72C);
-      secDescription = "Menunggu pemeriksaan & persetujuan Sekretaris";
+      secDescription = "Catatan: -";
     }
 
     _riwayatList = [
@@ -82,12 +82,10 @@ class _DetailRiwayatNotaDinasScreenState
         "iconColor": widget.sekretarisStatus == 'Disetujui'
             ? const Color(0xFFD4A72C)
             : Colors.grey.shade500,
-        "title": "Kepala Dinas Komunikasi,\nInformatika dan Statistik",
-        "description": widget.sekretarisStatus == 'Disetujui'
-            ? "Menunggu persetujuan Kepala Dinas"
-            : "Menunggu persetujuan Sekretaris terlebih dahulu",
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
+        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "description": "Catatan: -",
+        "time": "-",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
         "statusText": widget.sekretarisStatus == 'Disetujui'
             ? "Belum Diperiksa"
             : "Menunggu",
@@ -103,11 +101,11 @@ class _DetailRiwayatNotaDinasScreenState
         "icon": secIcon,
         "iconBg": secIconBg,
         "iconColor": secIconColor,
-        "title": "Sekretaris",
+        "title": "Sekretaris (Anda)",
         "description": secDescription,
-        "time": "Kamis, 08 Agustus 2026 14:10:28",
-        "actionLabel": "Mohon Persetujuan",
-        "statusText": widget.sekretarisStatus,
+        "time": widget.sekretarisStatus == 'Proses' ? "-" : "Kamis, 08 Agustus 2026 14:10:28",
+        "actionLabel": "Tahap: Pemeriksaan Sekretaris",
+        "statusText": widget.sekretarisStatus == 'Proses' ? "Belum Diperiksa" : widget.sekretarisStatus,
         "statusBg": secStatusBg,
         "statusColor": secStatusColor,
       },
@@ -116,11 +114,11 @@ class _DetailRiwayatNotaDinasScreenState
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Kepala Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Sekretaris",
+        "title": "Budi Santoso (Kepala Bidang Siber dan Sandi)",
+        "description": "Catatan: Diteruskan ke Sekretaris",
         "time": "Rabu, 07 Agustus 2026 13:40:07",
-        "actionLabel": "Mohon Persetujuan",
-        "statusText": "Diperiksa",
+        "actionLabel": "Tahap: Pemeriksaan Kepala Bidang",
+        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -129,14 +127,14 @@ class _DetailRiwayatNotaDinasScreenState
         "icon": Icons.check,
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
-        "title": "Staff Bidang Siber dan Sandi",
-        "description": "Diteruskan ke Kepala Bidang Siber dan Sandi",
+        "title": "Dedi (Staff Bidang Siber dan Sandi)",
+        "description": "Catatan: Mengajukan Nota Dinas",
         "time": "Rabu, 07 Agustus 2026 13:29:47",
-        "actionLabel": "Mengajukan Nota Dinas",
+        "actionLabel": "Tahap: Pembuatan Pengajuan",
         "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Diteruskan",
-        "statusBg": const Color(0xFFE3F2FD),
-        "statusColor": const Color(0xFF1976D2),
+        "statusText": "Disetujui",
+        "statusBg": const Color(0xFFD3FBD4),
+        "statusColor": const Color(0xFF125B2A),
       },
     ];
   }

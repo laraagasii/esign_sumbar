@@ -19,11 +19,15 @@ class AuthService {
       final Map<String, dynamic> data = jsonDecode(responseString);
 
       if (data['response'] == 1) {
-        final Map<String, dynamic> userData = data['result'][0];
+        final List<dynamic> users = data['result'];
 
-        final String validUsername = userData['username'];
+        // Cari user yang usernamenya cocok
+        final userData = users.firstWhere(
+          (user) => user['username'] == usernameInput,
+          orElse: () => null,
+        );
 
-        if (usernameInput == validUsername && passwordInput == '123456') {
+        if (userData != null && passwordInput == '123456') {
           return UserModel.fromJson(userData);
         }
       }

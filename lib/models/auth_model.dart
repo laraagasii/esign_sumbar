@@ -74,4 +74,13 @@ class UserModel {
       'kategori': kategori,
     };
   }
+
+  // Cek apakah user adalah Pejabat (Bisa menyetujui dokumen)
+  // Berdasarkan jenjang atau eselon yang tidak kosong (kecuali PELAKSANA)
+  bool get isPejabat {
+    return eselon.isNotEmpty || 
+           jenjang == 'JPT' || 
+           jenjang == 'ADMINISTRATOR' || 
+           jenjang == 'PENGAWAS';
+  }
 }

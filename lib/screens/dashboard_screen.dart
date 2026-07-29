@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/daftar_spt_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/home_provider.dart';
@@ -160,6 +161,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         }
 
+                        // Ambil state isPejabat
+                        final bool isPejabat =
+                            Provider.of<AuthProvider>(
+                              context,
+                              listen: false,
+                            ).user?.isPejabat ??
+                            false;
+
                         return SingleChildScrollView(
                           padding: const EdgeInsets.only(
                             top: 32,
@@ -170,72 +179,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // --- KARTU "MENUNGGU PERSETUJUAN" ---
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Color(0xFF0F2E59),
-                                          Color(0xFFC7D7E8),
+                              // Cek apakah user adalah pejabat (bisa menyetujui)
+                              // Jika bukan, sembunyikan widget "Menunggu Persetujuan"
+                              if (isPejabat) ...[
+                                // --- KARTU "MENUNGGU PERSETUJUAN" ---
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFF0F2E59),
+                                            Color(0xFFC7D7E8),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFF0F2E59,
+                                            ).withOpacity(0.25),
+                                            blurRadius: 20,
+                                            spreadRadius: 2,
+                                            offset: const Offset(0, 10),
+                                          ),
                                         ],
                                       ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(
-                                            0xFF0F2E59,
-                                          ).withOpacity(0.25),
-                                          blurRadius: 20,
-                                          spreadRadius: 2,
-                                          offset: const Offset(0, 10),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Menunggu Persetujuan",
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Menunggu Persetujuan",
+                                            style: GoogleFonts.inter(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          "${int.parse(data.rekap.nodin.toString()) + int.parse(data.rekap.spt.toString())}",
-                                          style: GoogleFonts.inter(
-                                            color: const Color(0xFFFDB913),
-                                            fontSize: 48,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.1,
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            "${int.parse(data.rekap.nodin.toString()) + int.parse(data.rekap.spt.toString())}",
+                                            style: GoogleFonts.inter(
+                                              color: const Color(0xFFFDB913),
+                                              fontSize: 48,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1.1,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
 
-                                  // GAMBAR CLIPBOARD
-                                  Positioned(
-                                    right: -4,
-                                    bottom: 0,
-                                    child: Image.asset(
-                                      'assets/images/home.png',
-                                      height: 115,
+                                    // GAMBAR CLIPBOARD
+                                    Positioned(
+                                      right: -4,
+                                      bottom: 0,
+                                      child: Image.asset(
+                                        'assets/images/home.png',
+                                        height: 115,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 36),
+                                  ],
+                                ),
+                                const SizedBox(height: 36),
+                              ],
 
                               // --- RINGKASAN HARI INI ---
                               Row(
@@ -250,12 +263,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Text(
-                                    "Lihat Ringkasan Bulanan →",
-                                    style: GoogleFonts.inter(
-                                      color: const Color(0xFF0088FF),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (
+                                            context,
+                                            animation,
+                                            secondaryAnimation,
+                                          ) =>
+                                              const AnalisisPersetujuanScreen(),
+                                          transitionDuration: Duration.zero,
+                                          reverseTransitionDuration:
+                                              Duration.zero,
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      "Lihat Ringkasan Bulanan →",
+                                      style: GoogleFonts.inter(
+                                        color: const Color(0xFF0088FF),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -268,7 +299,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   // KARTU NOTA DINAS
                                   _buildSummaryCard(
                                     title: "Nota Dinas",
-                                    count: data.rekap.nodin.toString(),
+                                    count: isPejabat
+                                        ? data.rekap.nodin.toString()
+                                        : '0',
                                     bgColor: const Color(0xFFFFF9EE),
                                     onTap: () {
                                       Navigator.push(
@@ -292,7 +325,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   // KARTU SPT
                                   _buildSummaryCard(
                                     title: "SPT",
-                                    count: data.rekap.spt.toString(),
+                                    count: isPejabat
+                                        ? data.rekap.spt.toString()
+                                        : '0',
                                     bgColor: const Color(0xFFF2F7FA),
                                     onTap: () {
                                       Navigator.push(

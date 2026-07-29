@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:proyek_esign/providers/auth_provider.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
-import 'package:proyek_esign/filter_analitik_dialog.dart';
+import 'package:proyek_esign/widgets/filter_analitik_dialog.dart';
 
 class AnalisisPersetujuanScreen extends StatefulWidget {
   const AnalisisPersetujuanScreen({super.key});
@@ -33,7 +35,9 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -91,16 +95,16 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              _buildRingkasanSection(),
+                              _buildRingkasanSection(isPejabat),
                               const SizedBox(height: 12),
-                              _buildTrenCard(),
+                              _buildTrenCard(isPejabat),
                               const SizedBox(height: 12),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(child: _buildBarChartCard()),
+                                  Expanded(child: _buildBarChartCard(isPejabat)),
                                   const SizedBox(width: 10),
-                                  Expanded(child: _buildPrediksiCard()),
+                                  Expanded(child: _buildPrediksiCard(isPejabat)),
                                 ],
                               ),
                             ],
@@ -221,7 +225,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
     );
   }
 
-  Widget _buildRingkasanSection() {
+  Widget _buildRingkasanSection(bool isPejabat) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       decoration: BoxDecoration(
@@ -233,36 +237,36 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ringkasan',
+            'Bulan Ini',
             style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
               color: Colors.black87,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               _buildStatCard(
-                '136',
+                isPejabat ? '136' : '0',
                 'Surat Masuk',
                 const Color(0xFF3B82F6),
                 const Color(0xFFEFF6FF),
               ),
               _buildStatCard(
-                '100',
+                isPejabat ? '100' : '0',
                 'Disetujui',
                 const Color(0xFF10B981),
                 const Color(0xFFECFDF5),
               ),
               _buildStatCard(
-                '30',
+                isPejabat ? '30' : '0',
                 'Berjalan',
                 const Color(0xFFF59E0B),
                 const Color(0xFFFEF3C7),
               ),
               _buildStatCard(
-                '8',
+                isPejabat ? '8' : '0',
                 'Ditolak',
                 const Color(0xFFEF4444),
                 const Color(0xFFFEF2F2),
@@ -317,7 +321,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
     );
   }
 
-  Widget _buildTrenCard() {
+  Widget _buildTrenCard(bool isPejabat) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
       decoration: BoxDecoration(
@@ -377,7 +381,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                     children: [
                       Expanded(
                         child: CustomPaint(
-                          painter: LineChartPainter(),
+                          painter: LineChartPainter(isPejabat),
                           child: const SizedBox.expand(),
                         ),
                       ),
@@ -407,7 +411,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
     );
   }
 
-  Widget _buildBarChartCard() {
+  Widget _buildBarChartCard(bool isPejabat) {
     return Container(
       height: 190,
       padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
@@ -460,11 +464,11 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _buildBarItem(22, 'Sen'),
-                      _buildBarItem(80, 'Sel'),
-                      _buildBarItem(53, 'Rab'),
-                      _buildBarItem(31, 'Kam'),
-                      _buildBarItem(18, 'Jum'),
+                      _buildBarItem(isPejabat ? 22 : 0, 'Sen'),
+                      _buildBarItem(isPejabat ? 80 : 0, 'Sel'),
+                      _buildBarItem(isPejabat ? 53 : 0, 'Rab'),
+                      _buildBarItem(isPejabat ? 31 : 0, 'Kam'),
+                      _buildBarItem(isPejabat ? 18 : 0, 'Jum'),
                     ],
                   ),
                 ),
@@ -497,7 +501,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
     );
   }
 
-  Widget _buildPrediksiCard() {
+  Widget _buildPrediksiCard(bool isPejabat) {
     return Container(
       height: 190,
       padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
@@ -528,7 +532,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '136',
+                      isPejabat ? '136' : '0',
                       style: GoogleFonts.inter(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
@@ -599,7 +603,11 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
 
 // LINE CHART PAINTER
 class LineChartPainter extends CustomPainter {
-  static const List<double> _values = [
+  final bool isPejabat;
+  
+  LineChartPainter(this.isPejabat);
+
+  static const List<double> _defaultValues = [
     100,
     65,
     73,
@@ -618,6 +626,7 @@ class LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final List<double> _values = isPejabat ? _defaultValues : List.filled(_defaultValues.length, 0.0);
     final int n = _values.length;
     final double plotH = size.height - _topPad;
 
