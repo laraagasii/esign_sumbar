@@ -20,7 +20,7 @@ class DetailRiwayatSptScreen extends StatefulWidget {
 
 class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
   // Variabel untuk menyimpan Nomor Surat (Ubah menjadi null atau "" untuk test kondisi)
-  final String? _nomorSurat = "094.2/130/Diskominfotik/II/2024";
+  final String _nomorSurat = "094.2/130/Diskominfotik/II/2024";
 
   // List Riwayat Pemeriksaan Dinamis
   late List<Map<String, dynamic>> _riwayatList;
@@ -75,7 +75,8 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
         "iconColor": widget.sekretarisStatus == 'Disetujui'
             ? const Color(0xFFD4A72C)
             : Colors.grey.shade500,
-        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "title":
+            "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
         "description": "Catatan: -",
         "time": "-",
         "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
@@ -96,9 +97,13 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
         "iconColor": secIconColor,
         "title": "Sekretaris (Anda)",
         "description": secDescription,
-        "time": widget.sekretarisStatus == 'Proses' ? "-" : "Kamis, 08 Agustus 2026 14:10:28",
+        "time": widget.sekretarisStatus == 'Proses'
+            ? "-"
+            : "Kamis, 08 Agustus 2026 14:10:28",
         "actionLabel": "Tahap: Pemeriksaan Sekretaris",
-        "statusText": widget.sekretarisStatus == 'Proses' ? "Belum Diperiksa" : widget.sekretarisStatus,
+        "statusText": widget.sekretarisStatus == 'Proses'
+            ? "Belum Diperiksa"
+            : widget.sekretarisStatus,
         "statusBg": secStatusBg,
         "statusColor": secStatusColor,
       },
@@ -246,7 +251,7 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
                             ),
                             child: Text(
                               // Logika: Jika null/kosong tampilkan teks default
-                              (_nomorSurat != null && _nomorSurat.isNotEmpty)
+                              (_nomorSurat.isNotEmpty)
                                   ? _nomorSurat
                                   : "Nomor belum tersedia",
                               textAlign: TextAlign.center,

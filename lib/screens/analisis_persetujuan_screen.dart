@@ -626,13 +626,13 @@ class LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final List<double> _values = isPejabat ? _defaultValues : List.filled(_defaultValues.length, 0.0);
-    final int n = _values.length;
+    final List<double> values = isPejabat ? _defaultValues : List.filled(_defaultValues.length, 0.0);
+    final int n = values.length;
     final double plotH = size.height - _topPad;
 
     final List<Offset> pts = List.generate(n, (i) {
       final x = i / (n - 1) * size.width;
-      final y = _topPad + plotH - (_values[i] / _maxVal) * plotH;
+      final y = _topPad + plotH - (values[i] / _maxVal) * plotH;
       return Offset(x, y);
     });
 
@@ -691,7 +691,7 @@ class LineChartPainter extends CustomPainter {
 
       final tp = TextPainter(
         text: TextSpan(
-          text: _values[i].toInt().toString(),
+          text: values[i].toInt().toString(),
           style: const TextStyle(
             color: Color(0xFF6B7280),
             fontSize: 7.5,
