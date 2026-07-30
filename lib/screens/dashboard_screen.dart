@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/home_provider.dart';
 import 'daftar_nota_dinas_screen.dart';
 import '../custom_bottom_navbar.dart';
+import '../providers/nota_dinas_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,11 +22,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeProvider>().fetchHomeData();
+      context.read<NotaDinasProvider>().fetchBelumDiperiksa(
+        "8018dcd81ff171aa9629c08d95422c20e45e307b",
+        "5",
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final notaProv = context.watch<NotaDinasProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -224,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            "${int.parse(data.rekap.nodin.toString()) + int.parse(data.rekap.spt.toString())}",
+                                            "${notaProv.notaDinasList.length + int.parse(data.rekap.spt.toString())}",
                                             style: GoogleFonts.inter(
                                               color: const Color(0xFFFDB913),
                                               fontSize: 48,
@@ -268,12 +274,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Navigator.push(
                                         context,
                                         PageRouteBuilder(
-                                          pageBuilder: (
-                                            context,
-                                            animation,
-                                            secondaryAnimation,
-                                          ) =>
-                                              const AnalisisPersetujuanScreen(),
+                                          pageBuilder:
+                                              (
+                                                context,
+                                                animation,
+                                                secondaryAnimation,
+                                              ) =>
+                                                  const AnalisisPersetujuanScreen(),
                                           transitionDuration: Duration.zero,
                                           reverseTransitionDuration:
                                               Duration.zero,
@@ -300,7 +307,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   _buildSummaryCard(
                                     title: "Nota Dinas",
                                     count: isPejabat
-                                        ? data.rekap.nodin.toString()
+                                        ? notaProv.notaDinasList.length
+                                              .toString()
                                         : '0',
                                     bgColor: const Color(0xFFFFF9EE),
                                     onTap: () {
