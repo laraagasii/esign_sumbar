@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/daftar_nota_dinas_screen.dart';
-import 'screens/detail_nota_dinas_screen.dart';
 import 'screens/detail_riwayat_nota_dinas_screen.dart';
 import 'screens/profile_screen.dart';
 
@@ -53,7 +52,6 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/nota_dinas': (context) => const DaftarNotaDinasScreen(),
-        '/detail_nota_dinas': (context) => const DetailNotaDinasScreen(),
         '/analisis': (context) => const AnalisisPersetujuanScreen(),
         '/analisis_pengajuan': (context) => const AnalisisPengajuanScreen(),
         '/riwayat': (context) => const RiwayatPengajuanNodinScreen(),

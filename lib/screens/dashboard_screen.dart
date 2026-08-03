@@ -23,8 +23,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeProvider>().fetchHomeData();
       context.read<NotaDinasProvider>().fetchBelumDiperiksa(
-        "8018dcd81ff171aa9629c08d95422c20e45e307b",
-        "5",
+        "a4adb04d8392abc79d52ea247fabd8348b97a78a",
+        "6",
       );
     });
   }

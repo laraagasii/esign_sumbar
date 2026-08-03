@@ -26,10 +26,9 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<NotaDinasProvider>(
-        context,
-        listen: false,
-      ).fetchBelumDiperiksa("8018dcd81ff171aa9629c08d95422c20e45e307b", "5");
+      final prov = Provider.of<NotaDinasProvider>(context, listen: false);
+      prov.fetchBelumDiperiksa("a4adb04d8392abc79d52ea247fabd8348b97a78a", "6");
+      prov.fetchSudahDiperiksa("a4adb04d8392abc79d52ea247fabd8348b97a78a", "6");
     });
   }
 
@@ -56,9 +55,19 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         ),
       );
     } else {
+      final notaProvider = Provider.of<NotaDinasProvider>(context, listen: false);
+      final notaModel = notaProvider.notaDinasList.firstWhere(
+        (element) => element.idnota == item['idnota'],
+        orElse: () => notaProvider.notaDinasList.first,
+      );
+
       final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const DetailNotaDinasScreen()),
+        MaterialPageRoute(builder: (context) => DetailNotaDinasScreen(
+          notaDinas: notaModel,
+          userId: "a4adb04d8392abc79d52ea247fabd8348b97a78a",
+          groupId: "6",
+        )),
       );
 
       if (!mounted) return;
@@ -178,7 +187,24 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           )
           .toList();
     } else {
-      currentList = _riwayatData.where((item) {
+      currentList = notaProvider.riwayatNotaDinasList
+          .map(
+            (model) => {
+              "idnota": model.idnota,
+              "title": model.nmopd,
+              "status": model.nmkategori,
+              "desc": model.perihal,
+              "location": model.nmkategori,
+              "date": model.tglnota,
+              // Keep default UI logic for approval if backend doesn't provide it yet
+              "approvalStatus": "Disetujui",
+              "approvalColor": const Color(0xFF125B2A),
+              "approvalBg": const Color(0xFFD3FBD4),
+              "approvalIcon": Icons.check_circle_outline,
+              "sekretarisStatus": "Disetujui",
+            },
+          )
+          .where((item) {
         bool matchSearch = true;
         if (_searchQuery.isNotEmpty) {
           final titleMatch = item["title"].toString().toLowerCase().contains(
