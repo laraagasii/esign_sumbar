@@ -7,6 +7,7 @@ import 'package:proyek_esign/screens/detail_nota_dinas_screen.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
 import 'package:proyek_esign/providers/nota_dinas_provider.dart';
 import 'detail_riwayat_nota_dinas_screen.dart';
+
 class DaftarNotaDinasScreen extends StatefulWidget {
   const DaftarNotaDinasScreen({super.key});
 
@@ -17,16 +18,18 @@ class DaftarNotaDinasScreen extends StatefulWidget {
 class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
   int _selectedTabIndex = 0; // 0: Belum Diperiksa, 1: Riwayat
 
-  Map<String, dynamic>? _appliedFilters;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  Map<String, dynamic>? _appliedFilters;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<NotaDinasProvider>(context, listen: false)
-          .fetchBelumDiperiksa("8018dcd81ff171aa9629c08d95422c20e45e307b", "5");
+      Provider.of<NotaDinasProvider>(
+        context,
+        listen: false,
+      ).fetchBelumDiperiksa("8018dcd81ff171aa9629c08d95422c20e45e307b", "5");
     });
   }
 
@@ -62,8 +65,10 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
       if (result != null) {
         setState(() {
-          Provider.of<NotaDinasProvider>(context, listen: false)
-              .removeItem(item['idnota'] ?? '');
+          Provider.of<NotaDinasProvider>(
+            context,
+            listen: false,
+          ).removeItem(item['idnota'] ?? '');
           _riwayatData.insert(0, {
             "title": item["title"],
             "status": item["status"],
@@ -149,48 +154,29 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     }
   }
 
-  String _extractLocation(String perihal) {
-    final lowerPerihal = perihal.toLowerCase();
-    
-    // Daftar kota/kabupaten populer di Sumatera Barat dan kota besar Indonesia
-    final List<String> knownLocations = [
-      "padang panjang", "padang pariaman", "padang", "bukittinggi", 
-      "payakumbuh", "pariaman", "sawahlunto", "solok selatan", "solok", 
-      "agam", "tanah datar", "lima puluh kota", "pesisir selatan", 
-      "sijunjung", "dharmasraya", "pasaman barat", "pasaman", "mentawai", 
-      "jakarta", "bandung", "jogyakarta", "yogyakarta", "medan", "pekanbaru", 
-      "batam", "palembang", "bali"
-    ];
-
-    for (var location in knownLocations) {
-      if (lowerPerihal.contains(location)) {
-        // Return dengan Title Case (cth: Tanah Datar)
-        return location.split(' ').map((word) => 
-          word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : ''
-        ).join(' ');
-      }
-    }
-
-    return "-";
-  }
-
   @override
   Widget build(BuildContext context) {
     final notaProvider = Provider.of<NotaDinasProvider>(context);
-    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
+    final bool isPejabat =
+        Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ??
+        false;
     List<Map<String, dynamic>> currentList = [];
 
     if (!isPejabat) {
       currentList = [];
     } else if (_selectedTabIndex == 0) {
-      currentList = notaProvider.notaDinasList.map((model) => {
-        "idnota": model.idnota,
-        "title": model.nmopd,
-        "status": model.nmkategori,
-        "desc": model.perihal,
-        "location": _extractLocation(model.perihal), 
-        "date": model.tglnota,
-      }).toList();
+      currentList = notaProvider.notaDinasList
+          .map(
+            (model) => {
+              "idnota": model.idnota,
+              "title": model.nmopd,
+              "status": model.nmkategori,
+              "desc": model.perihal,
+              "location": model.nmkategori,
+              "date": model.tglnota,
+            },
+          )
+          .toList();
     } else {
       currentList = _riwayatData.where((item) {
         bool matchSearch = true;
@@ -399,39 +385,41 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                           child: notaProvider.isLoading
                               ? const Center(child: CircularProgressIndicator())
                               : notaProvider.errorMessage != null
-                                  ? Center(
-                                      child: Text(
-                                        notaProvider.errorMessage!,
-                                        style: GoogleFonts.inter(
-                                          color: Colors.red,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    )
-                                  : currentList.isEmpty
-                                      ? Center(
-                                          child: Text(
-                                            !isPejabat ? "Tidak ada Nota Dinas" : "Tidak ada data ditemukan.",
-                                            style: GoogleFonts.inter(
-                                              color: Colors.grey,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        )
-                                      : ListView.builder(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 8,
-                                          ),
-                                          itemCount: currentList.length,
-                                          itemBuilder: (context, index) {
-                                            final item = currentList[index];
-                                            return GestureDetector(
-                                              onTap: () => _handleCardTap(item),
-                                              child: _buildNotaCard(item),
-                                            );
-                                          },
-                                        ),
+                              ? Center(
+                                  child: Text(
+                                    notaProvider.errorMessage!,
+                                    style: GoogleFonts.inter(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                )
+                              : currentList.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    !isPejabat
+                                        ? "Tidak ada Nota Dinas"
+                                        : "Tidak ada data ditemukan.",
+                                    style: GoogleFonts.inter(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 8,
+                                  ),
+                                  itemCount: currentList.length,
+                                  itemBuilder: (context, index) {
+                                    final item = currentList[index];
+                                    return GestureDetector(
+                                      onTap: () => _handleCardTap(item),
+                                      child: _buildNotaCard(item),
+                                    );
+                                  },
+                                ),
                         ),
                       ],
                     ),
@@ -546,9 +534,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                   data["approvalBg"],
                   data["approvalColor"],
                   data["approvalIcon"],
-                )
-              else
-                _buildStatusBadge(data["status"]),
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -566,27 +552,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (_selectedTabIndex == 1)
-                _buildStatusBadge(data["status"])
-              else
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: Color(0xFF0088FF),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      data["location"],
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFF0088FF),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+              _buildStatusBadge(data["status"]),
               Row(
                 children: [
                   const Icon(
