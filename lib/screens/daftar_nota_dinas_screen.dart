@@ -55,7 +55,10 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         ),
       );
     } else {
-      final notaProvider = Provider.of<NotaDinasProvider>(context, listen: false);
+      final notaProvider = Provider.of<NotaDinasProvider>(
+        context,
+        listen: false,
+      );
       final notaModel = notaProvider.notaDinasList.firstWhere(
         (element) => element.idnota == item['idnota'],
         orElse: () => notaProvider.notaDinasList.first,
@@ -63,11 +66,13 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
       final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => DetailNotaDinasScreen(
-          notaDinas: notaModel,
-          userId: "a4adb04d8392abc79d52ea247fabd8348b97a78a",
-          groupId: "6",
-        )),
+        MaterialPageRoute(
+          builder: (context) => DetailNotaDinasScreen(
+            notaDinas: notaModel,
+            userId: "54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e",
+            groupId: "6",
+          ),
+        ),
       );
 
       if (!mounted) return;
@@ -205,44 +210,46 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
             },
           )
           .where((item) {
-        bool matchSearch = true;
-        if (_searchQuery.isNotEmpty) {
-          final titleMatch = item["title"].toString().toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          );
-          final descMatch = item["desc"].toString().toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          );
-          matchSearch = titleMatch || descMatch;
-        }
+            bool matchSearch = true;
+            if (_searchQuery.isNotEmpty) {
+              final titleMatch = item["title"]
+                  .toString()
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
+              final descMatch = item["desc"].toString().toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              );
+              matchSearch = titleMatch || descMatch;
+            }
 
-        bool matchDinas = true;
-        bool matchWilayah = true;
-        bool matchKategori = true;
+            bool matchDinas = true;
+            bool matchWilayah = true;
+            bool matchKategori = true;
 
-        if (_appliedFilters != null) {
-          if (_appliedFilters!['dinas'] != null) {
-            String itemTitleClean = item["title"].toString().replaceAll(
-              '\n',
-              ' ',
-            );
-            matchDinas = itemTitleClean == _appliedFilters!['dinas'];
-          }
+            if (_appliedFilters != null) {
+              if (_appliedFilters!['dinas'] != null) {
+                String itemTitleClean = item["title"].toString().replaceAll(
+                  '\n',
+                  ' ',
+                );
+                matchDinas = itemTitleClean == _appliedFilters!['dinas'];
+              }
 
-          if (_appliedFilters!['wilayah'] != null &&
-              _appliedFilters!['wilayah'] != "Semua") {
-            matchWilayah = item["status"] == _appliedFilters!['wilayah'];
-          }
+              if (_appliedFilters!['wilayah'] != null &&
+                  _appliedFilters!['wilayah'] != "Semua") {
+                matchWilayah = item["status"] == _appliedFilters!['wilayah'];
+              }
 
-          if (_appliedFilters!['kategori'] != null &&
-              _appliedFilters!['kategori'] != "Semua") {
-            matchKategori =
-                item["approvalStatus"] == _appliedFilters!['kategori'];
-          }
-        }
+              if (_appliedFilters!['kategori'] != null &&
+                  _appliedFilters!['kategori'] != "Semua") {
+                matchKategori =
+                    item["approvalStatus"] == _appliedFilters!['kategori'];
+              }
+            }
 
-        return matchSearch && matchDinas && matchWilayah && matchKategori;
-      }).toList();
+            return matchSearch && matchDinas && matchWilayah && matchKategori;
+          })
+          .toList();
     }
 
     String headerTitle = _selectedTabIndex == 0

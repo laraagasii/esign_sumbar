@@ -6,9 +6,12 @@ import '../custom_bottom_navbar.dart';
 import 'package:proyek_esign/widgets/filter_spt_dialog.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/spt_provider.dart';
 
 class DaftarSptScreen extends StatefulWidget {
-  const DaftarSptScreen({super.key});
+  final String? id;
+
+  const DaftarSptScreen({super.key, this.id});
 
   @override
   State<DaftarSptScreen> createState() => _DaftarSptScreenState();
@@ -21,73 +24,25 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
-  final List<Map<String, dynamic>> _belumDiperiksaData = [
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Dalam Daerah",
-      "desc":
-          "Menghadiri Undangan Pembinaan Nagari Statistik Kabupaten Tanah Datar",
-      "location": "Tanah Datar",
-      "date": "07 s/d 09 Agustus 2026",
-    },
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Dalam Kota",
-      "desc":
-          "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi , Biro Umum dan Biro Administrasi dan Pimpinan)",
-      "location": "Padang",
-      "date": "05 s/d 07 Agustus 2026",
-    },
-    {
-      "title": "Dinas Komunikasi,\nInformatika, dan Statistik",
-      "status": "Luar Daerah",
-      "desc":
-          "Persiapan penilaian Indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Yogyakarta",
-      "location": "Jogyakarta",
-      "date": "05 s/d 08 Agustus 2026",
-    },
-    {
-      "title": "Biro Umum\nSetda Provinsi Sumatera Barat",
-      "status": "Dalam Daerah",
-      "desc":
-          "Rapat koordinasi persiapan kunjungan kerja pimpinan daerah ke Kabupaten Agam",
-      "location": "Bukittinggi",
-      "date": "04 s/d 06 Agustus 2026",
-    },
-    {
-      "title": "Dinas Kesehatan\nProvinsi Sumatera Barat",
-      "status": "Dalam Kota",
-      "desc":
-          "Evaluasi program layanan kesehatan semester pertama tahun 2026 di RS M. Djamil",
-      "location": "Padang",
-      "date": "03 s/d 04 Agustus 2026",
-    },
-    {
-      "title": "Dinas Pendidikan\nProvinsi Sumatera Barat",
-      "status": "Luar Daerah",
-      "desc":
-          "Studi banding pengelolaan sekolah unggulan ke Bandung, Jawa Barat",
-      "location": "Bandung",
-      "date": "01 s/d 04 Agustus 2026",
-    },
-    {
-      "title": "Dinas Pekerjaan Umum\ndan Penataan Ruang",
-      "status": "Dalam Daerah",
-      "desc":
-          "Peninjauan proyek pembangunan infrastruktur jalan lintas kabupaten",
-      "location": "Solok",
-      "date": "31 Juli s/d 02 Agustus 2026",
-    },
-    {
-      "title": "Badan Pendapatan Daerah\nProvinsi Sumatera Barat",
-      "status": "Dalam Kota",
-      "desc": "Rekonsiliasi data pajak kendaraan bermotor triwulan kedua",
-      "location": "Padang",
-      "date": "30 s/d 31 Juli 2026",
-    },
-  ];
+  final List<Map<String, dynamic>> _localHistoryData = [];
+  final Set<String> _openedSptIds = {};
 
-  final List<Map<String, dynamic>> _riwayatData = [];
+  late final String _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProv = context.read<AuthProvider>();
+      final provider = context.read<SptProvider>();
+      _userId =
+          widget.id ??
+          authProv.user?.userId ??
+          '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
+      await provider.fetchSptList(id: _userId, status: 'NEW');
+      await provider.fetchSptHistory(id: _userId);
+    });
+  }
 
   @override
   void dispose() {
@@ -107,86 +62,150 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
           ),
         ),
       );
-    } else {
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const DetailSptScreen()),
-      );
-
-      if (!mounted) return;
-
-      if (result != null) {
-        setState(() {
-          _belumDiperiksaData.remove(item);
-          _riwayatData.insert(0, {
-            "title": item["title"],
-            "status": item["status"],
-            "desc": item["desc"],
-            "date": item["date"],
-            "approvalStatus": result['status'],
-            "approvalColor": result['status'] == 'Disetujui'
-                ? const Color(0xFF125B2A)
-                : const Color(0xFFE53935),
-            "approvalBg": result['status'] == 'Disetujui'
-                ? const Color(0xFFD3FBD4)
-                : const Color(0xFFFFEBEE),
-            "approvalIcon": result['status'] == 'Disetujui'
-                ? Icons.check_circle_outline
-                : Icons.cancel_outlined,
-            "sekretarisStatus": result['status'],
-            "note": result['note'] ?? "",
-          });
-          
-          _selectedTabIndex = 1;
-          _searchController.clear();
-          _searchQuery = "";
-          _appliedFilters = null;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "SPT berhasil ${result['status']}!",
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-            ),
-            backgroundColor: result['status'] == 'Disetujui'
-                ? const Color(0xFF125B2A)
-                : const Color(0xFFE53935),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailRiwayatSptScreen(
-                  approvalStatus: result['status'] ?? "Proses",
-                  sekretarisStatus: result['status'] ?? "Belum Diperiksa",
-                  note: result['note'] ?? "",
-                ),
-              ),
-            );
-          }
-        });
-      }
+      return;
     }
+
+    final id = item['id']?.toString() ?? '';
+    if (id.isNotEmpty) {
+      _addToHistoryAsProses(item);
+    }
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailSptScreen(userId: _userId, sptItem: item),
+      ),
+    );
+    if (!mounted || id.isEmpty) return;
+    if (result != null) {
+      _updateHistoryStatus(id, item, result);
+    }
+  }
+
+  void _addToHistoryAsProses(Map<String, dynamic> item) {
+    final id = item['id']?.toString() ?? '';
+    if (id.isEmpty || _openedSptIds.contains(id)) return;
+
+    _openedSptIds.add(id);
+    setState(() {
+      _localHistoryData.insert(0, {
+        "id": id,
+        "title": item["title"],
+        "status": item["status"],
+        "desc": item["desc"],
+        "date": item["date"],
+        "approvalStatus": "Proses",
+        "approvalColor": const Color(0xFFF3F4F6),
+        "approvalBg": const Color(0xFFF3F4F6),
+        "approvalIcon": null,
+        "sekretarisStatus": "Proses",
+        "note": "",
+      });
+    });
+  }
+
+  void _updateHistoryStatus(
+    String id,
+    Map<String, dynamic> item,
+    Map<String, dynamic> result,
+  ) {
+    final existingIndex = _localHistoryData.indexWhere(
+      (history) => history['id']?.toString() == id,
+    );
+    final isApproved = result['status'] == 'Disetujui';
+    final updatedHistory = {
+      "id": id,
+      "title": item["title"],
+      "status": item["status"],
+      "desc": item["desc"],
+      "date": item["date"],
+      "approvalStatus": result['status'],
+      "approvalColor": isApproved
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
+      "approvalBg": isApproved
+          ? const Color(0xFFD3FBD4)
+          : const Color(0xFFFFEBEE),
+      "approvalIcon": isApproved
+          ? Icons.check_circle_outline
+          : Icons.cancel_outlined,
+      "sekretarisStatus": result['status'],
+      "note": result['note'] ?? "",
+    };
+
+    setState(() {
+      if (existingIndex >= 0) {
+        _localHistoryData[existingIndex] = updatedHistory;
+      } else {
+        _localHistoryData.insert(0, updatedHistory);
+      }
+      _selectedTabIndex = 1;
+      _searchController.clear();
+      _searchQuery = "";
+      _appliedFilters = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "SPT berhasil ${result['status']}!",
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: isApproved
+            ? const Color(0xFF125B2A)
+            : const Color(0xFFE53935),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailRiwayatSptScreen(
+            approvalStatus: result['status'] ?? "Proses",
+            sekretarisStatus: result['status'] ?? "Belum Diperiksa",
+            note: result['note'] ?? "",
+          ),
+        ),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
+    final bool isPejabat = true;
+    final sptProv = context.watch<SptProvider>();
     List<Map<String, dynamic>> currentList = [];
+
+    final List<Map<String, dynamic>> belumDiperiksaData = sptProv.sptList
+        .map((item) => item.toDisplayMap())
+        .toList();
+
+    final historyFromProvider = sptProv.historyList
+        .map((item) => item.toDisplayMap())
+        .toList();
+
+    final Map<String, Map<String, dynamic>> mergedHistory = {};
+    for (var item in historyFromProvider) {
+      final id = item['id']?.toString() ?? '';
+      if (id.isNotEmpty) mergedHistory[id] = Map<String, dynamic>.from(item);
+    }
+    for (var item in _localHistoryData) {
+      final id = item['id']?.toString() ?? '';
+      if (id.isEmpty) continue;
+      mergedHistory[id] = {...?mergedHistory[id], ...item};
+    }
+    final List<Map<String, dynamic>> historyData = mergedHistory.values
+        .toList();
 
     if (!isPejabat) {
       currentList = [];
     } else if (_selectedTabIndex == 0) {
-      currentList = _belumDiperiksaData.where((item) {
+      currentList = belumDiperiksaData.where((item) {
         bool matchSearch = true;
         if (_searchQuery.isNotEmpty) {
           final titleMatch = item["title"].toString().toLowerCase().contains(
@@ -200,7 +219,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         return matchSearch;
       }).toList();
     } else {
-      currentList = _riwayatData.where((item) {
+      currentList = historyData.where((item) {
         bool matchSearch = true;
         if (_searchQuery.isNotEmpty) {
           final titleMatch = item["title"].toString().toLowerCase().contains(
@@ -315,7 +334,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 24),
-                        _buildCustomTabBar(isPejabat),
+                        _buildCustomTabBar(isPejabat, sptProv.sptList.length),
                         const SizedBox(height: 16),
                         if (_selectedTabIndex == 1) ...[
                           Padding(
@@ -406,10 +425,16 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                           const SizedBox(height: 12),
                         ],
                         Expanded(
-                          child: currentList.isEmpty
+                          child: sptProv.isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : currentList.isEmpty
                               ? Center(
                                   child: Text(
-                                    !isPejabat ? "Tidak ada SPT" : "Tidak ada data ditemukan.",
+                                    !isPejabat
+                                        ? "Tidak ada SPT"
+                                        : (sptProv.errorMessage != null
+                                              ? sptProv.errorMessage!
+                                              : "Tidak ada data ditemukan."),
                                     style: GoogleFonts.inter(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -447,7 +472,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     );
   }
 
-  Widget _buildCustomTabBar(bool isPejabat) {
+  Widget _buildCustomTabBar(bool isPejabat, int pendingCount) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
       height: 48,
@@ -459,7 +484,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         children: [
           Expanded(
             child: _buildTabButton(
-              "Belum Diperiksa (${isPejabat ? _belumDiperiksaData.length : 0})",
+              "Belum Diperiksa (${isPejabat ? pendingCount : 0})",
               0,
             ),
           ),
@@ -529,7 +554,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(
@@ -541,15 +566,8 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                   ),
                 ),
               ),
-              if (_selectedTabIndex == 1 && data.containsKey("approvalStatus"))
-                _buildApprovalBadge(
-                  data["approvalStatus"],
-                  data["approvalBg"],
-                  data["approvalColor"],
-                  data["approvalIcon"],
-                )
-              else
-                _buildStatusBadge(data["status"]),
+              if (_selectedTabIndex == 1 && data["approvalStatus"] != null)
+                _buildApprovalStatusBadge(data["approvalStatus"].toString()),
             ],
           ),
           const SizedBox(height: 12),
@@ -558,36 +576,18 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
             style: GoogleFonts.inter(
               color: const Color(0xFF6B7280),
               fontSize: 13,
-              height: 1.4,
+              height: 1.5,
             ),
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (_selectedTabIndex == 1)
-                _buildStatusBadge(data["status"])
-              else
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: Color(0xFF0088FF),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      data["location"],
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFF0088FF),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+              data["category"] != null && data["category"].toString().isNotEmpty
+                  ? _buildCategoryBadge(data["category"])
+                  : const SizedBox.shrink(),
               Row(
                 children: [
                   const Icon(
@@ -645,6 +645,91 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
           color: textColor,
           fontSize: 11,
           fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApprovalStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+    String displayText;
+    final normalized = status.toLowerCase();
+
+    if (normalized.contains('belum diperiksa') ||
+        normalized.contains('surat tugas belum diperiksa') ||
+        normalized.contains('diproses') ||
+        normalized.contains('proses')) {
+      bgColor = const Color(0xFFF3F4F6);
+      textColor = const Color(0xFF64748B);
+      displayText = 'Proses';
+    } else if (normalized.contains('disetujui') ||
+        normalized.contains('setuju')) {
+      bgColor = const Color(0xFFD1FAE5);
+      textColor = const Color(0xFF166534);
+      displayText = 'Disetujui';
+    } else if (normalized.contains('ditolak') || normalized.contains('tolak')) {
+      bgColor = const Color(0xFFFECACA);
+      textColor = const Color(0xFF991B1B);
+      displayText = 'Ditolak';
+    } else {
+      bgColor = const Color(0xFFF3F4F6);
+      textColor = const Color(0xFF64748B);
+      displayText = 'Proses';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        displayText,
+        style: GoogleFonts.inter(
+          color: textColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryBadge(String category) {
+    Color bgColor;
+    Color textColor;
+
+    switch (category) {
+      case "Dalam Daerah":
+        bgColor = const Color(0xFFFEF9C3);
+        textColor = const Color(0xFFD4A72C);
+        break;
+      case "Dalam Kota":
+        bgColor = const Color(0xFFD3FBD4);
+        textColor = const Color(0xFF125B2A);
+        break;
+      case "Luar Daerah":
+        bgColor = const Color(0xFFFEE2B3);
+        textColor = const Color(0xFF92400E);
+        break;
+      default:
+        bgColor = const Color(0xFFF3F4F6);
+        textColor = const Color(0xFF4B5563);
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        category,
+        style: GoogleFonts.inter(
+          color: textColor,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

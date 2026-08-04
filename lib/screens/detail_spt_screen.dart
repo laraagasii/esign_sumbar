@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../custom_bottom_navbar.dart';
+import '../services/spt_service.dart';
 import '../widgets/pin_signature_dialog.dart';
 import '../widgets/rejection_dialog.dart';
 import '../widgets/approval_dialog.dart';
 
 class DetailSptScreen extends StatefulWidget {
-  const DetailSptScreen({super.key});
+  final String userId;
+  final Map<String, dynamic> sptItem;
+
+  const DetailSptScreen({
+    super.key,
+    required this.userId,
+    required this.sptItem,
+  });
 
   @override
   State<DetailSptScreen> createState() => _DetailSptScreenState();
@@ -17,6 +25,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
   final TextEditingController _catatanController = TextEditingController();
 
   final String _dummyPin = "123456";
+  final SptService _sptService = SptService();
+
+  bool _isLoadingDetail = true;
+  String? _detailError;
+  Map<String, dynamic>? _detailData;
 
   // List Riwayat Pemeriksaan Dinamis
   late List<Map<String, dynamic>> _riwayatList;
@@ -30,7 +43,8 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "icon": Icons.access_time_rounded,
         "iconBg": const Color(0xFFFEF9C3),
         "iconColor": const Color(0xFFD4A72C),
-        "title": "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
+        "title":
+            "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
         "description": "Catatan: -",
         "time": "-",
         "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
@@ -80,6 +94,51 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "statusColor": const Color(0xFF125B2A),
       },
     ];
+    _fetchSptDetail();
+  }
+
+  Future<void> _fetchSptDetail() async {
+    final item = widget.sptItem;
+    final year = item['year']?.toString() ?? DateTime.now().year.toString();
+    final tipe = _mapCategoryToTipe(item['detailType']?.toString() ?? '');
+    final token = item['token']?.toString() ?? item['id']?.toString() ?? '';
+
+    try {
+      final response = await _sptService.fetchSptDetail(
+        id: widget.userId,
+        year: year,
+        tipe: tipe,
+        token: token,
+      );
+      setState(() {
+        _detailData = response;
+        _detailError = null;
+      });
+    } catch (e) {
+      setState(() {
+        _detailError = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoadingDetail = false;
+      });
+    }
+  }
+
+  String _mapCategoryToTipe(String category) {
+    final normalized = category.toLowerCase();
+    if (normalized.contains('dalam daerah') ||
+        normalized == 'dl' ||
+        normalized == 'dd') {
+      return 'DL';
+    }
+    if (normalized.contains('dalam kota') || normalized == 'dk') {
+      return 'DK';
+    }
+    if (normalized.contains('luar daerah') || normalized == 'ld') {
+      return 'LD';
+    }
+    return category.toUpperCase();
   }
 
   @override
@@ -856,7 +915,10 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
     );
   }
 
-  void _processAction({required bool isApprove, required String catatan}) async {
+  void _processAction({
+    required bool isApprove,
+    required String catatan,
+  }) async {
     // Show loading
     showDialog(
       context: context,
@@ -871,11 +933,13 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isApprove 
-            ? "Dokumen berhasil ditandatangani secara elektronik" 
-            : "Dokumen berhasil ditolak"
+          isApprove
+              ? "Dokumen berhasil ditandatangani secara elektronik"
+              : "Dokumen berhasil ditolak",
         ),
-        backgroundColor: isApprove ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
+        backgroundColor: isApprove
+            ? const Color(0xFF2E7D32)
+            : const Color(0xFFC62828),
       ),
     );
 
@@ -887,19 +951,26 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
     Map<String, dynamic> riwayatSekretarisBaru = {
       "icon": isApprove ? Icons.check : Icons.close_rounded,
       "iconBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
-      "iconColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "iconColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
       "title": "Sekretaris (Anda)",
       "description": "Catatan: $catatan",
       "time": formattedDate,
       "actionLabel": "Tahap: Pemeriksaan Sekretaris",
-      "actionColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "actionColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
       "statusText": isApprove ? "Disetujui" : "Ditolak",
       "statusBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
-      "statusColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "statusColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
     };
 
     setState(() {
-      _riwayatList[1] = riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
+      _riwayatList[1] =
+          riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
     });
 
     Navigator.pop(context, {

@@ -1,4 +1,5 @@
 class UserModel {
+  final String userId;
   final String pegawai;
   final String username;
   final String opd;
@@ -16,6 +17,7 @@ class UserModel {
   final String kategori;
 
   UserModel({
+    required this.userId,
     required this.pegawai,
     required this.username,
     required this.opd,
@@ -36,6 +38,12 @@ class UserModel {
   // Factory untuk memetakan key dari JSON menjadi tipe data Object di Dart
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
+      userId:
+          json['userId']?.toString() ??
+          json['user_id']?.toString() ??
+          json['id']?.toString() ??
+          json['pegawai']?.toString() ??
+          '',
       pegawai: json['pegawai'] ?? '',
       username: json['username'] ?? '',
       opd: json['opd'] ?? '',
@@ -57,6 +65,7 @@ class UserModel {
   // Fungsi untuk mengembalikan Object Dart ke bentuk JSON
   Map<String, dynamic> toJson() {
     return {
+      'userId': userId,
       'pegawai': pegawai,
       'username': username,
       'opd': opd,
@@ -78,9 +87,9 @@ class UserModel {
   // Cek apakah user adalah Pejabat (Bisa menyetujui dokumen)
   // Berdasarkan jenjang atau eselon yang tidak kosong (kecuali PELAKSANA)
   bool get isPejabat {
-    return eselon.isNotEmpty || 
-           jenjang == 'JPT' || 
-           jenjang == 'ADMINISTRATOR' || 
-           jenjang == 'PENGAWAS';
+    return eselon.isNotEmpty ||
+        jenjang == 'JPT' ||
+        jenjang == 'ADMINISTRATOR' ||
+        jenjang == 'PENGAWAS';
   }
 }

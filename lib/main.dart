@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:proyek_esign/providers/auth_provider.dart';
 import 'package:proyek_esign/providers/home_provider.dart';
 import 'package:proyek_esign/providers/nota_dinas_provider.dart';
+import 'package:proyek_esign/providers/spt_provider.dart';
 import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/analisis_pengajuan_screen.dart';
 import 'package:proyek_esign/screens/riwayat_pengajuan_screen.dart';
@@ -24,6 +25,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => NotaDinasProvider()),
+        ChangeNotifierProvider(create: (_) => SptProvider()),
       ],
       child: const MyApp(),
     ),

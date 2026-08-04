@@ -5,6 +5,7 @@ import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/daftar_spt_screen.dart';
 import '../providers/auth_provider.dart';
 import '../providers/home_provider.dart';
+import '../providers/spt_provider.dart';
 import 'daftar_nota_dinas_screen.dart';
 import '../custom_bottom_navbar.dart';
 import '../providers/nota_dinas_provider.dart';
@@ -22,16 +23,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HomeProvider>().fetchHomeData();
+      final authProv = context.read<AuthProvider>();
+      final userId =
+          authProv.user?.userId ?? '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
       context.read<NotaDinasProvider>().fetchBelumDiperiksa(
         "a4adb04d8392abc79d52ea247fabd8348b97a78a",
         "6",
       );
+      context.read<SptProvider>().fetchSptList(id: userId, status: 'NEW');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final notaProv = context.watch<NotaDinasProvider>();
+    final sptProv = context.watch<SptProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -230,7 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            "${notaProv.notaDinasList.length + int.parse(data.rekap.spt.toString())}",
+                                            "${notaProv.notaDinasList.length + sptProv.sptList.length}",
                                             style: GoogleFonts.inter(
                                               color: const Color(0xFFFDB913),
                                               fontSize: 48,
@@ -334,7 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   _buildSummaryCard(
                                     title: "SPT",
                                     count: isPejabat
-                                        ? data.rekap.spt.toString()
+                                        ? sptProv.sptList.length.toString()
                                         : '0',
                                     bgColor: const Color(0xFFF2F7FA),
                                     onTap: () {
