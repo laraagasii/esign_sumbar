@@ -13,9 +13,13 @@ class SptService {
     String? group,
     String? status,
   }) async {
-    final url = group != null && group.isNotEmpty
-        ? '$_baseUrl/id/$id/group/$group'
-        : '$_baseUrl/id/$id';
+    String url = '$_baseUrl/id/$id';
+    if (group != null && group.isNotEmpty) {
+      url += '/group/$group';
+    }
+    if (status != null && status.isNotEmpty) {
+      url += '/status/$status';
+    }
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -25,17 +29,13 @@ class SptService {
         if (decodedData is Map<String, dynamic>) {
           final result = decodedData['result'];
           if (result is List) {
-            final items = result
-                .whereType<Map<String, dynamic>>()
-                .map((item) => SptModel.fromJson(item))
-                .toList();
+            var itemMaps = result.whereType<Map<String, dynamic>>();
 
             if (status != null && status.toUpperCase() == 'NEW') {
-              final pendingItems = items.where(_isPendingItem).toList();
-              return pendingItems.isNotEmpty ? pendingItems : items;
+              itemMaps = itemMaps.where(_isPendingItem).toList();
             }
 
-            return items;
+            return itemMaps.map((item) => SptModel.fromJson(item)).toList();
           }
         }
 

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FilterNotaDinasDialog extends StatefulWidget {
-  const FilterNotaDinasDialog({super.key});
+  final Map<String, dynamic>? initialFilters;
+  const FilterNotaDinasDialog({super.key, this.initialFilters});
 
   @override
   State<FilterNotaDinasDialog> createState() => _FilterNotaDinasDialogState();
@@ -16,6 +17,18 @@ class _FilterNotaDinasDialogState extends State<FilterNotaDinasDialog> {
   // Variabel untuk menyimpan tanggal yang dipilih
   DateTime? _startDate;
   DateTime? _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialFilters != null) {
+      _selectedDinas = widget.initialFilters!['dinas'];
+      _selectedKategori = widget.initialFilters!['kategori'] ?? "Semua";
+      _selectedWilayah = widget.initialFilters!['wilayah'] ?? "Semua";
+      _startDate = widget.initialFilters!['startDate'];
+      _endDate = widget.initialFilters!['endDate'];
+    }
+  }
 
   final List<String> _kategoriOptions = [
     "Semua",

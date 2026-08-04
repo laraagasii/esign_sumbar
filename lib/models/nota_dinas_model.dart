@@ -1,5 +1,7 @@
 class NotaDinasModel {
   final String idnota;
+  final String mbb;
+  final String msb;
   final String opd;
   final String nmopd;
   final String tahun;
@@ -16,6 +18,8 @@ class NotaDinasModel {
 
   NotaDinasModel({
     required this.idnota,
+    required this.mbb,
+    required this.msb,
     required this.opd,
     required this.nmopd,
     required this.tahun,
@@ -34,6 +38,8 @@ class NotaDinasModel {
   factory NotaDinasModel.fromJson(Map<String, dynamic> json) {
     return NotaDinasModel(
       idnota: json['idnota'] ?? '',
+      mbb: json['mbb'] ?? '',
+      msb: json['msb'] ?? '',
       opd: json['opd'] ?? '',
       nmopd: json['nmopd'] ?? '',
       tahun: json['tahun'] ?? '',

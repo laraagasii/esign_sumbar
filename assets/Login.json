@@ -37,7 +37,7 @@
             "kategori": "1"
         },
         {
-            "pegawai": "3",
+            "pegawai": "a4adb04d8392abc79d52ea247fabd8348b97a78a",
             "username": "sekdin",
             "opd": "2496",
             "nm_opd": "DINAS KOMUNIKASI, INFORMATIKA DAN STATISTIK",
@@ -50,7 +50,7 @@
             "eselon": "II.b",
             "pangkat": "IV.b",
             "jenjang": "JPT",
-            "group": 1,
+            "group": 6,
             "kategori": "1"
         }
     ]

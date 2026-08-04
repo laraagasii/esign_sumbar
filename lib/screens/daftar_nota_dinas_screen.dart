@@ -27,8 +27,14 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prov = Provider.of<NotaDinasProvider>(context, listen: false);
-      prov.fetchBelumDiperiksa("a4adb04d8392abc79d52ea247fabd8348b97a78a", "6");
-      prov.fetchSudahDiperiksa("a4adb04d8392abc79d52ea247fabd8348b97a78a", "6");
+      final authProv = Provider.of<AuthProvider>(context, listen: false);
+
+      final userId =
+          authProv.user?.userId ?? 'a4adb04d8392abc79d52ea247fabd8348b97a78a';
+      final groupId = authProv.user?.group.toString() ?? '6';
+
+      prov.fetchBelumDiperiksa(userId, groupId);
+      prov.fetchSudahDiperiksa(userId, groupId);
     });
   }
 
@@ -41,24 +47,34 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
   }
 
   void _handleCardTap(Map<String, dynamic> item) async {
+    final notaProvider = Provider.of<NotaDinasProvider>(
+      context,
+      listen: false,
+    );
+    final authProv = Provider.of<AuthProvider>(context, listen: false);
+    final userId =
+        authProv.user?.userId ?? 'a4adb04d8392abc79d52ea247fabd8348b97a78a';
+    final groupId = authProv.user?.group.toString() ?? '6';
+
     if (_selectedTabIndex == 1) {
+      final notaModel = notaProvider.riwayatNotaDinasList.firstWhere(
+        (element) => element.idnota == item['idnota'],
+        orElse: () => notaProvider.notaDinasList.firstWhere(
+          (element) => element.idnota == item['idnota'],
+        ),
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailRiwayatNotaDinasScreen(
-            approvalStatus: item["approvalStatus"] ?? "Proses",
-            sekretarisStatus: item["sekretarisStatus"] ?? "Belum Diperiksa",
-            note: item["note"] ?? "",
-            pengikutTerpilih: item["pengikutTerpilih"] ?? [],
-            pengikutDibatalkan: item["pengikutDibatalkan"] ?? [],
+          builder: (context) => DetailNotaDinasScreen(
+            notaDinas: notaModel,
+            userId: userId,
+            groupId: groupId,
+            isRiwayat: true,
           ),
         ),
       );
     } else {
-      final notaProvider = Provider.of<NotaDinasProvider>(
-        context,
-        listen: false,
-      );
       final notaModel = notaProvider.notaDinasList.firstWhere(
         (element) => element.idnota == item['idnota'],
         orElse: () => notaProvider.notaDinasList.first,
@@ -69,8 +85,8 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         MaterialPageRoute(
           builder: (context) => DetailNotaDinasScreen(
             notaDinas: notaModel,
-            userId: "54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e",
-            groupId: "6",
+            userId: userId,
+            groupId: groupId,
           ),
         ),
       );
@@ -127,22 +143,21 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           ),
         );
 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailRiwayatNotaDinasScreen(
-                  approvalStatus: result['status'] ?? "Proses",
-                  sekretarisStatus: result['status'] ?? "Belum Diperiksa",
-                  note: result['note'] ?? "",
-                  pengikutTerpilih: result['pengikutTerpilih'] ?? [],
-                  pengikutDibatalkan: result['pengikutDibatalkan'] ?? [],
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailNotaDinasScreen(
+                    notaDinas: notaModel,
+                    userId: userId,
+                    groupId: groupId,
+                    isRiwayat: true,
+                  ),
                 ),
-              ),
-            );
-          }
-        });
+              );
+            }
+          });
       } else {
         bool alreadyInRiwayat = _riwayatData.any(
           (r) => r["title"] == item["title"] && r["desc"] == item["desc"],
@@ -168,6 +183,55 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     }
   }
 
+  DateTime? _parseIndonesianDate(String dateStr) {
+    if (dateStr.isEmpty) return null;
+
+    // Remove day of week (e.g., "Rabu, ") if exists
+    if (dateStr.contains(',')) {
+      dateStr = dateStr.split(',')[1].trim();
+    }
+
+    // Try ISO format
+    DateTime? parsed = DateTime.tryParse(dateStr);
+    if (parsed != null) return parsed;
+
+    // Convert Indonesian month names to numbers
+    final monthMap = {
+      'januari': 1, 'jan': 1,
+      'februari': 2, 'feb': 2,
+      'maret': 3, 'mar': 3,
+      'april': 4, 'apr': 4,
+      'mei': 5,
+      'juni': 6, 'jun': 6,
+      'juli': 7, 'jul': 7,
+      'agustus': 8, 'agu': 8, 'agt': 8,
+      'september': 9, 'sep': 9,
+      'oktober': 10, 'okt': 10,
+      'november': 11, 'nov': 11,
+      'desember': 12, 'des': 12,
+    };
+
+    final parts = dateStr.split(RegExp(r'[\s\-/]+'));
+    if (parts.length >= 3) {
+      int? d = int.tryParse(parts[0]);
+      int? y = int.tryParse(parts[2]);
+      int? m = int.tryParse(parts[1]);
+      
+      if (m == null) {
+        String monthStr = parts[1].toLowerCase();
+        m = monthMap[monthStr];
+      }
+
+      if (d != null && m != null && y != null && y > 1000) {
+        return DateTime(y, m, d);
+      } else if (d != null && m != null && y != null && d > 1000) {
+        // format yyyy-MM-dd
+        return DateTime(d, m, y);
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final notaProvider = Provider.of<NotaDinasProvider>(context);
@@ -188,6 +252,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
               "desc": model.perihal,
               "location": model.nmkategori,
               "date": model.tglnota,
+              "approvalStatus": "Proses",
             },
           )
           .toList();
@@ -209,48 +274,74 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
               "sekretarisStatus": "Disetujui",
             },
           )
-          .where((item) {
-            bool matchSearch = true;
-            if (_searchQuery.isNotEmpty) {
-              final titleMatch = item["title"]
-                  .toString()
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase());
-              final descMatch = item["desc"].toString().toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              );
-              matchSearch = titleMatch || descMatch;
-            }
-
-            bool matchDinas = true;
-            bool matchWilayah = true;
-            bool matchKategori = true;
-
-            if (_appliedFilters != null) {
-              if (_appliedFilters!['dinas'] != null) {
-                String itemTitleClean = item["title"].toString().replaceAll(
-                  '\n',
-                  ' ',
-                );
-                matchDinas = itemTitleClean == _appliedFilters!['dinas'];
-              }
-
-              if (_appliedFilters!['wilayah'] != null &&
-                  _appliedFilters!['wilayah'] != "Semua") {
-                matchWilayah = item["status"] == _appliedFilters!['wilayah'];
-              }
-
-              if (_appliedFilters!['kategori'] != null &&
-                  _appliedFilters!['kategori'] != "Semua") {
-                matchKategori =
-                    item["approvalStatus"] == _appliedFilters!['kategori'];
-              }
-            }
-
-            return matchSearch && matchDinas && matchWilayah && matchKategori;
-          })
           .toList();
     }
+
+    // Terapkan filter dan pencarian untuk kedua tab
+    currentList = currentList.where((item) {
+      bool matchSearch = true;
+      if (_searchQuery.isNotEmpty) {
+        final titleMatch = item["title"]
+            .toString()
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase());
+        final descMatch = item["desc"].toString().toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        );
+        matchSearch = titleMatch || descMatch;
+      }
+
+      bool matchDinas = true;
+      bool matchWilayah = true;
+      bool matchKategori = true;
+      bool matchDate = true;
+
+      if (_appliedFilters != null) {
+        if (_appliedFilters!['dinas'] != null) {
+          String itemTitleClean = item["title"].toString().replaceAll('\n', ' ').toLowerCase();
+          String filterDinas = _appliedFilters!['dinas'].toString().toLowerCase();
+          matchDinas = itemTitleClean.contains(filterDinas);
+        }
+
+        if (_appliedFilters!['wilayah'] != null &&
+            _appliedFilters!['wilayah'] != "Semua") {
+          matchWilayah = item["status"] == _appliedFilters!['wilayah'];
+        }
+
+        if (_appliedFilters!['kategori'] != null &&
+            _appliedFilters!['kategori'] != "Semua") {
+          matchKategori =
+              item["approvalStatus"] == _appliedFilters!['kategori'];
+        }
+        
+        DateTime? startDate = _appliedFilters!['startDate'];
+        DateTime? endDate = _appliedFilters!['endDate'];
+        if (startDate != null || endDate != null) {
+          String dateStr = item["date"] ?? "";
+          DateTime? itemDate = _parseIndonesianDate(dateStr);
+          
+          if (itemDate != null) {
+            itemDate = DateTime(itemDate.year, itemDate.month, itemDate.day);
+            if (startDate != null) {
+              DateTime start = DateTime(startDate.year, startDate.month, startDate.day);
+              if (itemDate.isBefore(start)) matchDate = false;
+            }
+            if (endDate != null) {
+              DateTime end = DateTime(endDate.year, endDate.month, endDate.day);
+              if (itemDate.isAfter(end)) matchDate = false;
+            }
+          } else {
+             // If date parsing fails, we could choose to hide or show.
+             // We'll leave it as not matched if we can't parse it.
+             if (dateStr.isNotEmpty) {
+                 matchDate = false;
+             }
+          }
+        }
+      }
+
+      return matchSearch && matchDinas && matchWilayah && matchKategori && matchDate;
+    }).toList();
 
     String headerTitle = _selectedTabIndex == 0
         ? "Daftar Nota Dinas"
@@ -382,10 +473,12 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                                           await showDialog<
                                             Map<String, dynamic>
                                           >(
-                                            context: context,
-                                            builder: (context) {
-                                              return const FilterNotaDinasDialog();
-                                            },
+                                              context: context,
+                                              builder: (context) {
+                                                return FilterNotaDinasDialog(
+                                                  initialFilters: _appliedFilters,
+                                                );
+                                              },
                                           );
 
                                       if (!mounted) return;

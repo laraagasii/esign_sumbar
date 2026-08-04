@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/pin_signature_dialog.dart';
 import '../widgets/rejection_dialog.dart';
@@ -12,12 +15,14 @@ class DetailNotaDinasScreen extends StatefulWidget {
   final NotaDinasModel notaDinas;
   final String userId;
   final String groupId;
+  final bool isRiwayat;
 
   const DetailNotaDinasScreen({
     super.key,
     required this.notaDinas,
     required this.userId,
     required this.groupId,
+    this.isRiwayat = false,
   });
 
   @override
@@ -35,7 +40,8 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
   final String _dummyPin = "123456";
 
   List<Map<String, dynamic>> _pengikutList = [];
-  late List<Map<String, dynamic>> _riwayatList = [];
+  List<Map<String, dynamic>> _batalList = [];
+  late final List<Map<String, dynamic>> _riwayatList = [];
 
   @override
   void initState() {
@@ -55,12 +61,28 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
 
       if (detail != null) {
         setState(() {
-          _pengikutList = detail.pegawai.map((p) => {
-            "name": p.namaAsn,
-            "role": p.jabatan,
-            "badge": "Jumlah Perjadin : 0", // Can be updated if API provides the count
-            "selected": false,
-          }).toList();
+          _pengikutList = detail.pegawai
+              .map(
+                (p) => {
+                  "name": p.namaAsn,
+                  "nip": p.nipAsn,
+                  "role": p.jabatan,
+                  "badge": "Jumlah perjadin: ${p.blnhari}",
+                  "selected": false,
+                },
+              )
+              .toList();
+
+          _batalList = detail.asnbatal
+              .map(
+                (p) => {
+                  "name": p.namaAsn,
+                  "nip": p.nipAsn,
+                  "role": p.jabatan,
+                  "badge": "Jumlah perjadin: ${p.blnhari}",
+                },
+              )
+              .toList();
         });
       }
     });
@@ -149,120 +171,136 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                     child: isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : (detail == null)
-                            ? Center(child: Text(prov.detailErrorMessage ?? "Gagal memuat detail"))
-                            : SingleChildScrollView(
-                                padding: const EdgeInsets.all(24.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                        ? Center(
+                            child: Text(
+                              prov.detailErrorMessage ?? "Gagal memuat detail",
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        _buildTopTag(
-                                          detail.result.nmKategori,
-                                          const Color(0xFFD3FBD4),
-                                          const Color(0xFF125B2A),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        _buildTopTag(
-                                          detail.result.tglnota,
-                                          const Color(0xFFFEF9C3),
-                                          const Color(0xFFD4A72C),
-                                        ),
-                                      ],
+                                    _buildTopTag(
+                                      detail.result.nmKategori,
+                                      const Color(0xFFD3FBD4),
+                                      const Color(0xFF125B2A),
                                     ),
-                                    const SizedBox(height: 20),
-                                    _buildDetailInformasiCard(detail),
-                                    const SizedBox(height: 24),
-                                    _buildPengikutCard(),
-                                    const SizedBox(height: 24),
-                                    _buildLampiranCard(detail),
-                                    const SizedBox(height: 24),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          _showRiwayatPemeriksaan(context, detail);
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 14,
+                                    const SizedBox(width: 12),
+                                    _buildTopTag(
+                                      detail.result.tglnota,
+                                      const Color(0xFFFEF9C3),
+                                      const Color(0xFFD4A72C),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                _buildDetailInformasiCard(detail),
+                                const SizedBox(height: 24),
+                                _buildPengikutCard(),
+                                if (widget.isRiwayat) ...[
+                                  const SizedBox(height: 24),
+                                  _buildDibatalkanCard(),
+                                ],
+                                const SizedBox(height: 24),
+                                _buildLampiranCard(detail),
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      _showRiwayatPemeriksaan(context, detail);
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      side: BorderSide(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Lihat Riwayat Pemeriksaan",
+                                      style: GoogleFonts.inter(
+                                        color: const Color(0xFF132F53),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (!widget.isRiwayat) ...[
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _handleApprove();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFFD3FBD4,
+                                            ),
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
                                           ),
-                                          side: BorderSide(color: Colors.grey.shade300),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          "Lihat Riwayat Pemeriksaan",
-                                          style: GoogleFonts.inter(
-                                            color: const Color(0xFF132F53),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                          child: Text(
+                                            "Setujui",
+                                            style: GoogleFonts.inter(
+                                              color: const Color(0xFF125B2A),
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              _handleApprove();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFFD3FBD4),
-                                              elevation: 0,
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 14,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _handleReject();
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(
+                                              0xFFFFEBEE,
                                             ),
-                                            child: Text(
-                                              "Setuju",
-                                              style: GoogleFonts.inter(
-                                                color: const Color(0xFF125B2A),
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15,
-                                              ),
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            "Tolak",
+                                            style: GoogleFonts.inter(
+                                              color: const Color(0xFFE53935),
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              _handleReject();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFFFFEBEE),
-                                              elevation: 0,
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 14,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                            child: Text(
-                                              "Tolak",
-                                              style: GoogleFonts.inter(
-                                                color: const Color(0xFFE53935),
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
-                                  ],
-                                ),
-                              ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -321,12 +359,15 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
           ),
           const SizedBox(height: 16),
           _buildInfoRow("Pemohon", detail.result.dari),
+          _buildInfoRow("Unit Kerja", detail.result.nmOpd),
           _buildInfoRow(
-            "Unit Kerja",
-            detail.result.nmOpd,
+            "Tujuan",
+            detail.pegawai.isNotEmpty ? detail.pegawai.first.tujuan : "-",
           ),
-          _buildInfoRow("Tujuan", detail.pegawai.isNotEmpty ? detail.pegawai.first.tujuan : "-"),
-          _buildInfoRow("Tanggal Pelaksanaan", detail.pegawai.isNotEmpty ? detail.pegawai.first.tgldinas : "-"),
+          _buildInfoRow(
+            "Tanggal Pelaksanaan",
+            detail.pegawai.isNotEmpty ? detail.pegawai.first.tgldinas : "-",
+          ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12.0),
             child: Divider(color: Color(0xFFE5E7EB)),
@@ -349,28 +390,123 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // We can use flutter_html to render `detail.result.isiNota` if we import it, 
-          // but for now let's just show a placeholder or basic text, since it's HTML content.
-          // Since the original was just a button 'Isi Surat', we'll keep the button.
           Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                "Isi Surat (HTML terlampir)", // You might want to display this in a WebView or flutter_html
-                style: GoogleFonts.inter(
-                  color: const Color(0xFF132F53),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+            child: InkWell(
+              onTap: () => _showIsiSuratDialog(context, detail.result.isiNota),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "Isi Surat",
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFF132F53),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showIsiSuratDialog(BuildContext context, String htmlContent) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            "Isi Surat",
+            style: GoogleFonts.inter(
+              color: const Color(0xFF132F53),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Html(
+                data: htmlContent,
+                style: {
+                  "body": Style(
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                    fontFamily: 'Inter',
+                    color: const Color(0xFF132F53),
+                  ),
+                },
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                "Tutup",
+                style: GoogleFonts.inter(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPdfDialog(BuildContext context, String url, String title) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            title,
+            style: GoogleFonts.inter(
+              color: const Color(0xFF132F53),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: SfPdfViewer.network(
+              url,
+              canShowScrollHead: false,
+              canShowScrollStatus: false,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                "Tutup",
+                style: GoogleFonts.inter(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -443,7 +579,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         children: [
           Center(
             child: Text(
-              "Pengikut (8)",
+              "Pengikut (${_pengikutList.length})",
               style: GoogleFonts.inter(
                 color: const Color(0xFF132F53),
                 fontWeight: FontWeight.bold,
@@ -452,53 +588,55 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _isAllSelected,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
+          if (!widget.isRiwayat) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _isAllSelected,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        activeColor: const Color(0xFF125B2A),
+                        onChanged: (val) {
+                          setState(() {
+                            _isAllSelected = val ?? false;
+                            for (var item in _pengikutList) {
+                              item["selected"] = _isAllSelected;
+                            }
+                          });
+                        },
                       ),
-                      activeColor: const Color(0xFF125B2A),
-                      onChanged: (val) {
-                        setState(() {
-                          _isAllSelected = val ?? false;
-                          for (var item in _pengikutList) {
-                            item["selected"] = _isAllSelected;
-                          }
-                        });
-                      },
-                    ),
-                    Text(
-                      "Pilih Semua",
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFF132F53),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                      Text(
+                        "Pilih Semua",
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF132F53),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Text(
-                  "$totalTerpilih Terpilih",
-                  style: GoogleFonts.inter(
-                    color: Colors.grey.shade500,
-                    fontSize: 12,
+                    ],
                   ),
-                ),
-              ],
+                  Text(
+                    "$totalTerpilih Terpilih",
+                    style: GoogleFonts.inter(
+                      color: Colors.grey.shade500,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
+          ],
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -514,24 +652,40 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: widget.isRiwayat
+                      ? const Color(0xFFFEF9C3)
+                      : Colors.white,
+                  border: Border.all(
+                    color: widget.isRiwayat
+                        ? const Color(0xFFFEF08A)
+                        : Colors.grey.shade200,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    Checkbox(
-                      value: pengikut['selected'],
-                      activeColor: const Color(0xFF125B2A),
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          pengikut['selected'] = newValue ?? false;
-                          _isAllSelected = _pengikutList.every(
-                            (e) => e['selected'] == true,
-                          );
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
+                    if (!widget.isRiwayat) ...[
+                      Checkbox(
+                        value: pengikut['selected'],
+                        activeColor: const Color(0xFF125B2A),
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            pengikut['selected'] = newValue ?? false;
+                            _isAllSelected = _pengikutList.every(
+                              (e) => e['selected'] == true,
+                            );
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    if (widget.isRiwayat) ...[
+                      const Icon(
+                        Icons.person_outline,
+                        color: Color(0xFFCA8A04),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,40 +693,58 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                           Text(
                             pengikut["name"],
                             style: GoogleFonts.inter(
-                              color: const Color(0xFF132F53),
+                              color: widget.isRiwayat
+                                  ? const Color(0xFF854D0E)
+                                  : const Color(0xFF132F53),
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
                           ),
+                          if (widget.isRiwayat &&
+                              pengikut["nip"] != null &&
+                              pengikut["nip"].toString().isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              pengikut["nip"],
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFA16207),
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 2),
                           Text(
                             pengikut["role"],
                             style: GoogleFonts.inter(
-                              color: Colors.grey.shade500,
+                              color: widget.isRiwayat
+                                  ? const Color(0xFFA16207)
+                                  : Colors.grey.shade500,
                               fontSize: 11,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors['bg'],
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              pengikut["badge"],
-                              style: GoogleFonts.inter(
-                                color: colors['text'],
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                          if (!widget.isRiwayat) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors['bg'],
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                pengikut["badge"],
+                                style: GoogleFonts.inter(
+                                  color: colors['text'],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -581,6 +753,111 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDibatalkanCard() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              "Dibatalkan (${_batalList.length})",
+              style: GoogleFonts.inter(
+                color: const Color(0xFF132F53),
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_batalList.isEmpty)
+            Center(
+              child: Text(
+                "Tidak ada pengikut yang dibatalkan",
+                style: GoogleFonts.inter(
+                  color: Colors.grey.shade500,
+                  fontSize: 12,
+                ),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _batalList.length,
+              itemBuilder: (context, index) {
+                final pengikut = _batalList[index];
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    border: Border.all(color: const Color(0xFFFECACA)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.person_outline,
+                        color: Color(0xFFDC2626),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              pengikut["name"],
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF991B1B),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (pengikut["nip"] != null &&
+                                pengikut["nip"].toString().isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                pengikut["nip"],
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xFFB91C1C),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 2),
+                            Text(
+                              pengikut["role"],
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFB91C1C),
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
@@ -618,24 +895,50 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
           ...detail.lampiran.map(
             (file) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      file.namaFile,
-                      style: GoogleFonts.inter(
-                        color: const Color(0xFF132F53),
-                        fontSize: 13,
+              child: InkWell(
+                onTap: () async {
+                  String urlString = file.urlFile;
+                  if (urlString.toLowerCase().endsWith('.pdf')) {
+                    _showPdfDialog(context, urlString, "Pratinjau Dokumen");
+                  } else {
+                    final Uri url = Uri.parse(urlString);
+                    if (!await launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    )) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gagal membuka tautan dokumen.'),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          file.namaFile,
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF132F53),
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
-                    ),
+                      const Icon(
+                        Icons.visibility,
+                        size: 18,
+                        color: Color(0xFF132F53),
+                      ),
+                    ],
                   ),
-                  const Icon(
-                    Icons.download,
-                    size: 18,
-                    color: Color(0xFF132F53),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -644,7 +947,10 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     );
   }
 
-  void _showRiwayatPemeriksaan(BuildContext context, NotaDinasDetailModel detail) {
+  void _showRiwayatPemeriksaan(
+    BuildContext context,
+    NotaDinasDetailModel detail,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -712,36 +1018,49 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                         Color iconBg = const Color(0xFFD3FBD4);
                         Color iconColor = const Color(0xFF125B2A);
                         Color? actionColor;
-                        String statusText = item.status.isNotEmpty ? item.status : "Disetujui";
+
+                        String tindakanLower = (item.tindakan ?? "").toLowerCase();
+
+                        String statusText = item.status.isNotEmpty
+                            ? item.status
+                            : "Disetujui";
                         Color statusBg = const Color(0xFFD3FBD4);
                         Color statusColor = const Color(0xFF125B2A);
 
-                        if (item.status.toLowerCase().contains("belum")) {
+                        if (tindakanLower.isEmpty) {
                           icon = Icons.access_time;
                           iconBg = const Color(0xFFFEF9C3);
                           iconColor = const Color(0xFFD4A72C);
+                          actionColor = const Color(0xFFD4A72C);
                           statusBg = const Color(0xFFFEF9C3);
                           statusColor = const Color(0xFFD4A72C);
-                        } else if (item.status.toLowerCase().contains("tolak")) {
+                        } else if (tindakanLower.contains("tidak disetujui") || tindakanLower.contains("tolak")) {
                           icon = Icons.close;
                           iconBg = const Color(0xFFFFEBEE);
                           iconColor = const Color(0xFFE53935);
+                          actionColor = const Color(0xFFE53935);
                           statusBg = const Color(0xFFFFEBEE);
                           statusColor = const Color(0xFFE53935);
+                        } else {
+                          icon = Icons.check;
+                          iconBg = const Color(0xFFD3FBD4);
+                          iconColor = const Color(0xFF125B2A);
+                          actionColor = const Color(0xFF125B2A);
                         }
 
                         return _buildRiwayatItem(
                           icon: icon,
                           iconBg: iconBg,
                           iconColor: iconColor,
-                          title: item.teruskan,
-                          description: item.jabatan,
-                          time: item.tanggal,
+                          title: item.jabatan,
+                          description: item.teruskan,
+                          time: null, 
                           actionLabel: item.tindakan,
                           actionColor: actionColor,
-                          statusText: statusText,
+                          statusText: statusText, 
                           statusBg: statusBg,
                           statusColor: statusColor,
+                          catatan: item.catatan,
                           showTimelineLine: hasNext,
                         );
                       },
@@ -762,12 +1081,13 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     required Color iconColor,
     required String title,
     String? description,
-    required String time,
+    String? time,
     String? actionLabel,
     Color? actionColor,
     String? statusText,
     Color? statusBg,
     Color? statusColor,
+    String? catatan,
     required bool showTimelineLine,
   }) {
     return Row(
@@ -815,14 +1135,16 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 4),
-                Text(
-                  time,
-                  style: GoogleFonts.inter(
-                    color: Colors.grey.shade500,
-                    fontSize: 12,
+                if (time != null && time.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    time,
+                    style: GoogleFonts.inter(
+                      color: Colors.grey.shade500,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
+                ],
                 if (actionLabel != null) ...[
                   const SizedBox(height: 3),
                   Text(
@@ -834,6 +1156,30 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                     ),
                   ),
                 ],
+                const SizedBox(height: 6),
+                Text(
+                  "Catatan:",
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFF132F53),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  (catatan == null || catatan.isEmpty || catatan == "-")
+                      ? "Belum ada catatan"
+                      : catatan,
+                  style: GoogleFonts.inter(
+                    color: (catatan == null || catatan.isEmpty || catatan == "-")
+                        ? Colors.grey.shade500
+                        : Colors.black87,
+                    fontStyle: (catatan == null || catatan.isEmpty || catatan == "-")
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                    fontSize: 12,
+                  ),
+                ),
                 if (statusText != null) ...[
                   const SizedBox(height: 6),
                   Container(
@@ -915,7 +1261,10 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     );
   }
 
-  void _processAction({required bool isApprove, required String catatan}) async {
+  void _processAction({
+    required bool isApprove,
+    required String catatan,
+  }) async {
     // Show loading
     showDialog(
       context: context,
@@ -923,26 +1272,32 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    await Future.delayed(const Duration(seconds: 1)); // Mock proses penandatanganan
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Mock proses penandatanganan
     if (!mounted) return;
     Navigator.pop(context); // Tutup loading
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isApprove 
-            ? "Dokumen berhasil ditandatangani secara elektronik" 
-            : "Dokumen berhasil ditolak"
+          isApprove
+              ? "Dokumen berhasil ditandatangani secara elektronik"
+              : "Dokumen berhasil ditolak",
         ),
-        backgroundColor: isApprove ? const Color(0xFF2E7D32) : const Color(0xFFC62828),
+        backgroundColor: isApprove
+            ? const Color(0xFF2E7D32)
+            : const Color(0xFFC62828),
       ),
     );
 
-    List<Map<String, dynamic>> pengikutTerpilih =
-        _pengikutList.where((p) => p["selected"] == true).toList();
+    List<Map<String, dynamic>> pengikutTerpilih = _pengikutList
+        .where((p) => p["selected"] == true)
+        .toList();
 
-    List<Map<String, dynamic>> pengikutDibatalkan =
-        _pengikutList.where((p) => p["selected"] == false).toList();
+    List<Map<String, dynamic>> pengikutDibatalkan = _pengikutList
+        .where((p) => p["selected"] == false)
+        .toList();
 
     DateTime now = DateTime.now();
     String formattedDate =
@@ -951,19 +1306,26 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     Map<String, dynamic> riwayatSekretarisBaru = {
       "icon": isApprove ? Icons.check : Icons.close_rounded,
       "iconBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
-      "iconColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "iconColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
       "title": "Sekretaris (Anda)",
       "description": "Catatan: $catatan",
       "time": formattedDate,
       "actionLabel": "Tahap: Pemeriksaan Sekretaris",
-      "actionColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "actionColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
       "statusText": isApprove ? "Disetujui" : "Ditolak",
       "statusBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
-      "statusColor": isApprove ? const Color(0xFF125B2A) : const Color(0xFFE53935),
+      "statusColor": isApprove
+          ? const Color(0xFF125B2A)
+          : const Color(0xFFE53935),
     };
 
     setState(() {
-      _riwayatList[1] = riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
+      _riwayatList[1] =
+          riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
     });
 
     Navigator.pop(context, {

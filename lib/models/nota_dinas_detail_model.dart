@@ -1,12 +1,14 @@
 class NotaDinasDetailModel {
   final DetailResult result;
   final List<Pegawai> pegawai;
+  final List<Pegawai> asnbatal;
   final List<Lampiran> lampiran;
   final List<Tracking> tracking;
 
   NotaDinasDetailModel({
     required this.result,
     required this.pegawai,
+    required this.asnbatal,
     required this.lampiran,
     required this.tracking,
   });
@@ -15,6 +17,10 @@ class NotaDinasDetailModel {
     return NotaDinasDetailModel(
       result: DetailResult.fromJson(json['result'] ?? {}),
       pegawai: (json['pegawai'] as List<dynamic>?)
+              ?.map((e) => Pegawai.fromJson(e))
+              .toList() ??
+          [],
+      asnbatal: (json['asnbatal'] as List<dynamic>?)
               ?.map((e) => Pegawai.fromJson(e))
               .toList() ??
           [],

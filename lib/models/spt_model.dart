@@ -33,16 +33,16 @@ class SptModel {
     final map = Map<String, dynamic>.from(json);
 
     final dateStart =
-        map['pergi']?.toString()?.trim() ??
-        map['tglspt']?.toString()?.trim() ??
-        map['tanggal']?.toString()?.trim() ??
-        map['tgl']?.toString()?.trim() ??
+        map['pergi']?.toString().trim() ??
+        map['tglspt']?.toString().trim() ??
+        map['tanggal']?.toString().trim() ??
+        map['tgl']?.toString().trim() ??
         '';
-    final dateEnd = map['pulang']?.toString()?.trim();
+    final dateEnd = map['pulang']?.toString().trim();
     final displayDate = _formatDateRange(dateStart, dateEnd);
     final rawCategory =
-        map['kategori']?.toString()?.trim() ??
-        map['nmkategori']?.toString()?.trim() ??
+        map['kategori']?.toString().trim() ??
+        map['nmkategori']?.toString().trim() ??
         '';
     final year = map['tahun']?.toString().trim().isNotEmpty == true
         ? map['tahun']!.toString().trim()
