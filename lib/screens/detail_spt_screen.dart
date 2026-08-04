@@ -45,10 +45,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "iconColor": const Color(0xFFD4A72C),
         "title":
             "Andi Setiawan (Kepala Dinas Komunikasi, Informatika dan Statistik)",
-        "description": "Catatan: -",
+        "teruskan": "",
+        "actionLabel": "Belum Diperiksa",
+        "actionColor": const Color(0xFFD4A72C),
+        "catatan": "-",
         "time": "-",
-        "actionLabel": "Tahap: Pemeriksaan Kepala Dinas",
-        "statusText": "Belum Diperiksa",
         "statusBg": const Color(0xFFFEF9C3),
         "statusColor": const Color(0xFFD4A72C),
       },
@@ -58,10 +59,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "iconBg": const Color(0xFFFEF9C3),
         "iconColor": const Color(0xFFD4A72C),
         "title": "Sekretaris (Anda)",
-        "description": "Catatan: -",
+        "teruskan": "",
+        "actionLabel": "Belum Diperiksa",
+        "actionColor": const Color(0xFFD4A72C),
+        "catatan": "-",
         "time": "-",
-        "actionLabel": "Tahap: Pemeriksaan Sekretaris",
-        "statusText": "Belum Diperiksa",
         "statusBg": const Color(0xFFFEF9C3),
         "statusColor": const Color(0xFFD4A72C),
       },
@@ -71,11 +73,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
         "title": "Budi Santoso (Kepala Bidang Siber dan Sandi)",
-        "description": "Catatan: Diteruskan ke Sekretaris",
+        "teruskan": "Nota dinas diteruskan ke Sekretaris Daerah",
+        "actionLabel": "Disetujui",
+        "actionColor": const Color(0xFF125B2A),
+        "catatan": "Diteruskan ke Sekretaris",
         "time": "Rabu, 07 Agustus 2026 13:40:07",
-        "actionLabel": "Tahap: Pemeriksaan Kepala Bidang",
-        "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -85,11 +87,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "iconBg": const Color(0xFFD3FBD4),
         "iconColor": const Color(0xFF125B2A),
         "title": "Dedi (Staff Bidang Siber dan Sandi)",
-        "description": "Catatan: Pengajuan SPT",
+        "teruskan": "Nota dinas diteruskan ke Kepala Bidang",
+        "actionLabel": "Disetujui",
+        "actionColor": const Color(0xFF125B2A),
+        "catatan": "Pengajuan SPT",
         "time": "Rabu, 07 Agustus 2026 13:29:47",
-        "actionLabel": "Tahap: Pembuatan Pengajuan",
-        "actionColor": const Color(0xFFD4A72C),
-        "statusText": "Disetujui",
         "statusBg": const Color(0xFFD3FBD4),
         "statusColor": const Color(0xFF125B2A),
       },
@@ -405,31 +407,6 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
           ),
           const SizedBox(height: 16),
 
-          Center(
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE5E7EB),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 10,
-                ),
-              ),
-              child: Text(
-                "Isi Surat",
-                style: GoogleFonts.inter(
-                  color: const Color(0xFF1F2937),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
 
           _buildInfoRow("Kendaraan", "Kendaraan Dinas /BA 1241 HJ"),
           const SizedBox(height: 10),
@@ -720,11 +697,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                           iconBg: item['iconBg'],
                           iconColor: item['iconColor'],
                           title: item['title'],
-                          description: item['description'],
-                          time: item['time'],
+                          teruskan: item['teruskan'],
                           actionLabel: item['actionLabel'],
                           actionColor: item['actionColor'],
-                          statusText: item['statusText'],
+                          catatan: item['catatan'],
+                          time: item['time'],
                           statusBg: item['statusBg'],
                           statusColor: item['statusColor'],
                           showTimelineLine: hasNext,
@@ -746,13 +723,13 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
     required Color iconBg,
     required Color iconColor,
     required String title,
-    String? description,
+    required String teruskan,
+    required String actionLabel,
+    required Color actionColor,
+    required String catatan,
     required String time,
-    String? actionLabel,
-    Color? actionColor,
-    String? statusText,
-    Color? statusBg,
-    Color? statusColor,
+    required Color statusBg,
+    required Color statusColor,
     required bool showTimelineLine,
   }) {
     return Row(
@@ -761,34 +738,23 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
               child: Icon(icon, size: 20, color: iconColor),
             ),
             if (showTimelineLine)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Column(
-                  children: List.generate(
-                    4,
-                    (index) => Container(
-                      width: 4,
-                      height: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 3),
-                      decoration: BoxDecoration(
-                        color: iconColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ),
+              Container(
+                width: 2,
+                height: 140, // Increased slightly to accommodate all contents
+                color: const Color(0xFF828282).withOpacity(0.3),
+                margin: const EdgeInsets.symmetric(vertical: 4),
               ),
           ],
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
+            padding: const EdgeInsets.only(bottom: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -796,58 +762,68 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                   title,
                   style: GoogleFonts.inter(
                     color: const Color(0xFF132F53),
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (description != null) ...[
-                  const SizedBox(height: 4),
+                if (teruskan.isNotEmpty) ...[
+                  const SizedBox(height: 3),
                   Text(
-                    description,
+                    teruskan,
                     style: GoogleFonts.inter(
-                      color: Colors.grey.shade500,
+                      color: Colors.grey.shade600,
                       fontSize: 12,
                       height: 1.3,
                     ),
                   ),
                 ],
-                if (time.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    time,
-                    style: GoogleFonts.inter(
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-                if (actionLabel != null) ...[
-                  const SizedBox(height: 4),
+                if (actionLabel.isNotEmpty) ...[
+                  const SizedBox(height: 3),
                   Text(
                     actionLabel,
                     style: GoogleFonts.inter(
-                      color: actionColor ?? const Color(0xFFD4A72C),
-                      fontSize: 11,
+                      color: actionColor,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
-                if (statusText != null) ...[
+                if (catatan.isNotEmpty && catatan != '-') ...[
                   const SizedBox(height: 6),
+                  Text(
+                    "Catatan:",
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF132F53),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    catatan,
+                    style: GoogleFonts.inter(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+                if (time.isNotEmpty && time != '-') ...[
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
+                      horizontal: 10,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: statusBg,
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      statusText,
+                      "Diperiksa : $time",
                       style: GoogleFonts.inter(
                         color: statusColor,
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

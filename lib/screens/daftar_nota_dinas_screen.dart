@@ -6,7 +6,6 @@ import 'package:proyek_esign/widgets/filter_nota_dinas_dialog.dart';
 import 'package:proyek_esign/screens/detail_nota_dinas_screen.dart';
 import 'package:proyek_esign/custom_bottom_navbar.dart';
 import 'package:proyek_esign/providers/nota_dinas_provider.dart';
-import 'detail_riwayat_nota_dinas_screen.dart';
 
 class DaftarNotaDinasScreen extends StatefulWidget {
   const DaftarNotaDinasScreen({super.key});
@@ -47,10 +46,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
   }
 
   void _handleCardTap(Map<String, dynamic> item) async {
-    final notaProvider = Provider.of<NotaDinasProvider>(
-      context,
-      listen: false,
-    );
+    final notaProvider = Provider.of<NotaDinasProvider>(context, listen: false);
     final authProv = Provider.of<AuthProvider>(context, listen: false);
     final userId =
         authProv.user?.userId ?? 'a4adb04d8392abc79d52ea247fabd8348b97a78a';
@@ -143,21 +139,21 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           ),
         );
 
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (mounted) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailNotaDinasScreen(
-                    notaDinas: notaModel,
-                    userId: userId,
-                    groupId: groupId,
-                    isRiwayat: true,
-                  ),
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailNotaDinasScreen(
+                  notaDinas: notaModel,
+                  userId: userId,
+                  groupId: groupId,
+                  isRiwayat: true,
                 ),
-              );
-            }
-          });
+              ),
+            );
+          }
+        });
       } else {
         bool alreadyInRiwayat = _riwayatData.any(
           (r) => r["title"] == item["title"] && r["desc"] == item["desc"],
@@ -197,18 +193,30 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
     // Convert Indonesian month names to numbers
     final monthMap = {
-      'januari': 1, 'jan': 1,
-      'februari': 2, 'feb': 2,
-      'maret': 3, 'mar': 3,
-      'april': 4, 'apr': 4,
+      'januari': 1,
+      'jan': 1,
+      'februari': 2,
+      'feb': 2,
+      'maret': 3,
+      'mar': 3,
+      'april': 4,
+      'apr': 4,
       'mei': 5,
-      'juni': 6, 'jun': 6,
-      'juli': 7, 'jul': 7,
-      'agustus': 8, 'agu': 8, 'agt': 8,
-      'september': 9, 'sep': 9,
-      'oktober': 10, 'okt': 10,
-      'november': 11, 'nov': 11,
-      'desember': 12, 'des': 12,
+      'juni': 6,
+      'jun': 6,
+      'juli': 7,
+      'jul': 7,
+      'agustus': 8,
+      'agu': 8,
+      'agt': 8,
+      'september': 9,
+      'sep': 9,
+      'oktober': 10,
+      'okt': 10,
+      'november': 11,
+      'nov': 11,
+      'desember': 12,
+      'des': 12,
     };
 
     final parts = dateStr.split(RegExp(r'[\s\-/]+'));
@@ -216,7 +224,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
       int? d = int.tryParse(parts[0]);
       int? y = int.tryParse(parts[2]);
       int? m = int.tryParse(parts[1]);
-      
+
       if (m == null) {
         String monthStr = parts[1].toLowerCase();
         m = monthMap[monthStr];
@@ -281,10 +289,9 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
     currentList = currentList.where((item) {
       bool matchSearch = true;
       if (_searchQuery.isNotEmpty) {
-        final titleMatch = item["title"]
-            .toString()
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase());
+        final titleMatch = item["title"].toString().toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        );
         final descMatch = item["desc"].toString().toLowerCase().contains(
           _searchQuery.toLowerCase(),
         );
@@ -298,8 +305,13 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
 
       if (_appliedFilters != null) {
         if (_appliedFilters!['dinas'] != null) {
-          String itemTitleClean = item["title"].toString().replaceAll('\n', ' ').toLowerCase();
-          String filterDinas = _appliedFilters!['dinas'].toString().toLowerCase();
+          String itemTitleClean = item["title"]
+              .toString()
+              .replaceAll('\n', ' ')
+              .toLowerCase();
+          String filterDinas = _appliedFilters!['dinas']
+              .toString()
+              .toLowerCase();
           matchDinas = itemTitleClean.contains(filterDinas);
         }
 
@@ -313,17 +325,21 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           matchKategori =
               item["approvalStatus"] == _appliedFilters!['kategori'];
         }
-        
+
         DateTime? startDate = _appliedFilters!['startDate'];
         DateTime? endDate = _appliedFilters!['endDate'];
         if (startDate != null || endDate != null) {
           String dateStr = item["date"] ?? "";
           DateTime? itemDate = _parseIndonesianDate(dateStr);
-          
+
           if (itemDate != null) {
             itemDate = DateTime(itemDate.year, itemDate.month, itemDate.day);
             if (startDate != null) {
-              DateTime start = DateTime(startDate.year, startDate.month, startDate.day);
+              DateTime start = DateTime(
+                startDate.year,
+                startDate.month,
+                startDate.day,
+              );
               if (itemDate.isBefore(start)) matchDate = false;
             }
             if (endDate != null) {
@@ -331,16 +347,20 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
               if (itemDate.isAfter(end)) matchDate = false;
             }
           } else {
-             // If date parsing fails, we could choose to hide or show.
-             // We'll leave it as not matched if we can't parse it.
-             if (dateStr.isNotEmpty) {
-                 matchDate = false;
-             }
+            // If date parsing fails, we could choose to hide or show.
+            // We'll leave it as not matched if we can't parse it.
+            if (dateStr.isNotEmpty) {
+              matchDate = false;
+            }
           }
         }
       }
 
-      return matchSearch && matchDinas && matchWilayah && matchKategori && matchDate;
+      return matchSearch &&
+          matchDinas &&
+          matchWilayah &&
+          matchKategori &&
+          matchDate;
     }).toList();
 
     String headerTitle = _selectedTabIndex == 0
@@ -473,12 +493,12 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                                           await showDialog<
                                             Map<String, dynamic>
                                           >(
-                                              context: context,
-                                              builder: (context) {
-                                                return FilterNotaDinasDialog(
-                                                  initialFilters: _appliedFilters,
-                                                );
-                                              },
+                                            context: context,
+                                            builder: (context) {
+                                              return FilterNotaDinasDialog(
+                                                initialFilters: _appliedFilters,
+                                              );
+                                            },
                                           );
 
                                       if (!mounted) return;

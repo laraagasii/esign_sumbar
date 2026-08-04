@@ -206,6 +206,8 @@ class SptModel {
       'desc': description,
       'location': location,
       'date': date,
+      'parsedStartDate': _parseDate(rawStartDate),
+      'parsedEndDate': _parseDate(rawEndDate),
     };
   }
 }

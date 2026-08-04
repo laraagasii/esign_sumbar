@@ -11,13 +11,25 @@ class FilterSPTDialog extends StatefulWidget {
 }
 
 class _FilterSPTDialogState extends State<FilterSPTDialog> {
-  String? _selectedDinas;
+  String? _selectedDinas = "Semua";
   String _selectedKategori = "Semua";
   String _selectedWilayah = "Semua";
 
   // Variabel untuk menyimpan tanggal yang dipilih
   DateTime? _startDate;
   DateTime? _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.currentFilters != null) {
+      _selectedDinas = widget.currentFilters!['dinas'] ?? "Semua";
+      _selectedKategori = widget.currentFilters!['kategori'] ?? "Semua";
+      _selectedWilayah = widget.currentFilters!['wilayah'] ?? "Semua";
+      _startDate = widget.currentFilters!['startDate'];
+      _endDate = widget.currentFilters!['endDate'];
+    }
+  }
 
   final List<String> _kategoriOptions = [
     "Semua",
@@ -35,6 +47,7 @@ class _FilterSPTDialogState extends State<FilterSPTDialog> {
 
   // Daftar lengkap Biro, Dinas, dan Badan Pemprov Sumbar
   final List<String> _dinasBiroBadanOptions = [
+    'Semua',
     // --- BIRO ---
     'Biro Umum Setda Provinsi Sumatera Barat',
     'Biro Organisasi',

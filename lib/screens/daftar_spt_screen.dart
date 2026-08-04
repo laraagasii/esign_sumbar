@@ -56,9 +56,10 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => DetailRiwayatSptScreen(
-            approvalStatus: item["approvalStatus"] ?? "Proses",
-            sekretarisStatus: item["sekretarisStatus"] ?? "Belum Diperiksa",
-            note: item["note"] ?? "",
+            userId: _userId,
+            sptId: item["id"]?.toString() ?? "",
+            tahun: item["year"]?.toString() ?? "",
+            tipe: item["detailType"]?.toString() ?? "",
           ),
         ),
       );
@@ -166,9 +167,10 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => DetailRiwayatSptScreen(
-            approvalStatus: result['status'] ?? "Proses",
-            sekretarisStatus: result['status'] ?? "Belum Diperiksa",
-            note: result['note'] ?? "",
+            userId: _userId,
+            sptId: item["id"]?.toString() ?? "",
+            tahun: item["year"]?.toString() ?? "",
+            tipe: item["detailType"]?.toString() ?? "",
           ),
         ),
       );
@@ -234,19 +236,29 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         bool matchDinas = true;
         bool matchWilayah = true;
         bool matchKategori = true;
+        bool matchDate = true;
 
         if (_appliedFilters != null) {
-          if (_appliedFilters!['dinas'] != null) {
-            String itemTitleClean = item["title"].toString().replaceAll(
-              '\n',
-              ' ',
-            );
-            matchDinas = itemTitleClean == _appliedFilters!['dinas'];
+          if (_appliedFilters!['dinas'] != null && _appliedFilters!['dinas'] != 'Semua') {
+            String itemTitleClean = item["title"].toString()
+                .toLowerCase()
+                .replaceAll(RegExp(r'[^\w\s]+'), ' ')
+                .replaceAll(RegExp(r'\s+'), ' ')
+                .trim();
+            String filterDinasClean = _appliedFilters!['dinas'].toString()
+                .toLowerCase()
+                .replaceAll(RegExp(r'[^\w\s]+'), ' ')
+                .replaceAll(RegExp(r'\s+'), ' ')
+                .trim();
+
+            matchDinas = itemTitleClean.contains(filterDinasClean) || 
+                         filterDinasClean.contains(itemTitleClean);
+            print("FilterDinas: '$filterDinasClean' vs itemTitle: '$itemTitleClean' => $matchDinas");
           }
 
           if (_appliedFilters!['wilayah'] != null &&
               _appliedFilters!['wilayah'] != "Semua") {
-            matchWilayah = item["status"] == _appliedFilters!['wilayah'];
+            matchWilayah = item["category"] == _appliedFilters!['wilayah'];
           }
 
           if (_appliedFilters!['kategori'] != null &&
@@ -254,9 +266,28 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
             matchKategori =
                 item["approvalStatus"] == _appliedFilters!['kategori'];
           }
+          
+          DateTime? filterStartDate = _appliedFilters!['startDate'];
+          DateTime? filterEndDate = _appliedFilters!['endDate'];
+          if (filterStartDate != null || filterEndDate != null) {
+            DateTime? itemStartDate = item['parsedStartDate'];
+            if (itemStartDate != null) {
+              final itemStart = DateTime(itemStartDate.year, itemStartDate.month, itemStartDate.day);
+              if (filterStartDate != null) {
+                final fStart = DateTime(filterStartDate.year, filterStartDate.month, filterStartDate.day);
+                if (itemStart.isBefore(fStart)) matchDate = false;
+              }
+              if (filterEndDate != null) {
+                final fEnd = DateTime(filterEndDate.year, filterEndDate.month, filterEndDate.day);
+                if (itemStart.isAfter(fEnd)) matchDate = false;
+              }
+            } else {
+              matchDate = false;
+            }
+          }
         }
 
-        return matchSearch && matchDinas && matchWilayah && matchKategori;
+        return matchSearch && matchDinas && matchWilayah && matchKategori && matchDate;
       }).toList();
     }
 
@@ -467,8 +498,8 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
       ),
 
       // ✅ MEMANGGIL CUSTOM BOTTOM NAVBAR DI SINI
-      // Sesuaikan currentIndex berdasarkan representasi halaman ini (misal 2 untuk Riwayat)
-      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: 0),
+      // Sesuaikan currentIndex berdasarkan representasi halaman ini (misal -1 jika tidak ada yang aktif)
+      bottomNavigationBar: const CustomBottomNavBar(selectedIndex: -1),
     );
   }
 
