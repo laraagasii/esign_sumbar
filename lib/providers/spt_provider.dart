@@ -58,4 +58,9 @@ class SptProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void removeItem(String id) {
+    _sptList.removeWhere((item) => item.id == id);
+    notifyListeners();
+  }
 }

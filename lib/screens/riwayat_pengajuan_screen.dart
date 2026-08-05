@@ -4,6 +4,11 @@ import '../widgets/filter_riwayat_pengajuan_dialog.dart';
 import '../custom_bottom_navbar.dart'; // Import Custom Bottom Nav Bar
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
+import 'detail_riwayat_pengajuan_nodin_screen.dart';
+import 'detail_riwayat_pengajuan_spt_screen.dart';
 
 class RiwayatPengajuanNodinScreen extends StatefulWidget {
   const RiwayatPengajuanNodinScreen({super.key});
@@ -24,81 +29,83 @@ class _RiwayatPengajuanNodinScreenState
   String? _tanggalAwal;
   String? _tanggalAkhir;
 
-  final List<Map<String, dynamic>> _notaDinasData = [
-    {
-      "title":
-          'Menghadiri Undangan Pembinaan Nagari Statistik Kabupaten Tanah Datar pada tanggal 9 s/d 11 Agustus 2026',
-      "statusText": 'Proses',
-      "statusBgColor": const Color(0xFFE5E7EB),
-      "statusTextColor": const Color(0xFF132F53),
-      "statusIcon": Icons.calendar_today_rounded,
-      "categoryText": 'Dalam Daerah',
-      "categoryColor": const Color(0xFF0088FF),
-      "dateText": '07 Agustus 2026',
-    },
-    {
-      "title":
-          'Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Yogyakarta pada tanggal 7 s/d 9 Agustus 2026',
-      "statusText": 'Ditolak',
-      "statusBgColor": const Color(0xFFFFEBEE),
-      "statusTextColor": const Color(0xFFE53935),
-      "statusIcon": Icons.cancel_outlined,
-      "categoryText": 'Luar Daerah',
-      "categoryColor": const Color(0xFFD4A72C),
-      "dateText": '05 Agustus 2026',
-    },
-    {
-      "title":
-          'Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat pada tanggal 8 Juli 2026',
-      "statusText": 'Disetujui',
-      "statusBgColor": const Color(0xFFD3FBD4),
-      "statusTextColor": const Color(0xFF125B2A),
-      "statusIcon": Icons.check_circle_outline,
-      "categoryText": 'Dalam Kota',
-      "categoryColor": const Color(0xFF125B2A),
-      "dateText": '05 Juli 2026',
-    },
-    {
-      "title":
-          'Menjadi narasumber pada kegiatan Bimbingan Teknis Pemanfaatan Aplikasi SIPOPEI untuk pengelolaan data potensi dan peluang investasi...',
-      "statusText": 'Disetujui',
-      "statusBgColor": const Color(0xFFD3FBD4),
-      "statusTextColor": const Color(0xFF125B2A),
-      "statusIcon": Icons.check_circle_outline,
-      "categoryText": 'Dalam Kota',
-      "categoryColor": const Color(0xFF125B2A),
-      "dateText": '28 Juni 2026',
-    },
-  ];
+  List<Map<String, dynamic>> _notaDinasData = [];
+  List<Map<String, dynamic>> _sptData = [];
+  bool _isLoading = true;
 
-  final List<Map<String, dynamic>> _sptData = [
-    {
-      "title":
-          'SPT Perjalanan Dinas Dalam Daerah Kabupaten Tanah Datar tanggal 9 s/d 11 Agustus 2026',
-      "statusText": 'Proses',
-      "statusBgColor": const Color(0xFFE5E7EB),
-      "statusTextColor": const Color(0xFF132F53),
-      "statusIcon": Icons.calendar_today_rounded,
-      "categoryText": 'Dalam Daerah',
-      "categoryColor": const Color(0xFF0088FF),
-      "dateText": '07 Agustus 2026',
-      "sekretarisStatus": "Belum Diperiksa",
-      "note": "",
-    },
-    {
-      "title":
-          'SPT Perjalanan Dinas Luar Daerah ke Provinsi Yogyakarta tanggal 7 s/d 9 Agustus 2026',
-      "statusText": 'Ditolak',
-      "statusBgColor": const Color(0xFFFFEBEE),
-      "statusTextColor": const Color(0xFFE53935),
-      "statusIcon": Icons.cancel_outlined,
-      "categoryText": 'Luar Daerah',
-      "categoryColor": const Color(0xFFD4A72C),
-      "dateText": '05 Agustus 2026',
-      "sekretarisStatus": "Ditolak",
-      "note": "Kegiatan dibatalkan",
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final String response =
+          await rootBundle.loadString('assets/riwayat_pengajuan.json');
+      final data = await json.decode(response);
+      
+      if (data['status'] == true) {
+        setState(() {
+          _notaDinasData = (data['data']['nota_dinas'] as List)
+              .map((e) => _mapJsonToItem(e))
+              .toList();
+          _sptData = (data['data']['spt'] as List)
+              .map((e) => _mapJsonToItem(e))
+              .toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      debugPrint("Error loading JSON: $e");
+    }
+  }
+
+  Map<String, dynamic> _mapJsonToItem(dynamic json) {
+    String status = json['status'] ?? 'PROSES';
+    Color statusBgColor = const Color(0xFFFEF9C3);
+    Color statusTextColor = const Color(0xFFD4A72C);
+    IconData statusIcon = Icons.access_time_rounded;
+
+    if (status.toUpperCase() == 'DISETUJUI') {
+      statusBgColor = const Color(0xFFD3FBD4);
+      statusTextColor = const Color(0xFF125B2A);
+      statusIcon = Icons.check;
+      status = 'Disetujui';
+    } else if (status.toUpperCase() == 'DITOLAK') {
+      statusBgColor = const Color(0xFFFFEBEE);
+      statusTextColor = const Color(0xFFE53935);
+      statusIcon = Icons.close;
+      status = 'Ditolak';
+    } else {
+      status = 'Proses';
+    }
+
+    String kategori = json['kategori_label'] ?? '-';
+    Color categoryColor = const Color(0xFF0088FF);
+    if (kategori.toLowerCase().contains('luar')) {
+      categoryColor = const Color(0xFFD4A72C);
+    } else if (kategori.toLowerCase().contains('dalam kota')) {
+      categoryColor = const Color(0xFF125B2A);
+    }
+
+    return {
+      "title": json['maksud'] ?? '-',
+      "statusText": status,
+      "statusBgColor": statusBgColor,
+      "statusTextColor": statusTextColor,
+      "statusIcon": statusIcon,
+      "categoryText": kategori,
+      "categoryColor": categoryColor,
+      "dateText": json['tgl_st_formatted'] ?? '-',
+      "raw": json, // Store raw json for detail screen
+    };
+  }
+
+
 
   @override
   void dispose() {
@@ -194,7 +201,7 @@ class _RiwayatPengajuanNodinScreenState
         ? _notaDinasData
         : _sptData;
 
-    List<Map<String, dynamic>> filteredList = isPejabat ? [] : activeData.where((item) {
+    List<Map<String, dynamic>> filteredList = activeData.where((item) {
       // 1. Filter Pencarian Teks
       bool matchesSearch = true;
       if (_searchQuery.isNotEmpty) {
@@ -488,42 +495,67 @@ class _RiwayatPengajuanNodinScreenState
                         ),
                         const SizedBox(height: 12),
                         Expanded(
-                          child: filteredList.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    isPejabat ? "Tidak ada Data" : "Tidak ada data ditemukan.",
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey,
-                                      fontSize: 14,
+                          child: _isLoading 
+                              ? const Center(child: CircularProgressIndicator())
+                              : filteredList.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        "Tidak ada Data",
+                                        style: GoogleFonts.inter(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 8,
+                                      ),
+                                      itemCount: filteredList.length,
+                                      itemBuilder: (context, index) {
+                                        final item = filteredList[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 16.0,
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              if (_selectedTab == 0) {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => DetailRiwayatPengajuanNodinScreen(
+                                                      data: item['raw'],
+                                                    ),
+                                                  ),
+                                                );
+                                              } else {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => DetailRiwayatPengajuanSptScreen(
+                                                      data: item['raw'],
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: _buildSubmissionCard(
+                                              title: item['title']!,
+                                              statusText: item['statusText']!,
+                                              statusBgColor: item['statusBgColor'],
+                                              statusTextColor:
+                                                  item['statusTextColor'],
+                                              statusIcon: item['statusIcon'],
+                                              categoryText: item['categoryText']!,
+                                              categoryColor: item['categoryColor'],
+                                              dateText: item['dateText']!,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 8,
-                                  ),
-                                  itemCount: filteredList.length,
-                                  itemBuilder: (context, index) {
-                                    final item = filteredList[index];
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 16.0,
-                                      ),
-                                      child: _buildSubmissionCard(
-                                        title: item['title']!,
-                                        statusText: item['statusText']!,
-                                        statusBgColor: item['statusBgColor'],
-                                        statusTextColor:
-                                            item['statusTextColor'],
-                                        statusIcon: item['statusIcon'],
-                                        categoryText: item['categoryText']!,
-                                        categoryColor: item['categoryColor'],
-                                        dateText: item['dateText']!,
-                                      ),
-                                    );
-                                  },
-                                ),
                         ),
                       ],
                     ),

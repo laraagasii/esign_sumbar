@@ -41,7 +41,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
 
   List<Map<String, dynamic>> _pengikutList = [];
   List<Map<String, dynamic>> _batalList = [];
-  late final List<Map<String, dynamic>> _riwayatList = [];
+
 
   @override
   void initState() {
@@ -100,6 +100,9 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     final prov = context.watch<NotaDinasProvider>();
     final detail = prov.notaDinasDetail;
     final isLoading = prov.isDetailLoading;
+    
+    final haveTteVal = detail?.result.haveTte;
+    final isTte = haveTteVal == '1' || haveTteVal == 'true' || haveTteVal == 'TRUE';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -242,7 +245,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                                       Expanded(
                                         child: ElevatedButton(
                                           onPressed: () {
-                                            _handleApprove();
+                                            _handleApprove(isTte);
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color(
@@ -258,7 +261,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
                                             ),
                                           ),
                                           child: Text(
-                                            "Setujui",
+                                            isTte ? "Tanda Tangani (TTE)" : "Setujui",
                                             style: GoogleFonts.inter(
                                               color: const Color(0xFF125B2A),
                                               fontWeight: FontWeight.bold,
@@ -1209,7 +1212,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
     );
   }
 
-  void _handleApprove() {
+  void _handleApprove(bool isTte) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1217,29 +1220,33 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
         return ApprovalDialog(
           onSubmit: (notes) {
             Navigator.pop(dialogContext); // Tutup dialog catatan
-            // Setelah input catatan, tampilkan dialog PIN
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (pinContext) {
-                return PinSignatureDialog(
-                  onSubmit: (pin) {
-                    if (pin != _dummyPin) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("PIN salah! Gunakan: 123456"),
-                          backgroundColor: Color(0xFFE53935),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                      return;
-                    }
-                    Navigator.pop(pinContext); // Tutup dialog PIN
-                    _processAction(isApprove: true, catatan: notes);
-                  },
-                );
-              },
-            );
+            if (isTte) {
+              // Setelah input catatan, tampilkan dialog PIN
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (pinContext) {
+                  return PinSignatureDialog(
+                    onSubmit: (pin) {
+                      if (pin != _dummyPin) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("PIN salah! Gunakan: 123456"),
+                            backgroundColor: Color(0xFFE53935),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.pop(pinContext); // Tutup dialog PIN
+                      _processAction(isApprove: true, catatan: notes);
+                    },
+                  );
+                },
+              );
+            } else {
+              _processAction(isApprove: true, catatan: notes);
+            }
           },
         );
       },
@@ -1323,10 +1330,7 @@ class _DetailNotaDinasScreenState extends State<DetailNotaDinasScreen> {
           : const Color(0xFFE53935),
     };
 
-    setState(() {
-      _riwayatList[1] =
-          riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
-    });
+
 
     Navigator.pop(context, {
       'status': isApprove ? 'Disetujui' : 'Ditolak',

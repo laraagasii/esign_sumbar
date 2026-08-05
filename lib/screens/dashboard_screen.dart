@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +11,7 @@ import '../providers/spt_provider.dart';
 import 'daftar_nota_dinas_screen.dart';
 import '../custom_bottom_navbar.dart';
 import '../providers/nota_dinas_provider.dart';
+import '../models/home_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,20 +21,140 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  List<Aktifitas> _recentActivities = [];
+  bool _isLoadingActivities = true;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().fetchHomeData();
-      final authProv = context.read<AuthProvider>();
-      final userId =
-          authProv.user?.userId ?? '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
-      context.read<NotaDinasProvider>().fetchBelumDiperiksa(
-        "a4adb04d8392abc79d52ea247fabd8348b97a78a",
-        "6",
-      );
-      context.read<SptProvider>().fetchSptList(id: userId, status: 'NEW');
+      _loadDashboardData();
     });
+  }
+
+  Future<void> _loadDashboardData() async {
+    final authProv = context.read<AuthProvider>();
+    final userId =
+        authProv.user?.userId ?? '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
+    final groupId = authProv.user?.group.toString() ?? '6';
+
+    context.read<HomeProvider>().fetchHomeData();
+    context.read<NotaDinasProvider>().fetchBelumDiperiksa(userId, groupId);
+    context.read<SptProvider>().fetchSptList(id: userId, status: 'NEW');
+
+    await Future.wait([
+      context.read<NotaDinasProvider>().fetchSudahDiperiksa(userId, groupId),
+      context.read<SptProvider>().fetchSptHistory(id: userId),
+    ]);
+
+    await _compileRecentActivities();
+  }
+
+  Future<void> _compileRecentActivities() async {
+    List<Aktifitas> combined = [];
+
+    // 1. Nodin Riwayat Pemeriksaan
+    final notaProv = context.read<NotaDinasProvider>();
+    for (var item in notaProv.riwayatNotaDinasList) {
+      combined.add(
+        Aktifitas(
+          id: item.idnota,
+          perihal: item.perihal,
+          statusPemeriksaan: item.nmstatus,
+          tanggal: item.tglnota,
+        ),
+      );
+    }
+
+    // 2. SPT Riwayat Pemeriksaan
+    final sptProv = context.read<SptProvider>();
+    for (var item in sptProv.historyList) {
+      combined.add(
+        Aktifitas(
+          id: item.id,
+          perihal: item.perihal,
+          statusPemeriksaan: item.statusLabel,
+          tanggal: item.rawStartDate.isNotEmpty
+              ? item.rawStartDate
+              : item.tanggal,
+        ),
+      );
+    }
+
+    // 3. Riwayat Pengajuan
+    try {
+      final String response = await rootBundle.loadString(
+        'assets/riwayat_pengajuan.json',
+      );
+      final data = await json.decode(response);
+      if (data['status'] == true) {
+        final ndList = data['data']['nota_dinas'] as List;
+        for (var item in ndList) {
+          combined.add(
+            Aktifitas(
+              id: item['id_st'] ?? '',
+              perihal: item['maksud'] ?? '',
+              statusPemeriksaan: item['status'] ?? '',
+              tanggal: item['tgl_st'] ?? '',
+            ),
+          );
+        }
+
+        final sptList = data['data']['spt'] as List;
+        for (var item in sptList) {
+          combined.add(
+            Aktifitas(
+              id: item['id_spt'] ?? '',
+              perihal: item['maksud'] ?? '',
+              statusPemeriksaan: item['status'] ?? '',
+              tanggal: item['tgl_spt'] ?? '',
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint("Error loading riwayat pengajuan: $e");
+    }
+
+    // Sort by date (descending)
+    combined.sort((a, b) {
+      DateTime dateA = _parseDateForSort(a.tanggal);
+      DateTime dateB = _parseDateForSort(b.tanggal);
+      return dateB.compareTo(dateA);
+    });
+
+    // Take top 5
+    if (combined.length > 5) {
+      combined = combined.sublist(0, 5);
+    }
+
+    if (mounted) {
+      setState(() {
+        _recentActivities = combined;
+        _isLoadingActivities = false;
+      });
+    }
+  }
+
+  DateTime _parseDateForSort(String dateStr) {
+    if (dateStr.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
+    try {
+      return DateTime.parse(dateStr);
+    } catch (e) {
+      final slashParts = dateStr.split(RegExp(r'[\/\-\s]+'));
+      if (slashParts.length >= 3) {
+        final first = int.tryParse(slashParts[0]);
+        final second = int.tryParse(slashParts[1]);
+        final third = int.tryParse(slashParts[2]);
+        if (first != null && second != null && third != null) {
+          if (first > 31) {
+            return DateTime(first, second, third);
+          }
+          return DateTime(third, second, first);
+        }
+      }
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
   }
 
   @override
@@ -376,39 +499,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              ...data.aktifitas.map((aktivitas) {
-                                // Logika penentuan warna & ikon berdasarkan status
-                                IconData actIcon;
-                                Color actIconColor;
-                                Color actIconBg;
+                              if (_isLoadingActivities)
+                                const Center(child: CircularProgressIndicator())
+                              else if (_recentActivities.isEmpty)
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Belum ada aktivitas',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ),
+                                )
+                              else
+                                ..._recentActivities.map((aktivitas) {
+                                  // Logika penentuan warna & ikon berdasarkan status
+                                  IconData actIcon;
+                                  Color actIconColor;
+                                  Color actIconBg;
 
-                                if (aktivitas.statusPemeriksaan.toLowerCase() ==
-                                    'disetujui') {
-                                  actIcon = Icons.check_circle_rounded;
-                                  actIconColor = const Color(0xFF43A047);
-                                  actIconBg = const Color(0xFFE8F5E9);
-                                } else if (aktivitas.statusPemeriksaan
-                                        .toLowerCase() ==
-                                    'ditolak') {
-                                  actIcon = Icons.cancel_rounded;
-                                  actIconColor = const Color(0xFFE53935);
-                                  actIconBg = const Color(0xFFFFEBEE);
-                                } else {
-                                  // Default untuk Menunggu / Proses
-                                  actIcon = Icons.access_time_filled_rounded;
-                                  actIconColor = const Color(0xFFF57C00);
-                                  actIconBg = const Color(0xFFFFF3E0);
-                                }
+                                  final statusLower = aktivitas
+                                      .statusPemeriksaan
+                                      .toLowerCase();
+                                  if (statusLower.contains('disetujui') ||
+                                      statusLower.contains('diperiksa') ||
+                                      statusLower.contains('setuju')) {
+                                    actIcon = Icons.check;
+                                    actIconColor = const Color(0xFF125B2A);
+                                    actIconBg = const Color(0xFFD3FBD4);
+                                  } else if (statusLower.contains('ditolak') ||
+                                      statusLower.contains('tolak')) {
+                                    actIcon = Icons.close;
+                                    actIconColor = const Color(0xFFE53935);
+                                    actIconBg = const Color(0xFFFFEBEE);
+                                  } else if (statusLower.contains('belum') ||
+                                      statusLower.contains('proses') ||
+                                      statusLower.contains('diproses')) {
+                                    actIcon = Icons.access_time_rounded;
+                                    actIconColor = const Color(0xFFD4A72C);
+                                    actIconBg = const Color(0xFFFEF9C3);
+                                  } else {
+                                    actIcon = Icons.remove_done;
+                                    actIconColor = Colors.grey.shade500;
+                                    actIconBg = Colors.grey.shade200;
+                                  }
 
-                                return _buildActivityItem(
-                                  icon: actIcon,
-                                  iconColor: actIconColor,
-                                  iconBg: actIconBg,
-                                  title: aktivitas.perihal,
-                                  subtitle: aktivitas.statusPemeriksaan,
-                                  time: aktivitas.tanggal,
-                                );
-                              }),
+                                  return _buildActivityItem(
+                                    icon: actIcon,
+                                    iconColor: actIconColor,
+                                    iconBg: actIconBg,
+                                    title: aktivitas.perihal,
+                                    subtitle: aktivitas.statusPemeriksaan,
+                                    time: aktivitas.tanggal,
+                                  );
+                                }),
 
                               const SizedBox(height: 20),
                             ],
@@ -501,9 +645,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -514,8 +658,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title,
                   style: GoogleFonts.inter(
                     color: const Color(0xFF0F2E59),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -523,7 +667,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle,
                   style: GoogleFonts.inter(
                     color: Colors.grey.shade500,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ],
@@ -532,7 +676,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             time,
             textAlign: TextAlign.right,
-            style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 12),
+            style: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 10),
           ),
         ],
       ),

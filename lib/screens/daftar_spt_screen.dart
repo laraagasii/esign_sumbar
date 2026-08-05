@@ -79,6 +79,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     );
     if (!mounted || id.isEmpty) return;
     if (result != null) {
+      context.read<SptProvider>().removeItem(id);
       _updateHistoryStatus(id, item, result);
     }
   }
@@ -96,9 +97,9 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         "desc": item["desc"],
         "date": item["date"],
         "approvalStatus": "Proses",
-        "approvalColor": const Color(0xFFF3F4F6),
-        "approvalBg": const Color(0xFFF3F4F6),
-        "approvalIcon": null,
+        "approvalColor": const Color(0xFFD4A72C),
+        "approvalBg": const Color(0xFFFEF9C3),
+        "approvalIcon": Icons.access_time_rounded,
         "sekretarisStatus": "Proses",
         "note": "",
       });
@@ -128,8 +129,8 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
           ? const Color(0xFFD3FBD4)
           : const Color(0xFFFFEBEE),
       "approvalIcon": isApproved
-          ? Icons.check_circle_outline
-          : Icons.cancel_outlined,
+          ? Icons.check
+          : Icons.close,
       "sekretarisStatus": result['status'],
       "note": result['note'] ?? "",
     };
@@ -191,18 +192,23 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         .map((item) => item.toDisplayMap())
         .toList();
 
-    final Map<String, Map<String, dynamic>> mergedHistory = {};
-    for (var item in historyFromProvider) {
-      final id = item['id']?.toString() ?? '';
-      if (id.isNotEmpty) mergedHistory[id] = Map<String, dynamic>.from(item);
-    }
+    final List<Map<String, dynamic>> historyData = [];
+    final Set<String> processedIds = {};
+
     for (var item in _localHistoryData) {
       final id = item['id']?.toString() ?? '';
-      if (id.isEmpty) continue;
-      mergedHistory[id] = {...?mergedHistory[id], ...item};
+      if (id.isNotEmpty) {
+        historyData.add(item);
+        processedIds.add(id);
+      }
     }
-    final List<Map<String, dynamic>> historyData = mergedHistory.values
-        .toList();
+    for (var item in historyFromProvider) {
+      final id = item['id']?.toString() ?? '';
+      if (id.isNotEmpty && !processedIds.contains(id)) {
+        historyData.add(item);
+        processedIds.add(id);
+      }
+    }
 
     if (!isPejabat) {
       currentList = [];
@@ -239,21 +245,27 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         bool matchDate = true;
 
         if (_appliedFilters != null) {
-          if (_appliedFilters!['dinas'] != null && _appliedFilters!['dinas'] != 'Semua') {
-            String itemTitleClean = item["title"].toString()
+          if (_appliedFilters!['dinas'] != null &&
+              _appliedFilters!['dinas'] != 'Semua') {
+            String itemTitleClean = item["title"]
+                .toString()
                 .toLowerCase()
                 .replaceAll(RegExp(r'[^\w\s]+'), ' ')
                 .replaceAll(RegExp(r'\s+'), ' ')
                 .trim();
-            String filterDinasClean = _appliedFilters!['dinas'].toString()
+            String filterDinasClean = _appliedFilters!['dinas']
+                .toString()
                 .toLowerCase()
                 .replaceAll(RegExp(r'[^\w\s]+'), ' ')
                 .replaceAll(RegExp(r'\s+'), ' ')
                 .trim();
 
-            matchDinas = itemTitleClean.contains(filterDinasClean) || 
-                         filterDinasClean.contains(itemTitleClean);
-            print("FilterDinas: '$filterDinasClean' vs itemTitle: '$itemTitleClean' => $matchDinas");
+            matchDinas =
+                itemTitleClean.contains(filterDinasClean) ||
+                filterDinasClean.contains(itemTitleClean);
+            print(
+              "FilterDinas: '$filterDinasClean' vs itemTitle: '$itemTitleClean' => $matchDinas",
+            );
           }
 
           if (_appliedFilters!['wilayah'] != null &&
@@ -266,19 +278,31 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
             matchKategori =
                 item["approvalStatus"] == _appliedFilters!['kategori'];
           }
-          
+
           DateTime? filterStartDate = _appliedFilters!['startDate'];
           DateTime? filterEndDate = _appliedFilters!['endDate'];
           if (filterStartDate != null || filterEndDate != null) {
             DateTime? itemStartDate = item['parsedStartDate'];
             if (itemStartDate != null) {
-              final itemStart = DateTime(itemStartDate.year, itemStartDate.month, itemStartDate.day);
+              final itemStart = DateTime(
+                itemStartDate.year,
+                itemStartDate.month,
+                itemStartDate.day,
+              );
               if (filterStartDate != null) {
-                final fStart = DateTime(filterStartDate.year, filterStartDate.month, filterStartDate.day);
+                final fStart = DateTime(
+                  filterStartDate.year,
+                  filterStartDate.month,
+                  filterStartDate.day,
+                );
                 if (itemStart.isBefore(fStart)) matchDate = false;
               }
               if (filterEndDate != null) {
-                final fEnd = DateTime(filterEndDate.year, filterEndDate.month, filterEndDate.day);
+                final fEnd = DateTime(
+                  filterEndDate.year,
+                  filterEndDate.month,
+                  filterEndDate.day,
+                );
                 if (itemStart.isAfter(fEnd)) matchDate = false;
               }
             } else {
@@ -287,7 +311,11 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
           }
         }
 
-        return matchSearch && matchDinas && matchWilayah && matchKategori && matchDate;
+        return matchSearch &&
+            matchDinas &&
+            matchWilayah &&
+            matchKategori &&
+            matchDate;
       }).toList();
     }
 
@@ -685,27 +713,32 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
     Color bgColor;
     Color textColor;
     String displayText;
+    IconData icon;
     final normalized = status.toLowerCase();
 
     if (normalized.contains('belum diperiksa') ||
         normalized.contains('surat tugas belum diperiksa') ||
         normalized.contains('diproses') ||
         normalized.contains('proses')) {
-      bgColor = const Color(0xFFF3F4F6);
-      textColor = const Color(0xFF64748B);
+      bgColor = const Color(0xFFFEF9C3);
+      textColor = const Color(0xFFD4A72C);
+      icon = Icons.access_time_rounded;
       displayText = 'Proses';
     } else if (normalized.contains('disetujui') ||
         normalized.contains('setuju')) {
-      bgColor = const Color(0xFFD1FAE5);
-      textColor = const Color(0xFF166534);
+      bgColor = const Color(0xFFD3FBD4);
+      textColor = const Color(0xFF125B2A);
+      icon = Icons.check;
       displayText = 'Disetujui';
     } else if (normalized.contains('ditolak') || normalized.contains('tolak')) {
-      bgColor = const Color(0xFFFECACA);
-      textColor = const Color(0xFF991B1B);
+      bgColor = const Color(0xFFFFEBEE);
+      textColor = const Color(0xFFE53935);
+      icon = Icons.close;
       displayText = 'Ditolak';
     } else {
-      bgColor = const Color(0xFFF3F4F6);
-      textColor = const Color(0xFF64748B);
+      bgColor = Colors.grey.shade200;
+      textColor = Colors.grey.shade600;
+      icon = Icons.remove_done;
       displayText = 'Proses';
     }
 
@@ -715,13 +748,20 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        displayText,
-        style: GoogleFonts.inter(
-          color: textColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: textColor),
+          const SizedBox(width: 4),
+          Text(
+            displayText,
+            style: GoogleFonts.inter(
+              color: textColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

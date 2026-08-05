@@ -96,6 +96,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
             listen: false,
           ).removeItem(item['idnota'] ?? '');
           _riwayatData.insert(0, {
+            "idnota": item["idnota"] ?? "",
             "title": item["title"],
             "status": item["status"],
             "desc": item["desc"],
@@ -108,8 +109,8 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                 ? const Color(0xFFD3FBD4)
                 : const Color(0xFFFFEBEE),
             "approvalIcon": result['status'] == 'Disetujui'
-                ? Icons.check_circle_outline
-                : Icons.cancel_outlined,
+                ? Icons.check
+                : Icons.close,
             "sekretarisStatus": result['status'], // <--- Pastikan ini ada
             "note": result['note'] ?? "", // <--- Pastikan ini ada
             "pengikutTerpilih": result['pengikutTerpilih'] ?? [],
@@ -139,21 +140,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           ),
         );
 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailNotaDinasScreen(
-                  notaDinas: notaModel,
-                  userId: userId,
-                  groupId: groupId,
-                  isRiwayat: true,
-                ),
-              ),
-            );
-          }
-        });
+
       } else {
         bool alreadyInRiwayat = _riwayatData.any(
           (r) => r["title"] == item["title"] && r["desc"] == item["desc"],
@@ -162,14 +149,15 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
         if (!alreadyInRiwayat) {
           setState(() {
             _riwayatData.insert(0, {
+              "idnota": item["idnota"] ?? "",
               "title": item["title"],
               "status": item["status"],
               "desc": item["desc"],
               "date": item["date"],
               "approvalStatus": "Proses",
-              "approvalColor": const Color(0xFF132F53),
-              "approvalBg": const Color(0xFFE5E7EB),
-              "approvalIcon": Icons.calendar_today_rounded,
+              "approvalColor": const Color(0xFFD4A72C),
+              "approvalBg": const Color(0xFFFEF9C3),
+              "approvalIcon": Icons.access_time_rounded,
               "pengikutTerpilih": [],
               "pengikutDibatalkan": [],
             });
@@ -265,7 +253,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           )
           .toList();
     } else {
-      currentList = notaProvider.riwayatNotaDinasList
+      final List<Map<String, dynamic>> historyFromProvider = notaProvider.riwayatNotaDinasList
           .map(
             (model) => {
               "idnota": model.idnota,
@@ -278,11 +266,32 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
               "approvalStatus": "Disetujui",
               "approvalColor": const Color(0xFF125B2A),
               "approvalBg": const Color(0xFFD3FBD4),
-              "approvalIcon": Icons.check_circle_outline,
+              "approvalIcon": Icons.check,
               "sekretarisStatus": "Disetujui",
             },
           )
           .toList();
+
+      final List<Map<String, dynamic>> historyData = [];
+      final Set<String> processedIds = {};
+
+      for (var item in _riwayatData) {
+        final id = item['idnota']?.toString() ?? '';
+        if (id.isNotEmpty) {
+          historyData.add(item);
+          processedIds.add(id);
+        }
+      }
+
+      for (var item in historyFromProvider) {
+        final id = item['idnota']?.toString() ?? '';
+        if (id.isNotEmpty && !processedIds.contains(id)) {
+          historyData.add(item);
+          processedIds.add(id);
+        }
+      }
+
+      currentList = historyData;
     }
 
     // Terapkan filter dan pencarian untuk kedua tab

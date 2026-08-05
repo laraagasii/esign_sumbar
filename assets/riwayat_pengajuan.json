@@ -1,0 +1,581 @@
+{
+    "status": true,
+    "message": "Data berhasil dimuat",
+    "data": {
+        "nota_dinas": [
+            {
+                "id_st": "nd_001",
+                "tahun": 2026,
+                "tipe_pd": "DD",
+                "kategori_label": "Dalam Daerah",
+                "maksud": "Menghadiri Undangan Pembinaan Nagari Statistik Kabupaten Tanah Datar pada tanggal 9 s/d 11 Agustus 2026",
+                "tgl_st": "2026-08-07",
+                "tgl_st_formatted": "07 Agustus 2026",
+                "status": "PROSES",
+                "detail": {
+                    "no_st": "090/101/Diskominfotik/8/2026",
+                    "dasar_spt": [
+                        "Surat Bupati Tanah Datar Nomor 050/211/Bappeda-2026 Tanggal 01 Agustus 2026",
+                        "DPA-OPD Dinas Komunikasi, Informatika dan Statistik Provinsi Sumatera Barat TA 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Sekretaris Dinas",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Kabupaten Tanah Datar",
+                        "keberangkatan": "09 - 11 Agustus 2026",
+                        "perihal": "Permohonan persetujuan menghadiri Undangan Pembinaan Nagari Statistik Kabupaten Tanah Datar.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/nd_001.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1024 SP",
+                        "pembiayaan": "2.16.01.1.06.0001 / Program Penyelenggaraan Statistik Sektoral"
+                    },
+                    "total_pengikut": 2,
+                    "pengikut": [
+                        {
+                            "nama": "Ahmad Subagja, S.Kom",
+                            "nip": "19850101 201001 1 001",
+                            "jabatan": "Pranata Komputer Ahli Muda"
+                        },
+                        {
+                            "nama": "Rina Kartika, S.STP",
+                            "nip": "19900315 201212 2 002",
+                            "jabatan": "Pengolah Data Statistik"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 2,
+                            "jabatan_pemeriksa": "Kepala Dinas Komunikasi, Informatika dan Statistik",
+                            "keterangan": "",
+                            "waktu": "",
+                            "catatan": "",
+                            "status_code": "BELUM_DIPERIKSA",
+                            "status_label": "Belum Diperiksa"
+                        },
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Diteruskan ke Kepala Dinas",
+                            "waktu": "Jumat, 07 Agustus 2026 09:30:00",
+                            "catatan": "Mohon arahan dan persetujuan Pak Kadis",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "nd_002",
+                "tahun": 2026,
+                "tipe_pd": "DL",
+                "kategori_label": "Luar Daerah",
+                "maksud": "Persiapan penilaian indeks SPBE Tahun 2024 ke Dinas Komunikasi dan Informatika Provinsi Yogyakarta pada tanggal 7 s/d 9 Agustus 2026",
+                "tgl_st": "2026-08-05",
+                "tgl_st_formatted": "05 Agustus 2026",
+                "status": "DITOLAK",
+                "detail": {
+                    "no_st": "090/088/Diskominfotik/8/2026",
+                    "dasar_spt": [
+                        "Surat Undangan Studi Banding SPBE Kemenpan RB Nomor 120/SPBE/2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Bidang Aplikasi dan Informatika",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Provinsi DI Yogyakarta",
+                        "keberangkatan": "07 - 09 Agustus 2026",
+                        "perihal": "Permohonan Perjalanan Dinas Luar Daerah Persiapan Penilaian Indeks SPBE.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/nd_002.pdf",
+                        "kendaraan": "Pesawat Udara",
+                        "pembiayaan": "2.16.01.1.06.0005 / Pengelolaan Layanan e-Government"
+                    },
+                    "total_pengikut": 1,
+                    "pengikut": [
+                        {
+                            "nama": "Budi Santoso, M.T.",
+                            "nip": "19780512 200312 1 003",
+                            "jabatan": "Kabid Aplikasi dan Informatika"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 2,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Ditolak",
+                            "waktu": "Rabu, 05 Agustus 2026 15:20:00",
+                            "catatan": "Ditolak. Agenda bersamaan dengan Rapat Paripurna DPRD.",
+                            "status_code": "DITOLAK",
+                            "status_label": "Ditolak"
+                        },
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Staff APTIKA",
+                            "keterangan": "Diteruskan ke Sekretaris Dinas",
+                            "waktu": "Rabu, 05 Agustus 2026 10:11:00",
+                            "catatan": "Pengajuan Nodin",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "nd_003",
+                "tahun": 2026,
+                "tipe_pd": "DK",
+                "kategori_label": "Dalam Kota",
+                "maksud": "Memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat pada tanggal 8 Juli 2026",
+                "tgl_st": "2026-07-05",
+                "tgl_st_formatted": "05 Juli 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "094.2/130/Diskominfotik/7/2026",
+                    "dasar_spt": [
+                        "Surat Sekretaris Daerah Prov Sumbar Nomor 570/324/SETDA-2026",
+                        "DPA-OPD Dinas Komunikasi, Informatika dan Statistik TA 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Bidang Siber dan Sandi",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Kota Padang",
+                        "keberangkatan": "08 Juli 2026",
+                        "perihal": "Memfasilitasi pembuatan TTE ASN Sekretariat Daerah.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/nd_003.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1081 NJ",
+                        "pembiayaan": "2.16.01.1.06.0009 / Penyelenggaraan Rapat Koordinasi SKPD"
+                    },
+                    "total_pengikut": 3,
+                    "pengikut": [
+                        {
+                            "nama": "Eko Faisal, S.Kom.MM.",
+                            "nip": "19820411 200604 1 005",
+                            "jabatan": "Kabid Persandian"
+                        },
+                        {
+                            "nama": "Roby Charma, S.Kom.",
+                            "nip": "19870918 201101 1 004",
+                            "jabatan": "Kasi Keamanan Siber"
+                        },
+                        {
+                            "nama": "Fajri Kurniawan",
+                            "nip": "19950120 201902 1 001",
+                            "jabatan": "Tim IT / Technical Support"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 2,
+                            "jabatan_pemeriksa": "Kepala Dinas Komunikasi, Informatika dan Statistik",
+                            "keterangan": "Disetujui",
+                            "waktu": "Minggu, 05 Juli 2026 16:00:00",
+                            "catatan": "Disetujui, koordinasikan dengan instansi terkait.",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        },
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Kepala Bidang Siber dan Sandi",
+                            "keterangan": "Diteruskan ke Kadis",
+                            "waktu": "Minggu, 05 Juli 2026 11:30:00",
+                            "catatan": "Mohon Persetujuan",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "nd_004",
+                "tahun": 2026,
+                "tipe_pd": "DK",
+                "kategori_label": "Dalam Kota",
+                "maksud": "Menjadi narasumber pada kegiatan Bimbingan Teknis Pemanfaatan Aplikasi SIPOPEI untuk pengelolaan data potensi dan peluang investasi",
+                "tgl_st": "2026-06-28",
+                "tgl_st_formatted": "28 Juni 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "090/045/Diskominfotik/6/2026",
+                    "dasar_spt": [
+                        "Surat DPMPTSP Prov Sumbar Nomor 005/112/DPMPTSP/2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Bidang Aplikasi dan Informatika",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Hotel Mercure Padang",
+                        "keberangkatan": "29 Juni 2026",
+                        "perihal": "Penugasan Narasumber Bimtek SIPOPEI.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/nd_004.pdf",
+                        "kendaraan": "Kendaraan Pribadi",
+                        "pembiayaan": "DPA DPMPTSP Provinsi Sumatera Barat"
+                    },
+                    "total_pengikut": 1,
+                    "pengikut": [
+                        {
+                            "nama": "Andry Kurniawan, S.Kom",
+                            "nip": "19910214 201503 1 002",
+                            "jabatan": "Pranata Komputer Ahli Muda"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Disetujui",
+                            "waktu": "Senin, 28 Juni 2026 14:00:00",
+                            "catatan": "ACC, siapkan materi presentasi.",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "nd_005",
+                "tahun": 2026,
+                "tipe_pd": "DD",
+                "kategori_label": "Dalam Daerah",
+                "maksud": "Koordinasi Pelaksanaan Sistem Pemerintahan Berbasis Elektronik (SPBE) dengan Diskominfo Kabupaten Agam",
+                "tgl_st": "2026-06-15",
+                "tgl_st_formatted": "15 Juni 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "090/021/Diskominfotik/6/2026",
+                    "dasar_spt": [
+                        "Program Kerja Bidang APTIKA Tahun 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Sekretaris Dinas",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Lubuk Basung, Kab. Agam",
+                        "keberangkatan": "16 - 17 Juni 2026",
+                        "perihal": "Perjalanan Dinas Koordinasi SPBE.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/nd_005.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1012 SP",
+                        "pembiayaan": "2.16.01.1.06.0003 / Evaluasi Sistem Informasi"
+                    },
+                    "total_pengikut": 2,
+                    "pengikut": [
+                        {
+                            "nama": "David Rainir Pratama, S.Kom.",
+                            "nip": "19880822 201210 1 001",
+                            "jabatan": "Pengadministrasi Umum"
+                        },
+                        {
+                            "nama": "Azwir",
+                            "nip": "19750311 200003 1 002",
+                            "jabatan": "Pengadministrasi Umum"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Disetujui",
+                            "waktu": "Senin, 15 Juni 2026 11:00:00",
+                            "catatan": "Selesai diperiksa.",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            }
+        ],
+        "spt": [
+            {
+                "id_st": "spt_001",
+                "tahun": 2026,
+                "tipe_pd": "DD",
+                "kategori_label": "Dalam Daerah",
+                "maksud": "SPT Perjalanan Dinas Dalam Daerah Kabupaten Tanah Datar tanggal 9 s/d 11 Agustus 2026",
+                "tgl_st": "2026-08-07",
+                "tgl_st_formatted": "07 Agustus 2026",
+                "status": "PROSES",
+                "detail": {
+                    "no_st": "094/551/SPT-Diskominfotik/2026",
+                    "dasar_spt": [
+                        "Nota Dinas Nomor 090/101/Diskominfotik/8/2026 Tanggal 07 Agustus 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Dinas Komunikasi, Informatika dan Statistik",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Kabupaten Tanah Datar",
+                        "keberangkatan": "09 - 11 Agustus 2026",
+                        "perihal": "Surat Perintah Tugas Pendampingan Nagari Statistik.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/spt_001.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1024 SP",
+                        "pembiayaan": "2.16.01.1.06.0001 / Program Penyelenggaraan Statistik Sektoral"
+                    },
+                    "total_pengikut": 2,
+                    "pengikut": [
+                        {
+                            "nama": "Ahmad Subagja, S.Kom",
+                            "nip": "19850101 201001 1 001",
+                            "jabatan": "Pranata Komputer Ahli Muda"
+                        },
+                        {
+                            "nama": "Rina Kartika, S.STP",
+                            "nip": "19900315 201212 2 002",
+                            "jabatan": "Pengolah Data Statistik"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 2,
+                            "jabatan_pemeriksa": "Kepala Dinas Komunikasi, Informatika dan Statistik",
+                            "keterangan": "",
+                            "waktu": "",
+                            "catatan": "",
+                            "status_code": "BELUM_DIPERIKSA",
+                            "status_label": "Belum Diperiksa"
+                        },
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Diteruskan ke Kepala Dinas",
+                            "waktu": "Jumat, 07 Agustus 2026 10:15:00",
+                            "catatan": "Mohon TTD Pak Kadis",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "spt_002",
+                "tahun": 2026,
+                "tipe_pd": "DL",
+                "kategori_label": "Luar Daerah",
+                "maksud": "SPT Perjalanan Dinas Luar Daerah ke Provinsi Yogyakarta tanggal 7 s/d 9 Agustus 2026",
+                "tgl_st": "2026-08-05",
+                "tgl_st_formatted": "05 Agustus 2026",
+                "status": "DITOLAK",
+                "detail": {
+                    "no_st": "094/540/SPT-Diskominfotik/2026",
+                    "dasar_spt": [
+                        "Nota Dinas Nomor 090/088/Diskominfotik/8/2026 Tanggal 05 Agustus 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Sekretaris Dinas",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Provinsi DI Yogyakarta",
+                        "keberangkatan": "07 - 09 Agustus 2026",
+                        "perihal": "Surat Perintah Tugas Luar Daerah Penilaian SPBE.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/spt_002.pdf",
+                        "kendaraan": "Pesawat Udara",
+                        "pembiayaan": "2.16.01.1.06.0005 / Pengelolaan Layanan e-Government"
+                    },
+                    "total_pengikut": 1,
+                    "pengikut": [
+                        {
+                            "nama": "Budi Santoso, M.T.",
+                            "nip": "19780512 200312 1 003",
+                            "jabatan": "Kabid Aplikasi dan Informatika"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Ditolak",
+                            "waktu": "Rabu, 05 Agustus 2026 16:10:00",
+                            "catatan": "Ditolak karena Nota Dinas pendukung tidak disetujui.",
+                            "status_code": "DITOLAK",
+                            "status_label": "Ditolak"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "spt_003",
+                "tahun": 2026,
+                "tipe_pd": "DK",
+                "kategori_label": "Dalam Kota",
+                "maksud": "SPT Pelaksanaan Pendampingan TTE ASN Sekretariat Daerah Sumatera Barat",
+                "tgl_st": "2026-07-05",
+                "tgl_st_formatted": "05 Juli 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "094.2/130/Diskominfotik/8/2024",
+                    "dasar_spt": [
+                        "Surat Kepala Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu Provinsi Sumatera Barat Nomor 570/324/DPMPTSP-2024 Tanggal 31 Juli 2024",
+                        "DPA-OPD Dinas Komunikasi, Informatika dan Statistik Provinsi Sumatera Barat Tahun Anggaran 2024"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Bidang Siber dan Sandi",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Padang",
+                        "keberangkatan": "08 - 10 Agustus 2024",
+                        "perihal": "Permohonan persetujuan melaksanakan perjalanan dinas dalam kota dalam rangka memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi , Biro Umum dan Biro Administrasi Pimpinan).",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/spt_003.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1081 NJ",
+                        "pembiayaan": "2.16.01.1.06.0009 / Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD"
+                    },
+                    "total_pengikut": 6,
+                    "pengikut": [
+                        {
+                            "nama": "Eko Faisal, S.Kom.MM.",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Kepala Bidang Aplikasi dan Informatika"
+                        },
+                        {
+                            "nama": "Roby Charma, S.Kom.",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Kepala Seksi Tata Kelola Keamanan Siber dan Sandi"
+                        },
+                        {
+                            "nama": "David Rainir Pratama, S.Kom.",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Pengadministrasi Umum"
+                        },
+                        {
+                            "nama": "Andry Kurniawan, S.Kom",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Pranata Komputer"
+                        },
+                        {
+                            "nama": "Azwir",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Pengadministrasi Umum"
+                        },
+                        {
+                            "nama": "Fajri Kurniawan",
+                            "nip": "NIP. 194356323 1234256 2 004",
+                            "jabatan": "Tim IT"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 4,
+                            "jabatan_pemeriksa": "Kepala Dinas Komunikasi, Informatika dan Statistik",
+                            "keterangan": "",
+                            "waktu": "",
+                            "catatan": "",
+                            "status_code": "BELUM_DIPERIKSA",
+                            "status_label": "Belum Diperiksa"
+                        },
+                        {
+                            "level": 3,
+                            "jabatan_pemeriksa": "Sekretaris",
+                            "keterangan": "Diteruskan ke Kepala Dinas Komunikasi, Informatika dan Statistik",
+                            "waktu": "Kamis, 08 Agustus 2026 14:10:28",
+                            "catatan": "Mohon Persetujuan",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        },
+                        {
+                            "level": 2,
+                            "jabatan_pemeriksa": "Kepala Bidang Siber dan Sandi",
+                            "keterangan": "Diteruskan ke Sekretaris",
+                            "waktu": "Rabu, 07 Agustus 2026 13:40:07",
+                            "catatan": "Mohon Persetujuan",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        },
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Staff Bidang Siber dan Sandi",
+                            "keterangan": "Diteruskan ke Kepala Bidang Siber dan Sandi",
+                            "waktu": "Rabu, 07 Agustus 2026 13:29:47",
+                            "catatan": "Edit Anggota",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "spt_004",
+                "tahun": 2026,
+                "tipe_pd": "DK",
+                "kategori_label": "Dalam Kota",
+                "maksud": "SPT Penugasan Narasumber Bimtek Aplikasi SIPOPEI",
+                "tgl_st": "2026-06-28",
+                "tgl_st_formatted": "28 Juni 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "094/310/SPT-Diskominfotik/2026",
+                    "dasar_spt": [
+                        "Nota Dinas Nomor 090/045/Diskominfotik/6/2026 Tanggal 28 Juni 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Kepala Bidang Aplikasi dan Informatika",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Padang",
+                        "keberangkatan": "29 Juni 2026",
+                        "perihal": "Penugasan Narasumber Bimtek Aplikasi SIPOPEI.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/spt_004.pdf",
+                        "kendaraan": "Kendaraan Pribadi",
+                        "pembiayaan": "DPA DPMPTSP Provinsi Sumatera Barat"
+                    },
+                    "total_pengikut": 1,
+                    "pengikut": [
+                        {
+                            "nama": "Andry Kurniawan, S.Kom",
+                            "nip": "19910214 201503 1 002",
+                            "jabatan": "Pranata Komputer Ahli Muda"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Selesai",
+                            "waktu": "Minggu, 28 Juni 2026 15:30:00",
+                            "catatan": "Disetujui.",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            },
+            {
+                "id_st": "spt_005",
+                "tahun": 2026,
+                "tipe_pd": "DD",
+                "kategori_label": "Dalam Daerah",
+                "maksud": "SPT Perjalanan Dinas Koordinasi SPBE ke Kabupaten Agam",
+                "tgl_st": "2026-06-15",
+                "tgl_st_formatted": "15 Juni 2026",
+                "status": "DISETUJUI",
+                "detail": {
+                    "no_st": "094/280/SPT-Diskominfotik/2026",
+                    "dasar_spt": [
+                        "Nota Dinas Nomor 090/021/Diskominfotik/6/2026 Tanggal 15 Juni 2026"
+                    ],
+                    "detail_informasi": {
+                        "pemeriksa": "Sekretaris Dinas",
+                        "opd": "Dinas Komunikasi, Informatika, dan Statistik",
+                        "tujuan": "Kabupaten Agam",
+                        "keberangkatan": "16 - 17 Juni 2026",
+                        "perihal": "Surat Perintah Tugas Koordinasi SPBE.",
+                        "file_surat_url": "https://espj.sumbarprov.go.id/files/spt/spt_005.pdf",
+                        "kendaraan": "Kendaraan Dinas BA 1012 SP",
+                        "pembiayaan": "2.16.01.1.06.0003 / Evaluasi Sistem Informasi"
+                    },
+                    "total_pengikut": 2,
+                    "pengikut": [
+                        {
+                            "nama": "David Rainir Pratama, S.Kom.",
+                            "nip": "19880822 201210 1 001",
+                            "jabatan": "Pengadministrasi Umum"
+                        },
+                        {
+                            "nama": "Azwir",
+                            "nip": "19750311 200003 1 002",
+                            "jabatan": "Pengadministrasi Umum"
+                        }
+                    ],
+                    "riwayat_pemeriksaan": [
+                        {
+                            "level": 1,
+                            "jabatan_pemeriksa": "Sekretaris Dinas",
+                            "keterangan": "Disetujui",
+                            "waktu": "Senin, 15 Juni 2026 12:00:00",
+                            "catatan": "Selesai",
+                            "status_code": "DIPERIKSA",
+                            "status_label": "Diperiksa"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

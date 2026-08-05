@@ -414,15 +414,15 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
                     _buildStatusRow(
                       'Disetujui',
                       isPejabat ? '0' : '20',
-                      const Color(0xFFE8F5E9),
-                      const Color(0xFF43A047),
+                      const Color(0xFFD3FBD4),
+                      const Color(0xFF125B2A),
                     ),
                     const SizedBox(height: 8),
                     _buildStatusRow(
                       'Berjalan',
                       isPejabat ? '0' : '15',
-                      const Color(0xFFFFF3E0),
-                      const Color(0xFFFDB913),
+                      const Color(0xFFFEF9C3),
+                      const Color(0xFFD4A72C),
                     ),
                     const SizedBox(height: 8),
                     _buildStatusRow(

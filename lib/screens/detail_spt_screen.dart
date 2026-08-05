@@ -152,6 +152,9 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final haveTteVal = _detailData?['have_tte'];
+    final isTte = haveTteVal == '1' || haveTteVal == 'true' || haveTteVal == true;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -284,7 +287,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () => _handleApprove(),
+                                  onPressed: () => _handleApprove(isTte),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFD3FBD4),
                                     elevation: 0,
@@ -296,7 +299,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
                                     ),
                                   ),
                                   child: Text(
-                                    "Setuju",
+                                    isTte ? "Tanda Tangani (TTE)" : "Setuju",
                                     style: GoogleFonts.inter(
                                       color: const Color(0xFF125B2A),
                                       fontWeight: FontWeight.bold,
@@ -840,7 +843,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
   // ==========================================
   // DIALOG KONFIRMASI PIN & CATATAN SEKRETARIS
   // ==========================================
-  void _handleApprove() {
+  void _handleApprove(bool isTte) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -848,28 +851,33 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         return ApprovalDialog(
           onSubmit: (notes) {
             Navigator.pop(dialogContext); // Tutup dialog catatan
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (pinContext) {
-                return PinSignatureDialog(
-                  onSubmit: (pin) {
-                    if (pin != _dummyPin) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("PIN salah! Gunakan: 123456"),
-                          backgroundColor: Color(0xFFE53935),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                      return;
-                    }
-                    Navigator.pop(pinContext); // Tutup dialog PIN
-                    _processAction(isApprove: true, catatan: notes);
-                  },
-                );
-              },
-            );
+            
+            if (isTte) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (pinContext) {
+                  return PinSignatureDialog(
+                    onSubmit: (pin) {
+                      if (pin != _dummyPin) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("PIN salah! Gunakan: 123456"),
+                            backgroundColor: Color(0xFFE53935),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.pop(pinContext); // Tutup dialog PIN
+                      _processAction(isApprove: true, catatan: notes);
+                    },
+                  );
+                },
+              );
+            } else {
+              _processAction(isApprove: true, catatan: notes);
+            }
           },
         );
       },
@@ -925,7 +933,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         "Rabu, ${now.day.toString().padLeft(2, '0')} Agustus 2026 ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
 
     Map<String, dynamic> riwayatSekretarisBaru = {
-      "icon": isApprove ? Icons.check : Icons.close_rounded,
+      "icon": isApprove ? Icons.check : Icons.close,
       "iconBg": isApprove ? const Color(0xFFD3FBD4) : const Color(0xFFFFEBEE),
       "iconColor": isApprove
           ? const Color(0xFF125B2A)
@@ -944,10 +952,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
           : const Color(0xFFE53935),
     };
 
-    setState(() {
-      _riwayatList[1] =
-          riwayatSekretarisBaru; // Update indeks ke-1 (Sekretaris)
-    });
+
 
     Navigator.pop(context, {
       'status': isApprove ? 'Disetujui' : 'Ditolak',
