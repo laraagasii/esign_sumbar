@@ -47,6 +47,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context.read<SptProvider>().fetchSptHistory(id: userId),
     ]);
 
+    if (!mounted) return;
+
     await _compileRecentActivities();
   }
 
