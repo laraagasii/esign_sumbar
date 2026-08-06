@@ -187,6 +187,12 @@ class SptModel {
     return months[lower];
   }
 
+  static String _cleanStatus(String rawStatus) {
+    return rawStatus
+        .replaceAll(RegExp(r'Surat Tugas\s+', caseSensitive: false), '')
+        .trim();
+  }
+
   String get title => nmopd.isNotEmpty ? nmopd : opd;
   String get description => perihal;
   String get categoryLabel => category.isNotEmpty ? category : statusLabel;
@@ -194,6 +200,9 @@ class SptModel {
   String get date => tanggal;
 
   Map<String, dynamic> toDisplayMap() {
+    final cleanStatusStr = _cleanStatus(
+      statusLabel.isNotEmpty ? statusLabel : status,
+    );
     return {
       'id': id,
       'title': title,
@@ -201,9 +210,11 @@ class SptModel {
       'detailType': detailType,
       'token': id,
       'year': year,
-      'status': statusLabel.isNotEmpty ? statusLabel : status,
-      'approvalStatus': statusLabel.isNotEmpty ? statusLabel : status,
+      'status': cleanStatusStr,
+      'approvalStatus': cleanStatusStr,
       'desc': description,
+      'maksud_spt': description,
+      'perihal': description,
       'location': location,
       'date': date,
       'parsedStartDate': _parseDate(rawStartDate),

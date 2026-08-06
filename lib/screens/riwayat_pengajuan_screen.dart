@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/filter_riwayat_pengajuan_dialog.dart';
-import '../custom_bottom_navbar.dart'; // Import Custom Bottom Nav Bar
+import '../widgets/status_badge_widget.dart';
+import '../widgets/custom_bottom_navbar.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'dart:convert';
@@ -41,16 +42,17 @@ class _RiwayatPengajuanNodinScreenState
 
   Future<void> _loadData() async {
     try {
-      final String response =
-          await rootBundle.loadString('assets/riwayat_pengajuan.json');
+      final String response = await rootBundle.loadString(
+        'assets/riwayat_pengajuan.json',
+      );
       final data = await json.decode(response);
-      
+
       if (data['status'] == true) {
         setState(() {
-          _notaDinasData = (data['data']['nota_dinas'] as List)
+          _notaDinasData = (data['data']['nota_dinas'] as List? ?? [])
               .map((e) => _mapJsonToItem(e))
               .toList();
-          _sptData = (data['data']['spt'] as List)
+          _sptData = (data['data']['spt'] as List? ?? [])
               .map((e) => _mapJsonToItem(e))
               .toList();
           _isLoading = false;
@@ -66,19 +68,10 @@ class _RiwayatPengajuanNodinScreenState
 
   Map<String, dynamic> _mapJsonToItem(dynamic json) {
     String status = json['status'] ?? 'PROSES';
-    Color statusBgColor = const Color(0xFFFEF9C3);
-    Color statusTextColor = const Color(0xFFD4A72C);
-    IconData statusIcon = Icons.access_time_rounded;
 
     if (status.toUpperCase() == 'DISETUJUI') {
-      statusBgColor = const Color(0xFFD3FBD4);
-      statusTextColor = const Color(0xFF125B2A);
-      statusIcon = Icons.check;
       status = 'Disetujui';
     } else if (status.toUpperCase() == 'DITOLAK') {
-      statusBgColor = const Color(0xFFFFEBEE);
-      statusTextColor = const Color(0xFFE53935);
-      statusIcon = Icons.close;
       status = 'Ditolak';
     } else {
       status = 'Proses';
@@ -95,17 +88,12 @@ class _RiwayatPengajuanNodinScreenState
     return {
       "title": json['maksud'] ?? '-',
       "statusText": status,
-      "statusBgColor": statusBgColor,
-      "statusTextColor": statusTextColor,
-      "statusIcon": statusIcon,
       "categoryText": kategori,
       "categoryColor": categoryColor,
       "dateText": json['tgl_st_formatted'] ?? '-',
       "raw": json, // Store raw json for detail screen
     };
   }
-
-
 
   @override
   void dispose() {
@@ -195,7 +183,9 @@ class _RiwayatPengajuanNodinScreenState
 
   @override
   Widget build(BuildContext context) {
-    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
+    final bool isPejabat =
+        Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ??
+        false;
 
     List<Map<String, dynamic>> activeData = _selectedTab == 0
         ? _notaDinasData
@@ -495,67 +485,71 @@ class _RiwayatPengajuanNodinScreenState
                         ),
                         const SizedBox(height: 12),
                         Expanded(
-                          child: _isLoading 
+                          child: _isLoading
                               ? const Center(child: CircularProgressIndicator())
                               : filteredList.isEmpty
-                                  ? Center(
-                                      child: Text(
-                                        "Tidak ada Data",
-                                        style: GoogleFonts.inter(
-                                          color: Colors.grey,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    )
-                                  : ListView.builder(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 8,
-                                      ),
-                                      itemCount: filteredList.length,
-                                      itemBuilder: (context, index) {
-                                        final item = filteredList[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 16.0,
-                                          ),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (_selectedTab == 0) {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => DetailRiwayatPengajuanNodinScreen(
-                                                      data: item['raw'],
-                                                    ),
-                                                  ),
-                                                );
-                                              } else {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => DetailRiwayatPengajuanSptScreen(
-                                                      data: item['raw'],
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            child: _buildSubmissionCard(
-                                              title: item['title']!,
-                                              statusText: item['statusText']!,
-                                              statusBgColor: item['statusBgColor'],
-                                              statusTextColor:
-                                                  item['statusTextColor'],
-                                              statusIcon: item['statusIcon'],
-                                              categoryText: item['categoryText']!,
-                                              categoryColor: item['categoryColor'],
-                                              dateText: item['dateText']!,
-                                            ),
-                                          ),
-                                        );
-                                      },
+                              ? Center(
+                                  child: Text(
+                                    "Tidak ada Data",
+                                    style: GoogleFonts.inter(
+                                      color: Colors.grey,
+                                      fontSize: 14,
                                     ),
+                                  ),
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: () async {
+                                    await _loadData();
+                                  },
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 8,
+                                    ),
+                                    itemCount: filteredList.length,
+                                    itemBuilder: (context, index) {
+                                      final item = filteredList[index];
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 16.0,
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            if (_selectedTab == 0) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailRiwayatPengajuanNodinScreen(
+                                                        data: item['raw'],
+                                                      ),
+                                                ),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailRiwayatPengajuanSptScreen(
+                                                        data: item['raw'],
+                                                      ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: _buildSubmissionCard(
+                                            title: item['title']!,
+                                            statusText: item['statusText']!,
+                                            categoryText: item['categoryText']!,
+                                            categoryColor:
+                                                item['categoryColor'],
+                                            dateText: item['dateText']!,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                         ),
                       ],
                     ),
@@ -581,9 +575,6 @@ class _RiwayatPengajuanNodinScreenState
   Widget _buildSubmissionCard({
     required String title,
     required String statusText,
-    required Color statusBgColor,
-    required Color statusTextColor,
-    required IconData statusIcon,
     required String categoryText,
     required Color categoryColor,
     required String dateText,
@@ -619,31 +610,7 @@ class _RiwayatPengajuanNodinScreenState
                 ),
               ),
               const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: statusBgColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, size: 13, color: statusTextColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      statusText,
-                      style: GoogleFonts.inter(
-                        color: statusTextColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              StatusBadgeWidget(status: statusText),
             ],
           ),
           const SizedBox(height: 16),

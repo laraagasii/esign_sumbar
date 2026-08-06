@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyek_esign/providers/auth_provider.dart';
-import 'package:proyek_esign/custom_bottom_navbar.dart';
+import 'package:proyek_esign/widgets/custom_bottom_navbar.dart';
 import 'package:proyek_esign/widgets/filter_analitik_dialog.dart';
 
 class AnalisisPersetujuanScreen extends StatefulWidget {
@@ -35,7 +35,9 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPejabat = Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ?? false;
+    final bool isPejabat =
+        Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ??
+        false;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -102,9 +104,13 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(child: _buildBarChartCard(isPejabat)),
+                                  Expanded(
+                                    child: _buildBarChartCard(isPejabat),
+                                  ),
                                   const SizedBox(width: 10),
-                                  Expanded(child: _buildPrediksiCard(isPejabat)),
+                                  Expanded(
+                                    child: _buildPrediksiCard(isPejabat),
+                                  ),
                                 ],
                               ),
                             ],
@@ -253,24 +259,24 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                 const Color(0xFF3B82F6),
                 const Color(0xFFEFF6FF),
               ),
-                _buildStatCard(
-                  isPejabat ? '100' : '0',
-                  'Disetujui',
-                  const Color(0xFF125B2A),
-                  const Color(0xFFD3FBD4),
-                ),
-                _buildStatCard(
-                  isPejabat ? '30' : '0',
-                  'Berjalan',
-                  const Color(0xFFD4A72C),
-                  const Color(0xFFFEF9C3),
-                ),
-                _buildStatCard(
-                  isPejabat ? '8' : '0',
-                  'Ditolak',
-                  const Color(0xFFE53935),
-                  const Color(0xFFFFEBEE),
-                ),
+              _buildStatCard(
+                isPejabat ? '100' : '0',
+                'Disetujui',
+                const Color(0xFF125B2A),
+                const Color(0xFFD3FBD4),
+              ),
+              _buildStatCard(
+                isPejabat ? '30' : '0',
+                'Berjalan',
+                const Color(0xFFD4A72C),
+                const Color(0xFFFEF9C3),
+              ),
+              _buildStatCard(
+                isPejabat ? '8' : '0',
+                'Ditolak',
+                const Color(0xFFE53935),
+                const Color(0xFFFFEBEE),
+              ),
             ],
           ),
         ],
@@ -604,7 +610,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
 // LINE CHART PAINTER
 class LineChartPainter extends CustomPainter {
   final bool isPejabat;
-  
+
   LineChartPainter(this.isPejabat);
 
   static const List<double> _defaultValues = [
@@ -626,7 +632,9 @@ class LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final List<double> values = isPejabat ? _defaultValues : List.filled(_defaultValues.length, 0.0);
+    final List<double> values = isPejabat
+        ? _defaultValues
+        : List.filled(_defaultValues.length, 0.0);
     final int n = values.length;
     final double plotH = size.height - _topPad;
 

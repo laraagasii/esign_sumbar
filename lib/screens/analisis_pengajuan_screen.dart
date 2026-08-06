@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:proyek_esign/custom_bottom_navbar.dart';
+import 'package:proyek_esign/widgets/custom_bottom_navbar.dart';
 import 'package:proyek_esign/providers/auth_provider.dart';
 import 'package:proyek_esign/widgets/filter_analitik_dialog.dart';
 
@@ -40,7 +40,7 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
     // [RBAC] Jika Pejabat (Kepala Dinas/Kabid), maka pengajuannya kosong
     final isPejabat =
         Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ??
-            false;
+        false;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -168,10 +168,8 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
               children: [
                 Expanded(
                   child: GestureDetector(
-                    onTap: () => Navigator.pushReplacementNamed(
-                      context,
-                      '/analisis',
-                    ),
+                    onTap: () =>
+                        Navigator.pushReplacementNamed(context, '/analisis'),
                     child: Center(
                       child: Text(
                         'Persetujuan',
@@ -392,13 +390,17 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
                         radius: 15,
                       ),
                       PieChartSectionData(
-                        color: isPejabat ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
+                        color: isPejabat
+                            ? const Color(0xFFE8F5E9)
+                            : const Color(0xFFFFF3E0),
                         value: isPejabat ? 0 : 15,
                         title: '',
                         radius: 15,
                       ),
                       PieChartSectionData(
-                        color: isPejabat ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE),
+                        color: isPejabat
+                            ? const Color(0xFFE8F5E9)
+                            : const Color(0xFFFFEBEE),
                         value: isPejabat ? 0 : 8,
                         title: '',
                         radius: 15,
@@ -441,7 +443,12 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
     );
   }
 
-  Widget _buildStatusRow(String label, String count, Color bgColor, Color textColor) {
+  Widget _buildStatusRow(
+    String label,
+    String count,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -580,7 +587,7 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
     if (isPejabat) {
       return const SizedBox.shrink(); // Hide insight if no data
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -604,7 +611,10 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF9EE),
                     borderRadius: BorderRadius.circular(4),
@@ -623,7 +633,10 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF2F7FA),
                     borderRadius: BorderRadius.circular(4),

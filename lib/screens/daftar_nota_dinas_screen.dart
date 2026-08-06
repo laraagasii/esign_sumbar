@@ -3,8 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyek_esign/providers/auth_provider.dart';
 import 'package:proyek_esign/widgets/filter_nota_dinas_dialog.dart';
+import 'package:proyek_esign/widgets/status_badge_widget.dart';
 import 'package:proyek_esign/screens/detail_nota_dinas_screen.dart';
-import 'package:proyek_esign/custom_bottom_navbar.dart';
+import 'package:proyek_esign/widgets/custom_bottom_navbar.dart';
 import 'package:proyek_esign/providers/nota_dinas_provider.dart';
 
 class DaftarNotaDinasScreen extends StatefulWidget {
@@ -139,8 +140,6 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
             duration: const Duration(seconds: 3),
           ),
         );
-
-
       } else {
         bool alreadyInRiwayat = _riwayatData.any(
           (r) => r["title"] == item["title"] && r["desc"] == item["desc"],
@@ -253,7 +252,8 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           )
           .toList();
     } else {
-      final List<Map<String, dynamic>> historyFromProvider = notaProvider.riwayatNotaDinasList
+      final List<Map<String, dynamic>> historyFromProvider = notaProvider
+          .riwayatNotaDinasList
           .map(
             (model) => {
               "idnota": model.idnota,
@@ -537,44 +537,79 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                           const SizedBox(height: 12),
                         ],
                         Expanded(
-                          child: notaProvider.isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : notaProvider.errorMessage != null
-                              ? Center(
-                                  child: Text(
-                                    notaProvider.errorMessage!,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.red,
-                                      fontSize: 14,
+                          child: RefreshIndicator(
+                            onRefresh: () async {
+                              final authProv = Provider.of<AuthProvider>(
+                                context,
+                                listen: false,
+                              );
+                              final userId =
+                                  authProv.user?.userId ??
+                                  '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
+                              final groupId =
+                                  authProv.user?.group.toString() ?? '6';
+                              if (_selectedTabIndex == 0) {
+                                await Provider.of<NotaDinasProvider>(
+                                  context,
+                                  listen: false,
+                                ).fetchBelumDiperiksa(userId, groupId);
+                              } else {
+                                await Provider.of<NotaDinasProvider>(
+                                  context,
+                                  listen: false,
+                                ).fetchSudahDiperiksa(userId, groupId);
+                              }
+                            },
+                            child: notaProvider.isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : notaProvider.errorMessage != null
+                                ? Center(
+                                    child: Text(
+                                      notaProvider.errorMessage!,
+                                      style: GoogleFonts.inter(
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                      ),
                                     ),
-                                  ),
-                                )
-                              : currentList.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    !isPejabat
-                                        ? "Tidak ada Nota Dinas"
-                                        : "Tidak ada data ditemukan.",
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey,
-                                      fontSize: 14,
+                                  )
+                                : currentList.isEmpty
+                                ? ListView(
+                                    children: [
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                            0.3,
+                                      ),
+                                      Center(
+                                        child: Text(
+                                          !isPejabat
+                                              ? "Tidak ada Nota Dinas"
+                                              : "Tidak ada data ditemukan.",
+                                          style: GoogleFonts.inter(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 8,
                                     ),
+                                    itemCount: currentList.length,
+                                    itemBuilder: (context, index) {
+                                      final item = currentList[index];
+                                      return GestureDetector(
+                                        onTap: () => _handleCardTap(item),
+                                        child: _buildNotaCard(item),
+                                      );
+                                    },
                                   ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 8,
-                                  ),
-                                  itemCount: currentList.length,
-                                  itemBuilder: (context, index) {
-                                    final item = currentList[index];
-                                    return GestureDetector(
-                                      onTap: () => _handleCardTap(item),
-                                      child: _buildNotaCard(item),
-                                    );
-                                  },
-                                ),
+                          ),
                         ),
                       ],
                     ),
@@ -684,12 +719,7 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
                 ),
               ),
               if (_selectedTabIndex == 1 && data.containsKey("approvalStatus"))
-                _buildApprovalBadge(
-                  data["approvalStatus"],
-                  data["approvalBg"],
-                  data["approvalColor"],
-                  data["approvalIcon"],
-                ),
+                StatusBadgeWidget(status: data["approvalStatus"]),
             ],
           ),
           const SizedBox(height: 12),
@@ -766,36 +796,6 @@ class _DaftarNotaDinasScreenState extends State<DaftarNotaDinasScreen> {
           fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
-      ),
-    );
-  }
-
-  Widget _buildApprovalBadge(
-    String text,
-    Color bgColor,
-    Color textColor,
-    IconData icon,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: textColor),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              color: textColor,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }

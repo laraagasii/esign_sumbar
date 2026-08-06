@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../custom_bottom_navbar.dart';
+import '../widgets/custom_bottom_navbar.dart';
 import '../services/spt_service.dart';
 
 class DetailRiwayatSptScreen extends StatefulWidget {
@@ -425,6 +425,26 @@ class _DetailRiwayatSptScreenState extends State<DetailRiwayatSptScreen> {
           const SizedBox(height: 10),
           _buildInfoRow("Keberangkatan", keberangkatan),
           const Divider(height: 24, thickness: 1),
+
+          Text(
+            "Perihal :",
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            perihal,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.justify,
+          ),
+          const SizedBox(height: 16),
 
           _buildInfoRow("Kendaraan", kendaraan),
           const SizedBox(height: 10),

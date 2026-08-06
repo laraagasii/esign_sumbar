@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:proyek_esign/custom_bottom_navbar.dart';
+import 'package:proyek_esign/widgets/custom_bottom_navbar.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 

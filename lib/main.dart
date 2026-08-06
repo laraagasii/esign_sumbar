@@ -8,11 +8,13 @@ import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/analisis_pengajuan_screen.dart';
 import 'package:proyek_esign/screens/riwayat_pengajuan_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/daftar_nota_dinas_screen.dart';
 import 'screens/detail_riwayat_nota_dinas_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/offline_screen.dart';
 
 void main() {
   // Wajib ditambahkan agar sistem native Flutter (seperti storage) siap sebelum menjalankan aplikasi
@@ -32,8 +34,40 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isOffline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check initial status
+    Connectivity().checkConnectivity().then((result) {
+      setState(() {
+        _isOffline = result.contains(ConnectivityResult.none);
+      });
+    });
+
+    // Listen for changes
+    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      setState(() {
+        _isOffline = result.contains(ConnectivityResult.none);
+      });
+    });
+  }
+
+  void _checkConnection() async {
+    final result = await Connectivity().checkConnectivity();
+    setState(() {
+      _isOffline = result.contains(ConnectivityResult.none);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +83,12 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
+      builder: (context, child) {
+        if (_isOffline) {
+          return OfflineScreen(onRetry: _checkConnection);
+        }
+        return child!;
+      },
       home: const AuthChecker(),
       routes: {
         '/login': (context) => const LoginScreen(),

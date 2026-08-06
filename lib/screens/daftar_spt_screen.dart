@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'detail_riwayat_spt_screen.dart';
 import 'detail_spt_screen.dart';
-import '../custom_bottom_navbar.dart';
-import 'package:proyek_esign/widgets/filter_spt_dialog.dart';
+import '../widgets/custom_bottom_navbar.dart';
+import '../widgets/filter_spt_dialog.dart';
+import '../widgets/status_badge_widget.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/spt_provider.dart';
@@ -128,9 +129,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
       "approvalBg": isApproved
           ? const Color(0xFFD3FBD4)
           : const Color(0xFFFFEBEE),
-      "approvalIcon": isApproved
-          ? Icons.check
-          : Icons.close,
+      "approvalIcon": isApproved ? Icons.check : Icons.close,
       "sekretarisStatus": result['status'],
       "note": result['note'] ?? "",
     };
@@ -484,36 +483,65 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                           const SizedBox(height: 12),
                         ],
                         Expanded(
-                          child: sptProv.isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : currentList.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    !isPejabat
-                                        ? "Tidak ada SPT"
-                                        : (sptProv.errorMessage != null
-                                              ? sptProv.errorMessage!
-                                              : "Tidak ada data ditemukan."),
-                                    style: GoogleFonts.inter(
-                                      color: Colors.grey,
-                                      fontSize: 14,
+                          child: RefreshIndicator(
+                            onRefresh: () async {
+                              final authProv = context.read<AuthProvider>();
+                              final userId =
+                                  authProv.user?.userId ??
+                                  '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e';
+                              if (_selectedTabIndex == 0) {
+                                await context.read<SptProvider>().fetchSptList(
+                                  id: userId,
+                                  status: 'NEW',
+                                );
+                              } else {
+                                await context
+                                    .read<SptProvider>()
+                                    .fetchSptHistory(id: userId);
+                              }
+                            },
+                            child: sptProv.isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : currentList.isEmpty
+                                ? ListView(
+                                    children: [
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                            0.3,
+                                      ),
+                                      Center(
+                                        child: Text(
+                                          !isPejabat
+                                              ? "Tidak ada SPT"
+                                              : (sptProv.errorMessage != null
+                                                    ? sptProv.errorMessage!
+                                                    : "Tidak ada data ditemukan."),
+                                          style: GoogleFonts.inter(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 8,
                                     ),
+                                    itemCount: currentList.length,
+                                    itemBuilder: (context, index) {
+                                      final item = currentList[index];
+                                      return GestureDetector(
+                                        onTap: () => _handleCardTap(item),
+                                        child: _buildSptCard(item),
+                                      );
+                                    },
                                   ),
-                                )
-                              : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 8,
-                                  ),
-                                  itemCount: currentList.length,
-                                  itemBuilder: (context, index) {
-                                    final item = currentList[index];
-                                    return GestureDetector(
-                                      onTap: () => _handleCardTap(item),
-                                      child: _buildSptCard(item),
-                                    );
-                                  },
-                                ),
+                          ),
                         ),
                       ],
                     ),
@@ -525,8 +553,6 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
         ],
       ),
 
-      // ✅ MEMANGGIL CUSTOM BOTTOM NAVBAR DI SINI
-      // Sesuaikan currentIndex berdasarkan representasi halaman ini (misal -1 jika tidak ada yang aktif)
       bottomNavigationBar: const CustomBottomNavBar(selectedIndex: -1),
     );
   }
@@ -626,7 +652,7 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
                 ),
               ),
               if (_selectedTabIndex == 1 && data["approvalStatus"] != null)
-                _buildApprovalStatusBadge(data["approvalStatus"].toString()),
+                StatusBadgeWidget(status: data["approvalStatus"].toString()),
             ],
           ),
           const SizedBox(height: 12),
@@ -705,63 +731,6 @@ class _DaftarSptScreenState extends State<DaftarSptScreen> {
           fontSize: 11,
           fontWeight: FontWeight.bold,
         ),
-      ),
-    );
-  }
-
-  Widget _buildApprovalStatusBadge(String status) {
-    Color bgColor;
-    Color textColor;
-    String displayText;
-    IconData icon;
-    final normalized = status.toLowerCase();
-
-    if (normalized.contains('belum diperiksa') ||
-        normalized.contains('surat tugas belum diperiksa') ||
-        normalized.contains('diproses') ||
-        normalized.contains('proses')) {
-      bgColor = const Color(0xFFFEF9C3);
-      textColor = const Color(0xFFD4A72C);
-      icon = Icons.access_time_rounded;
-      displayText = 'Proses';
-    } else if (normalized.contains('disetujui') ||
-        normalized.contains('setuju')) {
-      bgColor = const Color(0xFFD3FBD4);
-      textColor = const Color(0xFF125B2A);
-      icon = Icons.check;
-      displayText = 'Disetujui';
-    } else if (normalized.contains('ditolak') || normalized.contains('tolak')) {
-      bgColor = const Color(0xFFFFEBEE);
-      textColor = const Color(0xFFE53935);
-      icon = Icons.close;
-      displayText = 'Ditolak';
-    } else {
-      bgColor = Colors.grey.shade200;
-      textColor = Colors.grey.shade600;
-      icon = Icons.remove_done;
-      displayText = 'Proses';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: textColor),
-          const SizedBox(width: 4),
-          Text(
-            displayText,
-            style: GoogleFonts.inter(
-              color: textColor,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }

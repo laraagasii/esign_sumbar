@@ -85,7 +85,12 @@ class _DetailRiwayatPengajuanSptScreenState
   Widget build(BuildContext context) {
     final detail = widget.data['detail'] ?? {};
     final detailInfo = detail['detail_informasi'] ?? {};
-    final pengikut = detail['pengikut'] as List? ?? [];
+    final pengikutRaw = detail['pengikut'];
+    final pengikut = (pengikutRaw is List) 
+        ? pengikutRaw 
+        : (pengikutRaw != null && pengikutRaw.toString().trim().isNotEmpty 
+            ? [pengikutRaw.toString()] 
+            : []);
     
     String globalStatus = widget.data['status'] ?? 'PROSES';
     Color globalStatusBg = const Color(0xFFE5E7EB);
@@ -232,16 +237,6 @@ class _DetailRiwayatPengajuanSptScreenState
                                   "Keberangkatan",
                                   detailInfo['keberangkatan'] ?? '-',
                                 ),
-                                const SizedBox(height: 10),
-                                _buildInfoRow(
-                                  "Kendaraan",
-                                  detailInfo['kendaraan'] ?? '-',
-                                ),
-                                const SizedBox(height: 10),
-                                _buildInfoRow(
-                                  "Pembiayaan",
-                                  detailInfo['pembiayaan'] ?? '-',
-                                ),
                                 const Divider(height: 24, thickness: 1),
                                 Text(
                                   "Perihal :",
@@ -253,12 +248,23 @@ class _DetailRiwayatPengajuanSptScreenState
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  detailInfo['perihal'] ?? widget.data['maksud'] ?? '-',
+                                  widget.data['maksud_spt'] ?? detailInfo['maksud_spt'] ?? detailInfo['perihal'] ?? widget.data['maksud'] ?? '-',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.grey.shade600,
                                     height: 1.4,
                                   ),
+                                  textAlign: TextAlign.justify,
+                                ),
+                                const SizedBox(height: 16),
+                                _buildInfoRow(
+                                  "Kendaraan",
+                                  detailInfo['kendaraan'] ?? '-',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildInfoRow(
+                                  "Pembiayaan",
+                                  detailInfo['pembiayaan'] ?? '-',
                                 ),
                               ],
                             ),

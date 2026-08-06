@@ -4,10 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class DetailRiwayatPengajuanNodinScreen extends StatefulWidget {
   final Map<String, dynamic> data;
 
-  const DetailRiwayatPengajuanNodinScreen({
-    super.key,
-    required this.data,
-  });
+  const DetailRiwayatPengajuanNodinScreen({super.key, required this.data});
 
   @override
   State<DetailRiwayatPengajuanNodinScreen> createState() =>
@@ -21,12 +18,14 @@ class _DetailRiwayatPengajuanNodinScreenState
   @override
   void initState() {
     super.initState();
-    _riwayatList = _mapRiwayatPemeriksaan(widget.data['detail']?['riwayat_pemeriksaan']);
+    _riwayatList = _mapRiwayatPemeriksaan(
+      widget.data['detail']?['riwayat_pemeriksaan'],
+    );
   }
 
   List<Map<String, dynamic>> _mapRiwayatPemeriksaan(dynamic riwayatData) {
     if (riwayatData == null || riwayatData is! List) return [];
-    
+
     return riwayatData.map<Map<String, dynamic>>((item) {
       String status = item['status_code'] ?? 'MENUNGGU';
       String statusLabel = item['status_label'] ?? 'Menunggu';
@@ -36,7 +35,8 @@ class _DetailRiwayatPengajuanNodinScreenState
       Color iconBg;
       Color iconColor;
 
-      if (status.toUpperCase() == 'DISETUJUI' || status.toUpperCase() == 'DIPERIKSA') {
+      if (status.toUpperCase() == 'DISETUJUI' ||
+          status.toUpperCase() == 'DIPERIKSA') {
         statusBg = const Color(0xFFD3FBD4);
         statusColor = const Color(0xFF125B2A);
         icon = Icons.check;
@@ -88,8 +88,13 @@ class _DetailRiwayatPengajuanNodinScreenState
   Widget build(BuildContext context) {
     final detail = widget.data['detail'] ?? {};
     final detailInfo = detail['detail_informasi'] ?? {};
-    final pengikut = detail['pengikut'] as List? ?? [];
-    
+    final pengikutRaw = detail['pengikut'];
+    final pengikut = (pengikutRaw is List)
+        ? pengikutRaw
+        : (pengikutRaw != null && pengikutRaw.toString().trim().isNotEmpty
+              ? [pengikutRaw.toString()]
+              : []);
+
     String globalStatus = widget.data['status'] ?? 'PROSES';
     Color globalStatusBg = const Color(0xFFE5E7EB);
     Color globalStatusColor = const Color(0xFF132F53);
@@ -218,12 +223,12 @@ class _DetailRiwayatPengajuanNodinScreenState
                                   detailInfo['pemeriksa'] ?? '-',
                                 ),
                                 const SizedBox(height: 10),
-                                _buildInfoRow(
-                                  "OPD",
-                                  detailInfo['opd'] ?? '-',
-                                ),
+                                _buildInfoRow("OPD", detailInfo['opd'] ?? '-'),
                                 const SizedBox(height: 10),
-                                _buildInfoRow("Tujuan", detailInfo['tujuan'] ?? '-'),
+                                _buildInfoRow(
+                                  "Tujuan",
+                                  detailInfo['tujuan'] ?? '-',
+                                ),
                                 const SizedBox(height: 10),
                                 _buildInfoRow(
                                   "Tanggal Pelaksanaan",
@@ -240,7 +245,9 @@ class _DetailRiwayatPengajuanNodinScreenState
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  detailInfo['perihal'] ?? widget.data['maksud'] ?? '-',
+                                  detailInfo['perihal'] ??
+                                      widget.data['maksud'] ??
+                                      '-',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.grey.shade600,
@@ -271,7 +278,8 @@ class _DetailRiwayatPengajuanNodinScreenState
                                   )
                                 : ListView.builder(
                                     shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     itemCount: pengikut.length,
                                     itemBuilder: (context, index) {
                                       final p = pengikut[index];
@@ -400,7 +408,7 @@ class _DetailRiwayatPengajuanNodinScreenState
 
   Widget _buildMemberCard(String name, String badge, String role) {
     bool isBatal = badge.toUpperCase() == 'TIDAK IKUT';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
@@ -425,7 +433,9 @@ class _DetailRiwayatPengajuanNodinScreenState
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isBatal ? const Color(0xFFE53935) : const Color(0xFF132F53),
+                    color: isBatal
+                        ? const Color(0xFFE53935)
+                        : const Color(0xFF132F53),
                   ),
                 ),
                 const SizedBox(height: 2),

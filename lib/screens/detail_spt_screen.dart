@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../custom_bottom_navbar.dart';
+import '../widgets/custom_bottom_navbar.dart';
 import '../services/spt_service.dart';
 import '../widgets/pin_signature_dialog.dart';
 import '../widgets/rejection_dialog.dart';
@@ -153,7 +153,8 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
   @override
   Widget build(BuildContext context) {
     final haveTteVal = _detailData?['have_tte'];
-    final isTte = haveTteVal == '1' || haveTteVal == 'true' || haveTteVal == true;
+    final isTte =
+        haveTteVal == '1' || haveTteVal == 'true' || haveTteVal == true;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -375,18 +376,20 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
   }
 
   Widget _buildDetailInformasiSection() {
+    final detailInfo = _detailData?['detail']?['detail_informasi'] ?? {};
+
     return _buildSectionCard(
       title: "Detail Informasi",
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoRow("Pemeriksa", "Kepala Bidang Siber dan Sandi"),
+          _buildInfoRow("Pemeriksa", detailInfo['pemeriksa'] ?? '-'),
           const SizedBox(height: 10),
-          _buildInfoRow("OPD", "Dinas Komunikasi, Informatika, dan Statistika"),
+          _buildInfoRow("OPD", detailInfo['opd'] ?? '-'),
           const SizedBox(height: 10),
-          _buildInfoRow("Tujuan", "Padang"),
+          _buildInfoRow("Tujuan", detailInfo['tujuan'] ?? '-'),
           const SizedBox(height: 10),
-          _buildInfoRow("Keberangkatan", "08 - 10 Agustus 2024"),
+          _buildInfoRow("Keberangkatan", detailInfo['keberangkatan'] ?? '-'),
 
           const Divider(height: 24, thickness: 1),
 
@@ -400,7 +403,11 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            "Permohonan persetujuan melaksanakan perjalanan dinas dalam kota dalam rangka memfasilitasi pembuatan Tanda Tangan Elektronik (TTE) untuk seluruh ASN Sekretariat Daerah Sumatera Barat (Biro Administrasi Pembangunan, Biro Organisasi, Biro Umum dan Biro Administrasi dan Pimpinan).",
+            widget.sptItem['maksud_spt'] ??
+                detailInfo['maksud_spt'] ??
+                detailInfo['perihal'] ??
+                widget.sptItem['maksud'] ??
+                '-',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: Colors.grey.shade600,
@@ -410,55 +417,47 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
           ),
           const SizedBox(height: 16),
 
-
-          _buildInfoRow("Kendaraan", "Kendaraan Dinas /BA 1241 HJ"),
+          _buildInfoRow("Kendaraan", detailInfo['kendaraan'] ?? '-'),
           const SizedBox(height: 10),
-          _buildInfoRow(
-            "Pembiayaan",
-            "2.16.011.05.0006 /\nPenyelenggaraan Rapat Koordinasi dan Konsultasi SKPD",
-          ),
+          _buildInfoRow("Pembiayaan", detailInfo['pembiayaan'] ?? '-'),
         ],
       ),
     );
   }
 
   Widget _buildPengikutSection() {
+    final pengikutRaw = _detailData?['detail']?['pengikut'];
+    final pengikut = (pengikutRaw is List)
+        ? pengikutRaw
+        : (pengikutRaw != null && pengikutRaw.toString().trim().isNotEmpty
+              ? [pengikutRaw.toString()]
+              : []);
+
     return _buildSectionCard(
-      title: "Pengikut (6)",
-      child: Column(
-        children: [
-          _buildPengikutCard(
-            name: "Eko Faisal, S.Kom.,M.M.",
-            nip: "19730523 1234256 2 004",
-            role: "Kepala Bidang Aplikasi dan Informatika",
-          ),
-          _buildPengikutCard(
-            name: "Boby Charma, S.Kom.",
-            nip: "19830523 1234256 2 004",
-            role: "Kepala Seksi Tata Kelola Keamanan Siber dan Sandi",
-          ),
-          _buildPengikutCard(
-            name: "David Rainir Pratama, S.Kom.",
-            nip: "19430523 1234256 2 004",
-            role: "Pengadministrasi Umum",
-          ),
-          _buildPengikutCard(
-            name: "Andry Kurniawan, S.Kom",
-            nip: "19430523 1234256 2 004",
-            role: "Pranata Komputer",
-          ),
-          _buildPengikutCard(
-            name: "Alimir",
-            nip: "19430523 1234256 2 004",
-            role: "Pengadministrasi Umum",
-          ),
-          _buildPengikutCard(
-            name: "Fajri Kurniawan",
-            nip: "19430523 1234256 2 004",
-            role: "Tim IT",
-          ),
-        ],
-      ),
+      title: "Pengikut (${pengikut.length})",
+      child: pengikut.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Text(
+                  "Tidak ada pengikut.",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey.shade500,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            )
+          : Column(
+              children: pengikut.map((p) {
+                return _buildPengikutCard(
+                  name: p['nama'] ?? 'Tanpa Nama',
+                  nip: p['nip'] ?? '-',
+                  role: p['jabatan'] ?? '-',
+                );
+              }).toList(),
+            ),
     );
   }
 
@@ -851,7 +850,7 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
         return ApprovalDialog(
           onSubmit: (notes) {
             Navigator.pop(dialogContext); // Tutup dialog catatan
-            
+
             if (isTte) {
               showDialog(
                 context: context,
@@ -951,8 +950,6 @@ class _DetailSptScreenState extends State<DetailSptScreen> {
           ? const Color(0xFF125B2A)
           : const Color(0xFFE53935),
     };
-
-
 
     Navigator.pop(context, {
       'status': isApprove ? 'Disetujui' : 'Ditolak',
