@@ -42,7 +42,7 @@ def predict_next_month(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"
     model_spt = load_model(f'model_spt_pegawai_{pegawai}.json')
     
     if not model_nodin or not model_spt:
-        return {"error": "Model AI belum dilatih. Jalankan train_model.py terlebih dahulu."}
+        return {"error": "Model AI belum lengkap. Harap latih model menggunakan Colab_AI_Training.ipynb dan upload file JSON nya ke folder ai_backend."}
         
     # Buat dataframe untuk 30 hari ke depan
     future = model_nodin.make_future_dataframe(periods=30)
