@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
-from prophet.serialize import model_from_json
+import pickle
 import json
 import os
 from datetime import datetime, timedelta
@@ -26,8 +26,8 @@ def load_model(filename):
     path = os.path.join(current_dir, filename)
     if not os.path.exists(path):
         return None
-    with open(path, 'r') as f:
-        return model_from_json(json.load(f))
+    with open(path, 'rb') as f:
+        return pickle.load(f)
 
 @app.get("/")
 def home():
@@ -38,36 +38,34 @@ def predict_next_month(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"
     """
     Memprediksi jumlah Nodin dan SPT untuk 30 hari ke depan (bulan depan).
     """
-    model_nodin = load_model(f'model_nodin_pegawai_{pegawai}.json')
-    model_spt = load_model(f'model_spt_pegawai_{pegawai}.json')
+    model_nodin = load_model(f'model_sarima_nodin_pegawai_{pegawai}.pkl')
+    model_spt = load_model(f'model_sarima_spt_pegawai_{pegawai}.pkl')
     
     if not model_nodin or not model_spt:
-        return {"error": "Model AI belum lengkap. Harap latih model menggunakan Colab_AI_Training.ipynb dan upload file JSON nya ke folder ai_backend."}
+        return {"error": "Model AI belum lengkap. Harap latih model menggunakan Colab_AI_Training.ipynb dan upload file .pkl nya ke folder ai_backend."}
         
-    # Buat dataframe untuk 30 hari ke depan
-    future = model_nodin.make_future_dataframe(periods=30)
+    # Prediksi 30 hari ke depan dengan SARIMA
+    future_nodin_values = model_nodin.forecast(steps=30)
+    future_spt_values = model_spt.forecast(steps=30)
     
-    # Prediksi
-    forecast_nodin = model_nodin.predict(future)
-    forecast_spt = model_spt.predict(future)
-    
-    # Ambil 30 baris terakhir (yang merupakan masa depan)
-    future_nodin = forecast_nodin.tail(30)
-    future_spt = forecast_spt.tail(30)
-    
-    # Hitung total prediksi (yhat)
-    total_nodin_pred = max(0, int(future_nodin['yhat'].sum()))
-    total_spt_pred = max(0, int(future_spt['yhat'].sum()))
+    # Hitung total prediksi
+    total_nodin_pred = max(0, int(sum(future_nodin_values)))
+    total_spt_pred = max(0, int(sum(future_spt_values)))
     
     # Detail harian
     daily_details = []
+    start_date = datetime.now()
     for i in range(30):
-        row_n = future_nodin.iloc[i]
-        row_s = future_spt.iloc[i]
+        current_date = start_date + timedelta(days=i)
+        
+        # future_nodin_values dari statsmodels biasanya berbentuk pandas Series, sehingga bisa diakses dengan iloc
+        val_nodin = future_nodin_values.iloc[i] if hasattr(future_nodin_values, 'iloc') else future_nodin_values[i]
+        val_spt = future_spt_values.iloc[i] if hasattr(future_spt_values, 'iloc') else future_spt_values[i]
+        
         daily_details.append({
-            "tanggal": row_n['ds'].strftime('%Y-%m-%d'),
-            "prediksi_nodin": max(0, int(row_n['yhat'])),
-            "prediksi_spt": max(0, int(row_s['yhat']))
+            "tanggal": current_date.strftime('%Y-%m-%d'),
+            "prediksi_nodin": max(0, int(val_nodin)),
+            "prediksi_spt": max(0, int(val_spt))
         })
         
     return {
