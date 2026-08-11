@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFFF5F6F8),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
           ),
           child: TextField(
             obscureText: isPassword,
@@ -179,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF668EB9).withOpacity(1.0),
+                    color: const Color(0xFF668EB9).withValues(alpha: 1.0),
                     blurRadius: 50,
                     spreadRadius: 5,
                     offset: const Offset(0, 15),

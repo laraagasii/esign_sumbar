@@ -100,7 +100,7 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.12),
+                                color: Colors.black.withValues(alpha: 0.12),
                                 blurRadius: 25,
                                 spreadRadius: 0,
                                 offset: const Offset(0, -8),
@@ -190,7 +190,7 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.09),
+                          color: Colors.black.withValues(alpha: 0.09),
                           blurRadius: 5,
                           offset: const Offset(0, 2),
                         ),

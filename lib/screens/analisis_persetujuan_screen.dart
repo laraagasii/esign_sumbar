@@ -196,7 +196,7 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.09),
+                          color: Colors.black.withValues(alpha: 0.09),
                           blurRadius: 5,
                           offset: const Offset(0, 2),
                         ),
@@ -849,8 +849,8 @@ class LineChartPainter extends CustomPainter {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFF3B82F6).withOpacity(0.13),
-            const Color(0xFF3B82F6).withOpacity(0.01),
+            const Color(0xFF3B82F6).withValues(alpha: 0.13),
+            const Color(0xFF3B82F6).withValues(alpha: 0.01),
           ],
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
     );

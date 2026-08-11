@@ -181,7 +181,7 @@ class _DetailRiwayatPengajuanNodinScreenState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 25,
                           offset: const Offset(0, -8),
                         ),
@@ -355,7 +355,7 @@ class _DetailRiwayatPengajuanNodinScreenState
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -578,7 +578,7 @@ class _DetailRiwayatPengajuanNodinScreenState
               Container(
                 width: 2,
                 height: 140,
-                color: const Color(0xFF828282).withOpacity(0.3),
+                color: const Color(0xFF828282).withValues(alpha: 0.3),
                 margin: const EdgeInsets.symmetric(vertical: 4),
               ),
           ],
