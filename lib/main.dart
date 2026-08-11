@@ -15,13 +15,13 @@ import 'screens/daftar_nota_dinas_screen.dart';
 import 'screens/detail_riwayat_nota_dinas_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/offline_screen.dart';
+import 'screens/splash_screen.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  // Wajib ditambahkan agar sistem native Flutter (seperti storage) siap sebelum menjalankan aplikasi
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables dari file .env
   await dotenv.load(fileName: ".env");
 
@@ -60,7 +60,9 @@ class _MyAppState extends State<MyApp> {
     });
 
     // Listen for changes
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+    Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> result,
+    ) {
       setState(() {
         _isOffline = result.contains(ConnectivityResult.none);
       });
@@ -94,7 +96,7 @@ class _MyAppState extends State<MyApp> {
         }
         return child!;
       },
-      home: const AuthChecker(),
+      home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
@@ -109,56 +111,6 @@ class _MyAppState extends State<MyApp> {
             ),
         '/profile': (context) => const ProfileScreen(),
       },
-    );
-  }
-}
-
-class AuthChecker extends StatefulWidget {
-  const AuthChecker({super.key});
-
-  @override
-  State<AuthChecker> createState() => _AuthCheckerState();
-}
-
-class _AuthCheckerState extends State<AuthChecker> {
-  @override
-  void initState() {
-    super.initState();
-    _checkStatusLogin();
-  }
-
-  Future<void> _checkStatusLogin() async {
-    // 1. Ambil provider SEBELUM ada perintah await biar Flutter nggak ngomel
-    final authProv = context.read<AuthProvider>();
-
-    // 2. Buka "brankas" memori HP
-    final prefs = await SharedPreferences.getInstance();
-
-    // 3. Cek apakah ada data sesi.
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-    // Kasih delay dikit biar transisinya lebih smooth (opsional)
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    // 4. Arahkan rute sesuai status
-    if (isLoggedIn) {
-      // Panggil fungsi checkLoginStatus() yang ada di AuthProvider milikmu
-      await authProv.checkLoginStatus();
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        // Ini akan jadi Splash Screen sementara (animasi loading muter)
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 }
