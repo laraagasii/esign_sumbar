@@ -31,14 +31,14 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
   }
 
   Future<void> _fetchAiData() async {
-    final groupId = Provider.of<AuthProvider>(context, listen: false).user?.group.toString() ?? '6';
+    final pegawaiId = Provider.of<AuthProvider>(context, listen: false).user?.pegawai ?? 'a4adb04d8392abc79d52ea247fabd8348b97a78a';
     final service = AiAnalyticService();
     try {
       final results = await Future.wait([
-        service.fetchPrediction(groupId),
-        service.fetchWeeklyPattern(groupId),
-        service.fetchMonthlyTrend(groupId),
-        service.fetchSummary(groupId),
+        service.fetchPrediction(pegawaiId),
+        service.fetchWeeklyPattern(pegawaiId),
+        service.fetchMonthlyTrend(pegawaiId),
+        service.fetchSummary(pegawaiId),
       ]);
       if (mounted) {
         setState(() {
@@ -271,10 +271,6 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
   }
 
   Widget _buildRingkasanSection() {
-    final bool isPejabat =
-        Provider.of<AuthProvider>(context, listen: false).user?.isPejabat ??
-            false;
-
     if (_isLoading) {
       return Container(
         height: 100,
@@ -321,25 +317,25 @@ class _AnalisisPersetujuanScreenState extends State<AnalisisPersetujuanScreen> {
           Row(
             children: [
               _buildStatCard(
-                isPejabat ? totalMasuk : '0',
+                totalMasuk,
                 'Surat Masuk',
                 const Color(0xFF3B82F6),
                 const Color(0xFFEFF6FF),
               ),
               _buildStatCard(
-                isPejabat ? totalSetuju : '0',
+                totalSetuju,
                 'Disetujui',
                 const Color(0xFF125B2A),
                 const Color(0xFFD3FBD4),
               ),
               _buildStatCard(
-                isPejabat ? totalBerjalan : '0',
+                totalBerjalan,
                 'Berjalan',
                 const Color(0xFFD4A72C),
                 const Color(0xFFFEF9C3),
               ),
               _buildStatCard(
-                isPejabat ? totalTolak : '0',
+                totalTolak,
                 'Ditolak',
                 const Color(0xFFE53935),
                 const Color(0xFFFFEBEE),

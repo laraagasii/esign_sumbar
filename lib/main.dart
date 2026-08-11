@@ -16,9 +16,14 @@ import 'screens/detail_riwayat_nota_dinas_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/offline_screen.dart';
 
-void main() {
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+void main() async {
   // Wajib ditambahkan agar sistem native Flutter (seperti storage) siap sebelum menjalankan aplikasi
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables dari file .env
+  await dotenv.load(fileName: ".env");
 
   runApp(
     // Daftarkan Provider di akar aplikasi
