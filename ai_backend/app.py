@@ -34,12 +34,12 @@ def home():
     return {"message": "AI Backend berjalan normal. Kunjungi /docs untuk melihat dokumentasi API."}
 
 @app.get("/api/predict")
-def predict_next_month(group: int = 6):
+def predict_next_month(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"):
     """
     Memprediksi jumlah Nodin dan SPT untuk 30 hari ke depan (bulan depan).
     """
-    model_nodin = load_model(f'model_nodin_group_{group}.json')
-    model_spt = load_model(f'model_spt_group_{group}.json')
+    model_nodin = load_model(f'model_nodin_pegawai_{pegawai}.json')
+    model_spt = load_model(f'model_spt_pegawai_{pegawai}.json')
     
     if not model_nodin or not model_spt:
         return {"error": "Model AI belum dilatih. Jalankan train_model.py terlebih dahulu."}
@@ -80,12 +80,12 @@ def predict_next_month(group: int = 6):
     }
 
 @app.get("/api/analytics/weekly_pattern")
-def weekly_pattern(group: int = 6):
+def weekly_pattern(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"):
     """
     Menganalisis pola rata-rata pengajuan per hari dalam seminggu berdasarkan data historis.
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(current_dir, f'historical_data_group_{group}.csv')
+    data_path = os.path.join(current_dir, f'historical_data_pegawai_{pegawai}.csv')
     
     if not os.path.exists(data_path):
         return {"error": "Data historis tidak ditemukan."}
@@ -111,12 +111,12 @@ def weekly_pattern(group: int = 6):
     return {"pola_mingguan": pattern}
 
 @app.get("/api/analytics/monthly_trend")
-def monthly_trend(group: int = 6):
+def monthly_trend(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"):
     """
     Menganalisis tren total pengajuan (Nodin + SPT) per bulan selama 6 bulan terakhir.
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(current_dir, f'historical_data_group_{group}.csv')
+    data_path = os.path.join(current_dir, f'historical_data_pegawai_{pegawai}.csv')
     
     if not os.path.exists(data_path):
         return {"error": "Data historis tidak ditemukan."}
@@ -145,12 +145,12 @@ def monthly_trend(group: int = 6):
     return {"tren_bulanan": trend[-6:]}
 
 @app.get("/api/analytics/summary")
-def summary_bulan_ini(group: int = 6):
+def summary_bulan_ini(pegawai: str = "a4adb04d8392abc79d52ea247fabd8348b97a78a"):
     """
     Mengembalikan ringkasan data 'Bulan Ini' untuk Nodin & SPT.
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_path = os.path.join(current_dir, f'historical_data_group_{group}.csv')
+    data_path = os.path.join(current_dir, f'historical_data_pegawai_{pegawai}.csv')
     
     if not os.path.exists(data_path):
         return {"error": "Data historis tidak ditemukan."}

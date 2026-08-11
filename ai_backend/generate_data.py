@@ -6,15 +6,13 @@ import os
 def generate_synthetic_data(num_days=365):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Konfigurasi beban per group
-    group_configs = {
-        1: {'base_nodin': 0, 'base_spt': 0, 'desc': 'Staff/PPTK (Hanya pengajuan)'},
-        2: {'base_nodin': 2, 'base_spt': 2, 'desc': 'Kasubbag'},
-        3: {'base_nodin': 5, 'base_spt': 8, 'desc': 'Kabid'},
-        4: {'base_nodin': 8, 'base_spt': 12, 'desc': 'Sekretaris Dinas'},
-        5: {'base_nodin': 12, 'base_spt': 15, 'desc': 'Asekda'},
-        6: {'base_nodin': 20, 'base_spt': 25, 'desc': 'Sekda'},
-        7: {'base_nodin': 0, 'base_spt': 0, 'desc': 'Gubernur / Wagub (Tidak menyetujui)'},
+    # Konfigurasi beban per pegawai
+    pegawai_configs = {
+        '1a2394378ddbb186f6f622e8b3c872ee6872623f': {'base_nodin': 0, 'base_spt': 0, 'desc': 'staff'},
+        '54a8b8362ebcb16af08c8acf33a2d8d5f335cf5e': {'base_nodin': 3, 'base_spt': 3, 'desc': 'pptk'},
+        'ae914d89870f2450ca4c6ca9f34e3080317546e5': {'base_nodin': 5, 'base_spt': 8, 'desc': 'kabid'},
+        '8018dcd81ff171aa9629c08d95422c20e45e307b': {'base_nodin': 12, 'base_spt': 15, 'desc': 'asekda'},
+        'a4adb04d8392abc79d52ea247fabd8348b97a78a': {'base_nodin': 20, 'base_spt': 25, 'desc': 'sekda'},
     }
             
     end_date = datetime.now().date()
@@ -23,7 +21,7 @@ def generate_synthetic_data(num_days=365):
     
     np.random.seed(42)
     
-    for group_id, config in group_configs.items():
+    for pegawai_id, config in pegawai_configs.items():
         data = []
         base_nodin = config['base_nodin']
         base_spt = config['base_spt']
@@ -65,9 +63,10 @@ def generate_synthetic_data(num_days=365):
             
         df = pd.DataFrame(data)
         
-        final_csv_path = os.path.join(current_dir, f'historical_data_group_{group_id}.csv')
+        final_csv_path = os.path.join(current_dir, f'historical_data_pegawai_{pegawai_id}.csv')
         df.to_csv(final_csv_path, index=False)
-        print(f"Berhasil membuat dataset untuk Group {group_id} ({config['desc']}) -> {final_csv_path}")
+        print(f"Berhasil membuat dataset untuk {config['desc']} -> {final_csv_path}")
 
 if __name__ == '__main__':
     generate_synthetic_data(365)
+    
