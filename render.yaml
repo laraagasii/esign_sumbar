@@ -1,6 +1,7 @@
 services:
   - type: web
     name: ai-backend-esign
+    plan: free
     env: python
     rootDir: ai_backend
     buildCommand: "pip install -r requirements.txt"
