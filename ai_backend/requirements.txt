@@ -4,3 +4,5 @@ prophet
 fastapi
 uvicorn
 requests
+scikit-learn
+joblib
