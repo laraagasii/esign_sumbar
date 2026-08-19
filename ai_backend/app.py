@@ -41,10 +41,10 @@ try:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_file_path = os.path.join(current_dir, MODEL_PATH)
     eta_model = joblib.load(model_file_path)
-    print("✅ Model ETA Asli (real_eta_model.pkl) berhasil diload.")
+    print("Model ETA Asli (real_eta_model.pkl) berhasil diload.")
 except Exception as e:
     eta_model = None
-    print(f"⚠️ Peringatan: Model ETA tidak ditemukan. Pastikan file real_eta_model.pkl ada di folder ai_backend. Error: {e}")
+    print(f"Peringatan: Model ETA tidak ditemukan. Pastikan file real_eta_model.pkl ada di folder ai_backend. Error: {e}")
 
 # ==========================================
 # 3. ENDPOINTS

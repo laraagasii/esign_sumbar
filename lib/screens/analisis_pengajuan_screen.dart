@@ -8,6 +8,7 @@ import 'package:proyek_esign/widgets/filter_analitik_dialog.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AnalisisPengajuanScreen extends StatefulWidget {
   const AnalisisPengajuanScreen({super.key});
@@ -47,16 +48,17 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
     });
 
     try {
-      final String jsonString =
-          await rootBundle.loadString('assets/riwayat_pengajuan.json');
+      final String jsonString = await rootBundle.loadString(
+        'assets/riwayat_pengajuan.json',
+      );
       final jsonData = json.decode(jsonString);
 
-      final nodinList =
-          (jsonData['data']['nota_dinas'] as List).cast<Map<String, dynamic>>();
-      final sptList =
-          (jsonData['data']['spt'] as List).cast<Map<String, dynamic>>();
+      final nodinList = (jsonData['data']['nota_dinas'] as List)
+          .cast<Map<String, dynamic>>();
+      final sptList = (jsonData['data']['spt'] as List)
+          .cast<Map<String, dynamic>>();
 
-      int _kategoriFromTipePd(String tipePd) {
+      int kategoriFromTipePd(String tipePd) {
         switch (tipePd.toUpperCase()) {
           case 'DK':
             return 0;
@@ -70,7 +72,7 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
       }
 
       List<Map<String, dynamic>> prosesItems = [];
-      
+
       for (final item in nodinList) {
         if (item['status'] == 'PROSES') {
           prosesItems.add({'item': item, 'tipeDoc': 0});
@@ -92,23 +94,27 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
       }
 
       List<Map<String, dynamic>> results = [];
-      final baseUrl = "http://localhost:8000/api/predict-eta"; // Gunakan 10.0.2.2 jika menggunakan emulator Android
+      final String envBase = dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:8000/api';
+      final String baseUrl = "$envBase/predict-eta";
 
       for (var p in prosesItems) {
         final found = p['item'];
         final tipeDoc = p['tipeDoc'];
         final tipePd = found['tipe_pd'] as String? ?? 'DD';
-        final jumlahPengikut = (found['detail']?['total_pengikut'] as int?) ?? 1;
-        
+        final jumlahPengikut =
+            (found['detail']?['total_pengikut'] as int?) ?? 1;
+
         // AMBIL TANGGAL PENGAJUAN DARI JSON
-        final String tglPengajuan = found['tgl_st'] ?? ''; 
-        
-        final title = '${tipeDoc == 0 ? 'Nota Dinas' : 'SPT'} - ${found['maksud'] ?? ''}';
-        final kategori = _kategoriFromTipePd(tipePd);
+        final String tglPengajuan = found['tgl_st'] ?? '';
+
+        final title =
+            '${tipeDoc == 0 ? 'Nota Dinas' : 'SPT'} - ${found['maksud'] ?? ''}';
+        final kategori = kategoriFromTipePd(tipePd);
 
         try {
           // GABUNGKAN PARAMETER TANGGAL KE DALAM URL API
-          String apiUrl = "$baseUrl?tipe_dokumen=$tipeDoc&jumlah_pengikut=$jumlahPengikut&kategori=$kategori";
+          String apiUrl =
+              "$baseUrl?tipe_dokumen=$tipeDoc&jumlah_pengikut=$jumlahPengikut&kategori=$kategori";
           if (tglPengajuan.isNotEmpty) {
             apiUrl += "&tanggal_pengajuan=$tglPengajuan";
           }
@@ -164,16 +170,25 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
       if (parts.length < 2) return null;
       final timeParts = parts[1].split(' ');
       if (timeParts.length < 4) return null;
-      
+
       final day = timeParts[0];
       final monthStr = timeParts[1].toLowerCase();
       final year = timeParts[2];
       final time = timeParts[3];
 
       const months = {
-        'januari': '01', 'februari': '02', 'maret': '03', 'april': '04',
-        'mei': '05', 'juni': '06', 'juli': '07', 'agustus': '08',
-        'september': '09', 'oktober': '10', 'november': '11', 'desember': '12'
+        'januari': '01',
+        'februari': '02',
+        'maret': '03',
+        'april': '04',
+        'mei': '05',
+        'juni': '06',
+        'juli': '07',
+        'agustus': '08',
+        'september': '09',
+        'oktober': '10',
+        'november': '11',
+        'desember': '12',
       };
       final month = months[monthStr] ?? '01';
       return DateTime.tryParse('$year-$month-${day.padLeft(2, '0')} $time');
@@ -184,9 +199,11 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
 
   Future<void> _loadData() async {
     try {
-      final String response = await rootBundle.loadString('assets/riwayat_pengajuan.json');
+      final String response = await rootBundle.loadString(
+        'assets/riwayat_pengajuan.json',
+      );
       final data = await json.decode(response);
-      
+
       final nodinList = data['data']['nota_dinas'] as List;
       final sptList = data['data']['spt'] as List;
 
@@ -201,35 +218,38 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
       int countSptFinished = 0;
 
       void processItem(Map<String, dynamic> item, bool isNodin) {
-        if (item['status'] == 'DISETUJUI') disetujui++;
-        else if (item['status'] == 'PROSES') berjalan++;
-        else if (item['status'] == 'DITOLAK') ditolak++;
+        if (item['status'] == 'DISETUJUI') {
+          disetujui++;
+        } else if (item['status'] == 'PROSES')
+          berjalan++;
+        else if (item['status'] == 'DITOLAK')
+          ditolak++;
 
         if (item['status'] == 'DISETUJUI' || item['status'] == 'DITOLAK') {
-           final tglStStr = item['tgl_st']; 
-           final tglSt = DateTime.tryParse(tglStStr ?? '');
-           
-           final riwayat = item['detail']['riwayat_pemeriksaan'] as List;
-           if (riwayat.isNotEmpty && tglSt != null) {
-              String lastWaktuStr = '';
-              for (var r in riwayat) {
-                 if (r['waktu'] != null && r['waktu'].toString().isNotEmpty) {
-                    lastWaktuStr = r['waktu'].toString();
-                    break;
-                 }
+          final tglStStr = item['tgl_st'];
+          final tglSt = DateTime.tryParse(tglStStr ?? '');
+
+          final riwayat = item['detail']['riwayat_pemeriksaan'] as List;
+          if (riwayat.isNotEmpty && tglSt != null) {
+            String lastWaktuStr = '';
+            for (var r in riwayat) {
+              if (r['waktu'] != null && r['waktu'].toString().isNotEmpty) {
+                lastWaktuStr = r['waktu'].toString();
+                break;
               }
-              final lastWaktu = _parseIndoDate(lastWaktuStr);
-              if (lastWaktu != null) {
-                 final diff = lastWaktu.difference(tglSt).inHours;
-                 if (isNodin) {
-                    totalNodinHours += diff > 0 ? diff : 0;
-                    countNodinFinished++;
-                 } else {
-                    totalSptHours += diff > 0 ? diff : 0;
-                    countSptFinished++;
-                 }
+            }
+            final lastWaktu = _parseIndoDate(lastWaktuStr);
+            if (lastWaktu != null) {
+              final diff = lastWaktu.difference(tglSt).inHours;
+              if (isNodin) {
+                totalNodinHours += diff > 0 ? diff : 0;
+                countNodinFinished++;
+              } else {
+                totalSptHours += diff > 0 ? diff : 0;
+                countSptFinished++;
               }
-           }
+            }
+          }
         }
       }
 
@@ -240,8 +260,12 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
         processItem(item, false);
       }
 
-      double avgNodin = countNodinFinished > 0 ? (totalNodinHours / countNodinFinished) / 24.0 : 0.0;
-      double avgSpt = countSptFinished > 0 ? (totalSptHours / countSptFinished) / 24.0 : 0.0;
+      double avgNodin = countNodinFinished > 0
+          ? (totalNodinHours / countNodinFinished) / 24.0
+          : 0.0;
+      double avgSpt = countSptFinished > 0
+          ? (totalSptHours / countSptFinished) / 24.0
+          : 0.0;
 
       if (mounted) {
         setState(() {
@@ -504,89 +528,89 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _isLoading 
-              ? const Center(child: CircularProgressIndicator()) 
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
               : Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF9EE),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nota Dinas',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFFFDB913),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF9EE),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Nota Dinas',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFFDB913),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$_totalNodin',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF0F2E59),
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Pengajuan',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey.shade500,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$_totalNodin',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF0F2E59),
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2F7FA),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'SPT',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF0088FF),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$_totalSpt',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF0F2E59),
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Pengajuan',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey.shade500,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        'Pengajuan',
-                        style: GoogleFonts.inter(
-                          color: Colors.grey.shade500,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF2F7FA),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'SPT',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF0088FF),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$_totalSpt',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF0F2E59),
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Pengajuan',
-                        style: GoogleFonts.inter(
-                          color: Colors.grey.shade500,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -617,79 +641,79 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : Row(
-            children: [
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 30,
-                    startDegreeOffset: -90,
-                    sections: isEmpty
-                        ? [
-                            PieChartSectionData(
-                              color: Colors.grey.shade200,
-                              value: 1,
-                              title: '',
-                              radius: 15,
-                            )
-                          ]
-                        : [
-                            if (_totalDisetujui > 0)
-                              PieChartSectionData(
-                                color: const Color(0xFFD3FBD4),
-                                value: _totalDisetujui.toDouble(),
-                                title: '',
-                                radius: 15,
-                              ),
-                            if (_totalBerjalan > 0)
-                              PieChartSectionData(
-                                color: const Color(0xFFFEF9C3),
-                                value: _totalBerjalan.toDouble(),
-                                title: '',
-                                radius: 15,
-                              ),
-                            if (_totalDitolak > 0)
-                              PieChartSectionData(
-                                color: const Color(0xFFFFEBEE),
-                                value: _totalDitolak.toDouble(),
-                                title: '',
-                                radius: 15,
-                              ),
-                          ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                child: Column(
                   children: [
-                    _buildStatusRow(
-                      'Disetujui',
-                      '$_totalDisetujui',
-                      const Color(0xFFD3FBD4),
-                      const Color(0xFF125B2A),
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: PieChart(
+                        PieChartData(
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 30,
+                          startDegreeOffset: -90,
+                          sections: isEmpty
+                              ? [
+                                  PieChartSectionData(
+                                    color: Colors.grey.shade200,
+                                    value: 1,
+                                    title: '',
+                                    radius: 15,
+                                  ),
+                                ]
+                              : [
+                                  if (_totalDisetujui > 0)
+                                    PieChartSectionData(
+                                      color: const Color(0xFFD3FBD4),
+                                      value: _totalDisetujui.toDouble(),
+                                      title: '',
+                                      radius: 15,
+                                    ),
+                                  if (_totalBerjalan > 0)
+                                    PieChartSectionData(
+                                      color: const Color(0xFFFEF9C3),
+                                      value: _totalBerjalan.toDouble(),
+                                      title: '',
+                                      radius: 15,
+                                    ),
+                                  if (_totalDitolak > 0)
+                                    PieChartSectionData(
+                                      color: const Color(0xFFFFEBEE),
+                                      value: _totalDitolak.toDouble(),
+                                      title: '',
+                                      radius: 15,
+                                    ),
+                                ],
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    _buildStatusRow(
-                      'Berjalan',
-                      '$_totalBerjalan',
-                      const Color(0xFFFEF9C3),
-                      const Color(0xFFD4A72C),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStatusRow(
-                      'Ditolak',
-                      '$_totalDitolak',
-                      const Color(0xFFFFEBEE),
-                      const Color(0xFFE53935),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _buildStatusRow(
+                            'Disetujui',
+                            '$_totalDisetujui',
+                            const Color(0xFFD3FBD4),
+                            const Color(0xFF125B2A),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildStatusRow(
+                            'Berjalan',
+                            '$_totalBerjalan',
+                            const Color(0xFFFEF9C3),
+                            const Color(0xFFD4A72C),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildStatusRow(
+                            'Ditolak',
+                            '$_totalDitolak',
+                            const Color(0xFFFFEBEE),
+                            const Color(0xFFE53935),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -766,77 +790,81 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Nota Dinas',
-                style: GoogleFonts.inter(
-                  color: const Color(0xFF0F2E59),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: _avgDurationNodin > 0 ? (_avgDurationNodin / 5.0).clamp(0.0, 1.0) : 0.0,
-                        backgroundColor: Colors.grey.shade100,
-                        color: const Color(0xFFFDE08B),
-                        minHeight: 8,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nota Dinas',
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF0F2E59),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${_avgDurationNodin.toStringAsFixed(1)} Hari',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF0F2E59),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: _avgDurationNodin > 0
+                                  ? (_avgDurationNodin / 5.0).clamp(0.0, 1.0)
+                                  : 0.0,
+                              backgroundColor: Colors.grey.shade100,
+                              color: const Color(0xFFFDE08B),
+                              minHeight: 8,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${_avgDurationNodin.toStringAsFixed(1)} Hari',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF0F2E59),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'SPT',
-                style: GoogleFonts.inter(
-                  color: const Color(0xFF0F2E59),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: _avgDurationSpt > 0 ? (_avgDurationSpt / 5.0).clamp(0.0, 1.0) : 0.0,
-                        backgroundColor: Colors.grey.shade100,
-                        color: const Color(0xFFBCE0FD),
-                        minHeight: 8,
+                    const SizedBox(height: 16),
+                    Text(
+                      'SPT',
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF0F2E59),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${_avgDurationSpt.toStringAsFixed(1)} Hari',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF0F2E59),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: _avgDurationSpt > 0
+                                  ? (_avgDurationSpt / 5.0).clamp(0.0, 1.0)
+                                  : 0.0,
+                              backgroundColor: Colors.grey.shade100,
+                              color: const Color(0xFFBCE0FD),
+                              minHeight: 8,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${_avgDurationSpt.toStringAsFixed(1)} Hari',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF0F2E59),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
         ],
       ),
     );
@@ -859,7 +887,11 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.auto_awesome, color: Color(0xFF0088FF), size: 20),
+                  const Icon(
+                    Icons.auto_awesome,
+                    color: Color(0xFF0088FF),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'AI Prediksi Selesai',
@@ -886,69 +918,75 @@ class _AnalisisPengajuanScreenState extends State<AnalisisPengajuanScreen> {
                   ),
                 )
               : _activePredictions.isEmpty
-                  ? Center(
-                      child: Text(
-                        "Tidak ada pengajuan berjalan saat ini",
-                        style: GoogleFonts.inter(
-                          color: Colors.grey.shade500,
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                        ),
+              ? Center(
+                  child: Text(
+                    "Tidak ada pengajuan berjalan saat ini",
+                    style: GoogleFonts.inter(
+                      color: Colors.grey.shade500,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                )
+              : Column(
+                  children: _activePredictions.map((prediksi) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F7FA),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFBCE0FD)),
                       ),
-                    )
-                  : Column(
-                      children: _activePredictions.map((prediksi) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF2F7FA),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFBCE0FD)),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.description_outlined,
+                              color: Color(0xFF0088FF),
+                              size: 16,
+                            ),
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  prediksi['title'],
+                                  style: GoogleFonts.inter(
+                                    color: const Color(0xFF0F2E59),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                child: const Icon(Icons.description_outlined, color: Color(0xFF0088FF), size: 16),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      prediksi['title'],
-                                      style: GoogleFonts.inter(
-                                        color: const Color(0xFF0F2E59),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      prediksi['is_error'] == false
-                                          ? 'Estimasi: ${prediksi['eta_label']}'
-                                          : 'Status: Berjalan (${prediksi['error_msg']})',
-                                      style: GoogleFonts.inter(
-                                        color: prediksi['is_error'] ? Colors.red : const Color(0xFF0088FF),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 6),
+                                Text(
+                                  prediksi['is_error'] == false
+                                      ? 'Estimasi: ${prediksi['eta_label']}'
+                                      : 'Status: Berjalan (${prediksi['error_msg']})',
+                                  style: GoogleFonts.inter(
+                                    color: prediksi['is_error']
+                                        ? Colors.red
+                                        : const Color(0xFF0088FF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      }).toList(),
-                    )
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
         ],
       ),
     );

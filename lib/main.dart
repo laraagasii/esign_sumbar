@@ -7,7 +7,6 @@ import 'package:proyek_esign/providers/spt_provider.dart';
 import 'package:proyek_esign/screens/analisis_persetujuan_screen.dart';
 import 'package:proyek_esign/screens/analisis_pengajuan_screen.dart';
 import 'package:proyek_esign/screens/riwayat_pengajuan_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
