@@ -309,7 +309,7 @@ class _RiwayatPengajuanNodinScreenState
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.12),
+                          color: Colors.black.withValues(alpha: 0.12),
                           blurRadius: 25,
                           spreadRadius: 0,
                           offset: const Offset(0, -8),
@@ -586,7 +586,7 @@ class _RiwayatPengajuanNodinScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 18,
             spreadRadius: 1,
             offset: const Offset(0, 6),
@@ -623,7 +623,7 @@ class _RiwayatPengajuanNodinScreenState
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: categoryColor.withOpacity(0.15),
+                  color: categoryColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

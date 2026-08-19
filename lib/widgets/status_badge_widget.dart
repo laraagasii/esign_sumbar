@@ -4,8 +4,8 @@ import '../utils/app_colors.dart';
 
 class StatusBadgeWidget extends StatelessWidget {
   final String status;
-  
-  const StatusBadgeWidget({Key? key, required this.status}) : super(key: key);
+
+  const StatusBadgeWidget({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -14,15 +14,21 @@ class StatusBadgeWidget extends StatelessWidget {
     IconData icon;
     final statusLower = status.toLowerCase();
 
-    if (statusLower.contains('disetujui') || statusLower.contains('diperiksa') || statusLower.contains('setuju')) {
+    if (statusLower.contains('disetujui') ||
+        statusLower.contains('diperiksa') ||
+        statusLower.contains('setuju')) {
       bgColor = AppColors.statusApprovedBg;
       textColor = AppColors.statusApprovedText;
       icon = Icons.check;
-    } else if (statusLower.contains('ditolak') || statusLower.contains('tolak')) {
+    } else if (statusLower.contains('ditolak') ||
+        statusLower.contains('tolak')) {
       bgColor = AppColors.statusRejectedBg;
       textColor = AppColors.statusRejectedText;
       icon = Icons.close;
-    } else if (statusLower.contains('belum') || statusLower.contains('proses') || statusLower.contains('diproses') || statusLower.contains('berjalan')) {
+    } else if (statusLower.contains('belum') ||
+        statusLower.contains('proses') ||
+        statusLower.contains('diproses') ||
+        statusLower.contains('berjalan')) {
       bgColor = AppColors.statusPendingBg;
       textColor = AppColors.statusPendingText;
       icon = Icons.access_time_rounded;
